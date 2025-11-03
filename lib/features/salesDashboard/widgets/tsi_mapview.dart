@@ -1,0 +1,772 @@
+import 'dart:math';
+import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/data/models/today_rout_visit_model.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/today_rout_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+
+class TsiMapview extends StatefulWidget {
+  const TsiMapview({Key? key}) : super(key: key);
+
+  @override
+  State<TsiMapview> createState() => _TsiMapviewState();
+}
+
+class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
+  late final AnimatedMapController _animatedMapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animatedMapController = AnimatedMapController(vsync: this);
+
+    // Fetch route data when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TodayRouteScheduleProvider>().fetchTodayRouteSchedule();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animatedMapController.dispose();
+    super.dispose();
+  }
+
+  double _calculateTotalDistance(List<LatLng> points) {
+    if (points.length < 2) return 0;
+    final distance = Distance();
+    double total = 0;
+    for (int i = 0; i < points.length - 1; i++) {
+      total += distance(points[i], points[i + 1]);
+    }
+    return total / 1000; // km
+  }
+
+  LatLngBounds _calculateBounds(List<LatLng> points) {
+    if (points.isEmpty) {
+      return LatLngBounds(
+        LatLng(23.0225, 72.5714),
+        LatLng(23.0225, 72.5714),
+      );
+    }
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (var point in points) {
+      minLat = min(minLat, point.latitude);
+      maxLat = max(maxLat, point.latitude);
+      minLng = min(minLng, point.longitude);
+      maxLng = max(maxLng, point.longitude);
+    }
+
+    // Add padding
+    final latPadding = (maxLat - minLat) * 0.2;
+    final lngPadding = (maxLng - minLng) * 0.2;
+
+    return LatLngBounds(
+      LatLng(minLat - latPadding, minLng - lngPadding),
+      LatLng(maxLat + latPadding, maxLng + lngPadding),
+    );
+  }
+
+  void _fitBounds(List<LatLng> points) {
+    if (points.isEmpty) return;
+
+    final bounds = _calculateBounds(points);
+
+    _animatedMapController.animatedFitCamera(
+      cameraFit: CameraFit.bounds(
+        bounds: bounds,
+        padding: const EdgeInsets.all(50),
+      ),
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+  Future<String> _getAddressFromLatLng(double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+
+        // Build a readable address
+        List<String> addressParts = [];
+
+        if (place.street != null && place.street!.isNotEmpty) {
+          addressParts.add(place.street!);
+        }
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+          addressParts.add(place.subLocality!);
+        }
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          addressParts.add(place.locality!);
+        }
+        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty) {
+          addressParts.add(place.administrativeArea!);
+        }
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+          addressParts.add(place.postalCode!);
+        }
+
+        return addressParts.isNotEmpty
+            ? addressParts.join(', ')
+            : "${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}";
+      }
+    } catch (e) {
+      print("Error getting address: $e");
+    }
+    return "${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}";
+  }
+
+  void _showVisitDetails(BuildContext context, CompletedUser user) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => FutureBuilder<String>(
+        future: () async {
+          if (user.latitude != null && user.longitude != null) {
+            try {
+              final lat = user.latitude is String
+                  ? double.parse(user.latitude as String)
+                  : user.latitude as double;
+              final lng = user.longitude is String
+                  ? double.parse(user.longitude as String)
+                  : user.longitude as double;
+              return await _getAddressFromLatLng(lat, lng);
+            } catch (e) {
+              return "Location unavailable";
+            }
+          }
+          return "Location unavailable";
+        }(),
+        builder: (context, snapshot) {
+          final locationText = snapshot.data ?? "Loading location...";
+
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.purple.shade50, Colors.white],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag handle
+                Container(
+                  height: 5,
+                  width: 50,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+
+                // Store icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.store_mall_directory,
+                    color: Colors.deepPurple,
+                    size: 32,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Name
+                Text(
+                  user.name ?? "Unknown",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 8),
+
+                // Type badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.deepPurple.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    user.type?.toUpperCase() ?? "N/A",
+                    style: const TextStyle(
+                      color: Colors.deepPurple,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+
+                // Info rows
+                _buildInfoRow(Icons.phone, "Mobile", user.mobileNo ?? "N/A"),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  Icons.location_on,
+                  "Location",
+                  locationText,
+                  // isLoading: snapshot.connectionState == ConnectionState.waiting,
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.purple.shade50,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: Colors.deepPurple),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Consumer<TodayRouteScheduleProvider>(
+        builder: (context, provider, child) {
+          // Loading state
+          if (provider.isLoading) {
+            return Stack(
+              children: [
+                const AppStatusBar(),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Loading route data...",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Error state
+          if (provider.errorMessage != null) {
+            return Stack(
+              children: [
+                const AppStatusBar(),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Failed to load route data",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          provider.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text("Retry"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () {
+                            provider.fetchTodayRouteSchedule();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Empty state
+          final completedUsers = provider.schedule?.data?.completedUsers ?? [];
+          if (completedUsers.isEmpty) {
+            return Stack(
+              children: [
+                const AppStatusBar(),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.map_outlined, size: 64, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No route data available",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Complete some visits to see the route",
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Convert API data to LatLng points
+          final routePoints = completedUsers
+              .where((user) => user.latitude != null && user.longitude != null)
+              .map((user) {
+            try {
+              // Handle both String and double types
+              final lat = user.latitude is String
+                  ? double.parse(user.latitude as String)
+                  : user.latitude as double;
+              final lng = user.longitude is String
+                  ? double.parse(user.longitude as String)
+                  : user.longitude as double;
+              return LatLng(lat, lng);
+            } catch (e) {
+              return null;
+            }
+          })
+              .whereType<LatLng>()
+              .toList();
+
+          if (routePoints.isEmpty) {
+            return const Center(
+              child: Text("Invalid location data in route"),
+            );
+          }
+
+          final totalDistance = _calculateTotalDistance(routePoints).toStringAsFixed(2);
+          final scheduleData = provider.schedule?.data;
+
+          // Fit bounds after building the map
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _fitBounds(routePoints);
+          });
+
+          return Stack(
+            children: [
+              const AppStatusBar(),
+
+              // 🌍 Map Section
+              FlutterMap(
+                mapController: _animatedMapController.mapController,
+                options: MapOptions(
+                  initialCenter: routePoints.first,
+                  initialZoom: 11,
+                  minZoom: 5,
+                  maxZoom: 18,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
+                  ),
+                ),
+                children: [
+                  // Google Satellite + Hybrid tiles
+                  TileLayer(
+                    urlTemplate: 'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
+                    subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
+                    userAgentPackageName: 'com.trusttags.trusttags_dms',
+                  ),
+
+                  // Route line with gradient effect
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: routePoints,
+                        color: Colors.deepPurple,
+                        strokeWidth: 6,
+                        borderColor: Colors.white,
+                        borderStrokeWidth: 2,
+                      ),
+                    ],
+                  ),
+
+                  // Markers
+                  MarkerLayer(
+                    markers: [
+                      for (int i = 0; i < completedUsers.length; i++)
+                        if (completedUsers[i].latitude != null &&
+                            completedUsers[i].longitude != null)
+                          Marker(
+                            point: () {
+                              try {
+                                final lat = completedUsers[i].latitude is String
+                                    ? double.parse(completedUsers[i].latitude as String)
+                                    : completedUsers[i].latitude as double;
+                                final lng = completedUsers[i].longitude is String
+                                    ? double.parse(completedUsers[i].longitude as String)
+                                    : completedUsers[i].longitude as double;
+                                return LatLng(lat, lng);
+                              } catch (e) {
+                                return LatLng(0, 0); // Fallback
+                              }
+                            }(),
+                            width: 100,
+                            height: 100,
+                            child: GestureDetector(
+                              onTap: () => _showVisitDetails(context, completedUsers[i]),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Marker with number
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.3),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.deepPurple,
+                                              Colors.purple.shade700,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${i + 1}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 4),
+
+                                  // Label - Always visible
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 120,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.25),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: Colors.deepPurple.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      completedUsers[i].name ?? "Unknown",
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                ],
+              ),
+
+              // AppBar Overlay
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                left: 12,
+                right: 12,
+                child: Material(
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                  child: Container(
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            "Today's Route",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.black87),
+                          onPressed: () {
+                            provider.fetchTodayRouteSchedule();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom Summary Card
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 24,
+                child: Material(
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [Colors.white, Colors.purple.shade50],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStat(
+                              Icons.route,
+                              totalDistance,
+                              "km",
+                              Colors.deepPurple,
+                            ),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
+                            ),
+                            _buildStat(
+                              Icons.location_on,
+                              "${scheduleData?.complete ?? 0}",
+                              "Completed",
+                              Colors.green,
+                            ),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
+                            ),
+                            _buildStat(
+                              Icons.pending_actions,
+                              "${scheduleData?.pending ?? 0}",
+                              "Pending",
+                              Colors.orange,
+                            ),
+                          ],
+                        ),
+
+                        if ((scheduleData?.total ?? 0) > 0) ...[
+                          const SizedBox(height: 12),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Stack(
+                              children: [
+                                // Background
+                                Container(
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                // Progress with gradient
+                                FractionallySizedBox(
+                                  widthFactor: (scheduleData?.complete ?? 0) / (scheduleData?.total ?? 1),
+                                  child: Container(
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.deepPurple,
+                                          Colors.purple.shade400,
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "${scheduleData?.complete} of ${scheduleData?.total} visits completed",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStat(IconData icon, String value, String label, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "444452119376",
+    "project_id": "trusttags-dms",
+    "storage_bucket": "trusttags-dms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444452119376:android:d04ad79aa7b77fc7834255",
+        "android_client_info": {
+          "package_name": "com.trusttags.trusttags_dms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIZkYFOcYOomnhcP4LL4IJRBf0x7teT7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

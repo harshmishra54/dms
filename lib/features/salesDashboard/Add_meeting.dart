@@ -1,0 +1,497 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/data/models/route_meeting_models.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/meeting_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/widgets/date_time_picker_field.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/widgets/event_photos_section.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+ // ✅ import your MeetingQrScreen
+
+class AddMeetingScreen extends StatefulWidget {
+  final String? tsiRouteVisitId;
+  final String? routeName;
+  const AddMeetingScreen({super.key, this.tsiRouteVisitId, this.routeName});
+
+  @override
+  State<AddMeetingScreen> createState() => _AddMeetingScreenState();
+}
+
+class _AddMeetingScreenState extends State<AddMeetingScreen> {
+  final _meetingNameController = TextEditingController();
+  final _mobileNumberController = TextEditingController();
+  final _routeNameController = TextEditingController();
+  final _meetingDateTimeController = TextEditingController();
+  final _eventNotesController = TextEditingController();
+  final _eventActionsController = TextEditingController();
+
+  final _cropFocusController = TextEditingController();
+  final _productDiscussedController = TextEditingController();
+  final _expenseVenueCostController = TextEditingController();
+  final _expenseMaterialCostController = TextEditingController();
+  final _expenseTravelCostController = TextEditingController();
+  final _schemesDiscussedController = TextEditingController();
+  final _meetingdurationController = TextEditingController();
+
+  final List<File> _eventPhotos = [];
+  String? _location;
+
+  List<Map<String, TextEditingController>> otherMembers = [];
+  bool _isSubmitting = false;
+
+  final List<String> _meetingTypes = [
+    "Farmer Meeting",
+    "Retailer Meeting",
+    "Distributor Meeting",
+    "Other"
+  ];
+  String? _selectedMeetingType;
+
+  @override
+  void initState() {
+    super.initState();
+    addOtherMember();
+    _prefillPhoneNumber();
+    _fetchLocation();
+  }
+
+  void addOtherMember() {
+    setState(() {
+      otherMembers.add({
+        'name': TextEditingController(),
+        'phone': TextEditingController(),
+        'designation': TextEditingController(),
+      });
+    });
+  }
+
+  void removeOtherMember(int index) {
+    setState(() {
+      otherMembers[index]['name']?.dispose();
+      otherMembers[index]['phone']?.dispose();
+      otherMembers[index]['designation']?.dispose();
+      otherMembers.removeAt(index);
+    });
+  }
+
+  Future<void> _prefillPhoneNumber() async {
+    final phone = await SharedPrefsHelper.getPhone();
+    if (!mounted) return;
+    _mobileNumberController.text = phone ?? '';
+  }
+
+  Future<void> _fetchLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) return;
+
+    Position position =
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _location = "${position.latitude},${position.longitude}";
+    });
+  }
+
+  @override
+  void dispose() {
+    _meetingNameController.dispose();
+    _mobileNumberController.dispose();
+    _routeNameController.dispose();
+    _meetingDateTimeController.dispose();
+    _eventNotesController.dispose();
+    _eventActionsController.dispose();
+    _cropFocusController.dispose();
+    _productDiscussedController.dispose();
+    _expenseVenueCostController.dispose();
+    _expenseMaterialCostController.dispose();
+    _expenseTravelCostController.dispose();
+    _schemesDiscussedController.dispose();
+    _meetingdurationController.dispose();
+    for (var member in otherMembers) {
+      member['name']?.dispose();
+      member['phone']?.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: const BorderSide(color: Colors.grey),
+    );
+
+    return Scaffold(
+      body: Column(
+        children: [
+          const AppStatusBar(),
+          Material(
+            elevation: 4,
+            shadowColor: Colors.black.withOpacity(0.1),
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: Colors.white,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Add Meeting',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+          ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Meeting Type', style: TextStyle(fontWeight: FontWeight.bold)),
+                  DropdownButtonFormField<String>(
+                    value: _selectedMeetingType,
+                    items: _meetingTypes
+                        .map((type) => DropdownMenuItem(
+                      value: type,
+                      child: Text(type, style: const TextStyle(fontSize: 14)),
+                    ))
+                        .toList(),
+                    onChanged: (value) => setState(() => _selectedMeetingType = value),
+                    decoration: InputDecoration(
+                      hintText: "Select meeting type",
+                      border: inputBorder,
+                      contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  const Text('Meeting Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _meetingNameController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter meeting name', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Mobile Number', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _mobileNumberController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                          hintText: 'Enter mobile number', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Route Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _routeNameController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter route name', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Meeting Date & Time',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  DateTimePickerField(
+                      controller: _meetingDateTimeController,
+                      hintText: 'Tap to select date and time'),
+                  const SizedBox(height: 12),
+
+                  const Text('Meeting Duration',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                    controller: _meetingdurationController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Enter meeting duration in Hours',
+                      border: inputBorder,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  const Text('Crop Focus', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _cropFocusController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter crop focus', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Product Discussed',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _productDiscussedController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter product discussed', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Schemes Discussed',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _schemesDiscussedController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter schemes discussed', border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Other Meeting Members',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Column(
+                    children: List.generate(otherMembers.length, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: TextField(
+                                controller: otherMembers[index]['name'],
+                                decoration: InputDecoration(
+                                  hintText: 'Name',
+                                  border: inputBorder,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              flex: 5,
+                              child: TextField(
+                                controller: otherMembers[index]['phone'],
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  border: inputBorder,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              flex: 3,
+                              child: TextField(
+                                controller: otherMembers[index]['designation'],
+                                decoration: InputDecoration(
+                                  hintText: 'Designation',
+                                  border: inputBorder,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            SizedBox(
+                              width: 20,
+                              child: index == otherMembers.length - 1
+                                  ? IconButton(
+                                icon: const Icon(Icons.add_circle,
+                                    color: Colors.green),
+                                onPressed: addOtherMember,
+                              )
+                                  : IconButton(
+                                icon: const Icon(Icons.cancel,
+                                    color: Colors.red),
+                                onPressed: () => removeOtherMember(index),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+
+                  EventPhotosSection(
+                    eventPhotos: _eventPhotos,
+                    onPhotosChanged: (updated) {
+                      setState(() {
+                        _eventPhotos.clear();
+                        _eventPhotos.addAll(updated);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  const Text('Event Notes', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _eventNotesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  const Text('Event Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                      controller: _eventActionsController,
+                      maxLines: 3,
+                      decoration: InputDecoration(border: inputBorder)),
+                  const SizedBox(height: 12),
+
+                  // ---------- EXPENSES ----------
+                  _buildExpenseField("Venue Cost", _expenseVenueCostController, 5000, inputBorder),
+                  const SizedBox(height: 12),
+                  _buildExpenseField("Material Cost", _expenseMaterialCostController, 3000, inputBorder),
+                  const SizedBox(height: 12),
+                  _buildExpenseField("Travel Cost", _expenseTravelCostController, 7000, inputBorder),
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _submitMeeting,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA259FF),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                          : const Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpenseField(String label, TextEditingController controller, int limit, OutlineInputBorder border) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            border: border,
+            hintText: "Enter $label",
+          ),
+          onChanged: (value) {
+            final entered = int.tryParse(value) ?? 0;
+            if (entered > limit) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("$label cannot exceed ₹$limit")),
+              );
+              controller.text = limit.toString();
+              controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: controller.text.length),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submitMeeting() async {
+    setState(() => _isSubmitting = true);
+    try {
+      final tsiId = await SharedPrefsHelper.getUserId() ?? '';
+      final phone = await SharedPrefsHelper.getPhone() ?? '';
+
+      final members = otherMembers
+          .map((m) => PersonEntry(
+        name: m['name']!.text.trim(),
+        phone: m['phone']!.text.trim(),
+        designation: m['designation']!.text.trim(),
+      ))
+          .toList();
+
+      final eventPhotos =
+      _eventPhotos.map((f) => base64Encode(f.readAsBytesSync())).toList();
+
+      final req = RouteMeetingRequest(
+        routeId: 18,
+        tsiId: tsiId,
+        meetingName: _meetingNameController.text.trim(),
+        meetingType: _selectedMeetingType ?? "Farmer Meeting",
+        location: _location ?? "",
+        cropFocus: _cropFocusController.text.trim(),
+        mobileNumber: phone,
+        routeName: widget.routeName ?? _routeNameController.text.trim(),
+        meetingDate:
+        DateTime.tryParse(_meetingDateTimeController.text.trim()) ?? DateTime.now(),
+        duration: int.tryParse(_meetingdurationController.text.trim()) ?? 0,
+        meetingMembers: members,
+        eventPhotos: eventPhotos,
+        eventNotes: _eventNotesController.text.trim(),
+        eventAction: _eventActionsController.text.trim(),
+        productDiscussed: _productDiscussedController.text.trim(),
+        schemesDiscussed: _schemesDiscussedController.text.trim(),
+        expenseVenueCost: _expenseVenueCostController.text.trim(),
+        expenseMaterialCost: _expenseMaterialCostController.text.trim(),
+        expenseTravelCost: _expenseTravelCostController.text.trim(),
+      );
+
+      final provider = MeetingProvider();
+      final res = await provider.submitMeeting(req);
+
+      if (!mounted) return;
+
+      if (res.success == 1) {
+        final prefs = await SharedPreferences.getInstance();
+
+        if (res.meetinId != null) {
+          await prefs.setString('saved_meeting_id', res.meetinId!);
+        }
+
+        // 🟢 Add these lines to save extra info
+        if (res.meetingName != null) {
+          await prefs.setString('saved_meeting_name', res.meetingName!);
+        }
+        if (res.organiserName != null) {
+          await prefs.setString('saved_org_name', res.organiserName!);
+        }
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(res.message)));
+
+        // ✅ Navigate to Meeting QR Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MeetingQrScreen()),
+        );
+      }
+      else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: ${res.message}')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to submit: $e')));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+}
