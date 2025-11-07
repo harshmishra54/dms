@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/home/presentation/scan_screen.dart';
 import 'package:flutter/material.dart';
 import 'inward_screen.dart';
@@ -35,7 +36,7 @@ class DistributorScanScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const AutoTranslateText(
                   'Scanner',
                   style: TextStyle(
                     fontSize: 24,
@@ -106,7 +107,7 @@ class DistributorScanScreen extends StatelessWidget {
             else if (icon != null)
               Icon(icon, color: Colors.white, size: 60),
             const SizedBox(height: 12),
-            Text(
+            AutoTranslateText(
               label,
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),

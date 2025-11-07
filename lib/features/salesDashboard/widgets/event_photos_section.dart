@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -34,25 +35,25 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: const Text('Select Image'),
+          title: const AutoTranslateText('Select Image'),
           children: [
             SimpleDialogOption(
               onPressed: () {
                 Navigator.pop(context);
                 _takePhoto();
               },
-              child: const Text('Take Photo'),
+              child: const AutoTranslateText('Take Photo'),
             ),
             SimpleDialogOption(
               onPressed: () {
                 Navigator.pop(context);
                 _chooseFromGallery();
               },
-              child: const Text('Choose from gallery'),
+              child: const AutoTranslateText('Choose from gallery'),
             ),
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const AutoTranslateText('Cancel'),
             ),
           ],
         );
@@ -106,12 +107,12 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Permission Denied'),
-        content: Text(message),
+        title: const AutoTranslateText('Permission Denied'),
+        content: AutoTranslateText(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const AutoTranslateText('OK'),
           )
         ],
       ),
@@ -130,14 +131,14 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Confirm Photo'),
+          title: const AutoTranslateText('Confirm Photo'),
           content: Image.file(photo),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Incorrect'),
+              child: const AutoTranslateText('Incorrect'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -146,7 +147,7 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
                 widget.onPhotosChanged(updatedList);
                 Navigator.pop(context);
               },
-              child: const Text('Correct'),
+              child: const AutoTranslateText('Correct'),
             ),
           ],
         );
@@ -158,12 +159,12 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Limit Reached'),
-        content: const Text('You can only add up to 5 photos.'),
+        title: const AutoTranslateText('Limit Reached'),
+        content: const AutoTranslateText('You can only add up to 5 photos.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const AutoTranslateText('OK'),
           )
         ],
       ),
@@ -175,12 +176,12 @@ class _EventPhotosSectionState extends State<EventPhotosSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const AutoTranslateText(
           'Event Photos (upto 5)',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-        const Text(
+        const AutoTranslateText(
           'Please capture portrait(horizontal) shop front side Photo',
           style: TextStyle(fontSize: 12, color: Colors.grey),
         ),

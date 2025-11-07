@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/focus_product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -86,7 +87,7 @@ class _ProductSelectorDropdownState extends State<ProductSelectorDropdown> {
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : products.isEmpty
-                    ? const Center(child: Text("No products available"))
+                    ? const Center(child: AutoTranslateText("No products available"))
                     : DropdownSearch<OrderProductListDataResponse>(
                   popupProps:
                   const PopupProps.menu(showSearchBox: true),
@@ -155,7 +156,7 @@ class _ProductSelectorDropdownState extends State<ProductSelectorDropdown> {
           color: isSelected ? activeColor : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
+        child: AutoTranslateText(
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black87,

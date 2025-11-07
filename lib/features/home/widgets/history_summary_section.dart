@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/points/providers/scheme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class _HistorySummarySectionState extends State<HistorySummarySection> {
         final schemes = schemeProvider.schemes;
 
         if (schemes.isEmpty) {
-          return const Center(child: Text("No scheme data found"));
+          return const Center(child: AutoTranslateText("No scheme data found"));
         }
 
         return ListView.builder(
@@ -85,7 +86,7 @@ class _HistorySummarySectionState extends State<HistorySummarySection> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(
+                            child: AutoTranslateText(
                               scheme.schemeName ?? "-",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -118,16 +119,16 @@ class _HistorySummarySectionState extends State<HistorySummarySection> {
                               children: const [
                                 Expanded(
                                   flex: 3,
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     "Product",
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 Expanded(
-                                    child: Text("Lvl",
+                                    child: AutoTranslateText("Lvl",
                                         style: TextStyle(fontWeight: FontWeight.bold))),
                                 Expanded(
-                                    child: Text("Points",
+                                    child: AutoTranslateText("Points",
                                         style: TextStyle(fontWeight: FontWeight.bold))),
                               ],
                             ),
@@ -142,7 +143,7 @@ class _HistorySummarySectionState extends State<HistorySummarySection> {
                                 Padding(
                                   padding:
                                   const EdgeInsets.symmetric(vertical: 6),
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     brand.displayName,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold),
@@ -155,8 +156,8 @@ class _HistorySummarySectionState extends State<HistorySummarySection> {
                                     child: Row(
                                       children: [
                                         const Spacer(flex: 3),
-                                        Expanded(child: Text(level.level)),
-                                        Expanded(child: Text(level.totalPoints.toString())),
+                                        Expanded(child: AutoTranslateText(level.level)),
+                                        Expanded(child: AutoTranslateText(level.totalPoints.toString())),
 
                                       ],
                                     ),

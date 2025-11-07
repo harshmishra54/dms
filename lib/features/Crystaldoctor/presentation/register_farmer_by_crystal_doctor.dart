@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/retailer_provider.dart';
 import 'package:flutter/material.dart';
@@ -149,7 +150,7 @@ class _RegisterFarmerByCrystalDoctorState
         stateId == null ||
         districtId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a valid 10-digit mobile number and fill all required fields")),
+        const SnackBar(content: AutoTranslateText("Please enter a valid 10-digit mobile number and fill all required fields")),
       );
       return;
     }
@@ -183,12 +184,12 @@ class _RegisterFarmerByCrystalDoctorState
 
     if (provider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${provider.errorMessage}")),
+        SnackBar(content: AutoTranslateText("Error: ${provider.errorMessage}")),
       );
     } else {
       // Show success SnackBar first
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Farmer registered successfully")),
+        const SnackBar(content: AutoTranslateText("Farmer registered successfully")),
       );
 
       // Wait a short duration to show the SnackBar
@@ -236,7 +237,7 @@ class _RegisterFarmerByCrystalDoctorState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             'Farmer Registration',
                             style: TextStyle(fontSize: 20, color: Colors.black87),
                           ),
@@ -244,7 +245,7 @@ class _RegisterFarmerByCrystalDoctorState
                         if (_locationName != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
-                            child: Text(
+                            child: AutoTranslateText(
                               "Current Location: $_locationName",
                               style: const TextStyle(fontSize: 14, color: Colors.black54),
                             ),
@@ -332,7 +333,7 @@ class _RegisterFarmerByCrystalDoctorState
                           items: states
                               .map((s) => DropdownMenuItem<int>(
                             value: s['id'],
-                            child: Text(
+                            child: AutoTranslateText(
                               s['name'],
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -358,7 +359,7 @@ class _RegisterFarmerByCrystalDoctorState
                           items: districts
                               .map((d) => DropdownMenuItem<int>(
                             value: d['id'],
-                            child: Text(
+                            child: AutoTranslateText(
                               d['name'],
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -390,7 +391,7 @@ class _RegisterFarmerByCrystalDoctorState
                                 ? const CircularProgressIndicator(
                               color: Colors.white,
                             )
-                                : const Text(
+                                : const AutoTranslateText(
                               'Register Farmer',
                               style: TextStyle(
                                   fontSize: 16,
@@ -413,7 +414,7 @@ class _RegisterFarmerByCrystalDoctorState
 
   Widget buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6, top: 16),
-    child: Text(text,
+    child: AutoTranslateText(text,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
   );
 

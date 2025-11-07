@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/to_location_response.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/distributor_provider.dart';
 import 'package:TrustTags_DMS/features/returns/Add_return_order.dart';
@@ -84,7 +85,7 @@ class _DistributorReceivedReturnOrderState
                   ? const Center(child: CircularProgressIndicator())
                   : distributors.isEmpty
                   ? Center(
-                child: Text(
+                child: AutoTranslateText(
                   (roleId == "1")
                       ? "No CFAs found"
                       : "No distributors found",
@@ -186,7 +187,7 @@ class _DistributorReceivedReturnOrderState
 
                 if (provider.errorMessage != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       provider.errorMessage!,
                       style: const TextStyle(color: Colors.grey),
                     ),
@@ -202,7 +203,7 @@ class _DistributorReceivedReturnOrderState
 
                 if (filteredOrders.isEmpty) {
                   return const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       'No matching orders found.',
                       style: TextStyle(color: Colors.black54),
                     ),
@@ -249,11 +250,11 @@ class _DistributorReceivedReturnOrderState
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     order.orderNo ?? "Order #${order.id}",
                                     style: const TextStyle(fontSize: 16),
                                   ),
-                                  Text(
+                                  AutoTranslateText(
                                     _formatDate(order.orderDate),
                                     style: const TextStyle(
                                       fontSize: 14,
@@ -269,7 +270,7 @@ class _DistributorReceivedReturnOrderState
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     "Value: ₹${order.price}",
                                     style: const TextStyle(
                                       fontSize: 15,
@@ -277,7 +278,7 @@ class _DistributorReceivedReturnOrderState
                                       color: Colors.deepPurpleAccent,
                                     ),
                                   ),
-                                  Text(
+                                  AutoTranslateText(
                                     order.status,
                                     style: TextStyle(
                                       fontSize: 15,

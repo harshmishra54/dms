@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/home/widgets/discover_carousel.dart';
 import 'package:TrustTags_DMS/features/home/widgets/schemes_banner.dart';
 import 'package:TrustTags_DMS/features/returns/Add_return_order.dart';
@@ -102,7 +103,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> {
                 ),
                 const Expanded(
                   child: Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       "Visit Details",
                       style:
                       TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -145,7 +146,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> {
 
                   const SizedBox(height: 16),
 
-                  const Text(
+                  const AutoTranslateText(
                     "Check Old Inventory Stock",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),

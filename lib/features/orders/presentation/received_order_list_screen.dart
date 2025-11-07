@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/order_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/tsi_approve_order_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/orderupdate/edit_order_list.dart';
@@ -48,12 +49,12 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
       builder: (ctx) {
         final scaffoldMessenger = ScaffoldMessenger.of(ctx);
         return AlertDialog(
-          title: const Text("Confirm Approval"),
-          content: const Text("Are you sure you want to approve this order?"),
+          title: const AutoTranslateText("Confirm Approval"),
+          content: const AutoTranslateText("Are you sure you want to approve this order?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const AutoTranslateText("Cancel"),
             ),
             TextButton(
               onPressed: () async {
@@ -68,16 +69,16 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
 
                 if (tsiProvider.errorMessage != null) {
                   scaffoldMessenger.showSnackBar(
-                    SnackBar(content: Text(tsiProvider.errorMessage!)),
+                    SnackBar(content: AutoTranslateText(tsiProvider.errorMessage!)),
                   );
                 } else {
                   scaffoldMessenger.showSnackBar(
-                    const SnackBar(content: Text("Order approved successfully")),
+                    const SnackBar(content: AutoTranslateText("Order approved successfully")),
                   );
                   await _refreshOrders();
                 }
               },
-              child: const Text("OK"),
+              child: const AutoTranslateText("OK"),
             ),
           ],
         );
@@ -94,7 +95,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
       builder: (ctx) {
         final scaffoldMessenger = ScaffoldMessenger.of(ctx);
         return AlertDialog(
-          title: const Text("Reject Order"),
+          title: const AutoTranslateText("Reject Order"),
           content: TextField(
             controller: reasonController,
             decoration: const InputDecoration(
@@ -106,7 +107,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const AutoTranslateText("Cancel"),
             ),
             TextButton(
               onPressed: () async {
@@ -124,16 +125,16 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
 
                 if (tsiProvider.errorMessage != null) {
                   scaffoldMessenger.showSnackBar(
-                    SnackBar(content: Text(tsiProvider.errorMessage!)),
+                    SnackBar(content: AutoTranslateText(tsiProvider.errorMessage!)),
                   );
                 } else {
                   scaffoldMessenger.showSnackBar(
-                    const SnackBar(content: Text("Order rejected successfully")),
+                    const SnackBar(content: AutoTranslateText("Order rejected successfully")),
                   );
                   await _refreshOrders();
                 }
               },
-              child: const Text("OK"),
+              child: const AutoTranslateText("OK"),
             ),
           ],
         );
@@ -184,7 +185,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const Expanded(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Received Order List',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -222,7 +223,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
             child: orderProvider.isLoading || tsiProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : orderProvider.error != null
-                ? Center(child: Text(orderProvider.error!))
+                ? Center(child: AutoTranslateText(orderProvider.error!))
                 : ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               itemCount: visibleOrders.length,
@@ -255,7 +256,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Text(
+                                child: AutoTranslateText(
                                   order.orderNo,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -263,7 +264,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                                   ),
                                 ),
                               ),
-                              Text(
+                              AutoTranslateText(
                                 "Date : ${formatDate(order.orderDate)}",
                                 style: const TextStyle(fontSize: 13),
                               ),
@@ -273,7 +274,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 "Value : ₹${(order.price + order.gst).toStringAsFixed(2)}",
                                 style: const TextStyle(
                                   color: Colors.deepPurple,
@@ -281,7 +282,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                                   fontSize: 15,
                                 ),
                               ),
-                              Text(
+                              AutoTranslateText(
                                 "Delivery : ${formatDate(order.deliveryDate)}",
                                 style: const TextStyle(
                                   fontSize: 13,
@@ -308,7 +309,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                                     ),
                                     onPressed: () =>
                                         _approveOrder(context, order.id, order.fromLocation),
-                                    child: const Text(
+                                    child: const AutoTranslateText(
                                       "Approve",
                                       textAlign: TextAlign.center, // ensures text is centered
                                     ),
@@ -330,7 +331,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                                     ),
                                     onPressed: () =>
                                         _rejectOrder(context, order.id, order.fromLocation),
-                                    child: const Text(
+                                    child: const AutoTranslateText(
                                       "Reject",
                                       textAlign: TextAlign.center,
                                     ),
@@ -361,7 +362,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
                                         ),
                                       );
                                     },
-                                    child: const Text(
+                                    child: const AutoTranslateText(
                                       "Edit",
                                       textAlign: TextAlign.center,
                                     ),

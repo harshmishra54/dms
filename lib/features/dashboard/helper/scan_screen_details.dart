@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/inward_preview_model.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_home_navigation.dart';
 import 'package:TrustTags_DMS/features/dashboard/helper/child_scan_screen.dart';
@@ -69,7 +70,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(inwardProvider.error ?? "Failed to refresh order details"),
+            content: AutoTranslateText(inwardProvider.error ?? "Failed to refresh order details"),
           ),
         );
       }
@@ -77,7 +78,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
       Navigator.pop(context); // close loading
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: AutoTranslateText("Error: $e")),
       );
     }
   }
@@ -90,7 +91,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          title: const Text(
+          title: const AutoTranslateText(
             "Choose Action",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -117,11 +118,11 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
                 if (acceptProvider.errorMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error: ${acceptProvider.errorMessage}")),
+                    SnackBar(content: AutoTranslateText("Error: ${acceptProvider.errorMessage}")),
                   );
                 } else if (acceptProvider.response != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(acceptProvider.response!.message)),
+                    SnackBar(content: AutoTranslateText(acceptProvider.response!.message)),
                   );
 
                   // ✅ After success, navigate back to home
@@ -160,11 +161,11 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
                 if (discardProvider.errorMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error: ${discardProvider.errorMessage}")),
+                    SnackBar(content: AutoTranslateText("Error: ${discardProvider.errorMessage}")),
                   );
                 } else if (discardProvider.response != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(discardProvider.response!.message)),
+                    SnackBar(content: AutoTranslateText(discardProvider.response!.message)),
                   );
 
                   setState(() {
@@ -193,11 +194,11 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
                 if (submitProvider.errorMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error: ${submitProvider.errorMessage}")),
+                    SnackBar(content: AutoTranslateText("Error: ${submitProvider.errorMessage}")),
                   );
                 } else if (submitProvider.response != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(submitProvider.response!.message)),
+                    SnackBar(content: AutoTranslateText(submitProvider.response!.message)),
                   );
 
                   Navigator.pushAndRemoveUntil(
@@ -223,7 +224,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
   Widget _dialogOption(String text, IconData icon, Color color, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(text, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+      title: AutoTranslateText(text, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
       onTap: onTap,
     );
   }
@@ -248,7 +249,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.arrow_back_ios, color: Colors.black),
                   ),
-                  const Text(
+                  const AutoTranslateText(
                     'Scan Details',
                     style: TextStyle(
                       color: Colors.black,
@@ -312,7 +313,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
+                child: AutoTranslateText(
                   'Total Scanning : ',
                   style: TextStyle(
                     fontSize: 14,
@@ -344,7 +345,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: Text(
+                            child: AutoTranslateText(
                               'Total Scanning: ${item.inwardQty}/${item.totalQty}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -353,7 +354,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                               ),
                             ),
                           ),
-                          Text(
+                          AutoTranslateText(
                             item.name,
                             style: const TextStyle(
                               fontSize: 16,
@@ -380,7 +381,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                   },
                                 ),
                               Expanded(
-                                child: Text(
+                                child: AutoTranslateText(
                                   "Batch: ${item.batchNo}",
                                   style: const TextStyle(
                                     fontSize: 14,
@@ -394,7 +395,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
 
 
-                          Text(
+                          AutoTranslateText(
                             "SKU:${item.sku}",
                             style: const TextStyle(
                               fontSize: 14,
@@ -427,7 +428,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                     border: Border.all(color: Colors.green),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     item.inwardQty,
                                     style: const TextStyle(
                                       color: Colors.green,
@@ -460,7 +461,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                     border: Border.all(color: Colors.red),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     item.missingQty,
                                     style: const TextStyle(
                                       color: Colors.red,
@@ -502,7 +503,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
+                      child: const AutoTranslateText(
                         'Scan',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
@@ -535,11 +536,11 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
                           if (partialProvider.errorMessage != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Error: ${partialProvider.errorMessage}")),
+                              SnackBar(content: AutoTranslateText("Error: ${partialProvider.errorMessage}")),
                             );
                           } else if (partialProvider.response != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(partialProvider.response!.message)),
+                              SnackBar(content: AutoTranslateText(partialProvider.response!.message)),
                             );
                             setState(() {
                               _partiallyAcceptedIds.addAll(_selectedOrderDetails);
@@ -559,7 +560,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
+                        child: const AutoTranslateText(
                           'Partial Accept',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
@@ -580,7 +581,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AutoTranslateText(
           title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
@@ -589,12 +590,12 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
         ),
         const SizedBox(width: 6),
         Expanded(
-          child: Text(
+          child: AutoTranslateText(
             value,
             style: const TextStyle(color: Colors.white),
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
-            softWrap: true,
+            // softWrap: true,
           ),
         ),
       ],
@@ -613,7 +614,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
           ),
         ),
         alignment: Alignment.center,
-        child: Text(
+        child: AutoTranslateText(
           label,
           style: const TextStyle(
             color: Colors.white,

@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/route_asm_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
@@ -117,7 +118,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     try {
       if (_routeNameController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter route name")),
+          const SnackBar(content: AutoTranslateText("Please enter route name")),
         );
         setState(() => _isSubmitting = false);
         return;
@@ -162,18 +163,18 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
       if (response.success == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
+          SnackBar(content: AutoTranslateText(response.message)),
         );
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed: ${response.message}")),
+          SnackBar(content: AutoTranslateText("Failed: ${response.message}")),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
+          SnackBar(content: AutoTranslateText("Error: $e")),
         );
       }
     } finally {
@@ -204,7 +205,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const Text("Route Selection",
+                  const AutoTranslateText("Route Selection",
                       style:
                       TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 ],
@@ -251,7 +252,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         items: ["Date → Users", "User → Dates"].map((mode) {
                           return DropdownMenuItem(
                             value: mode,
-                            child: Text(mode, style: const TextStyle(fontSize: 14)),
+                            child: AutoTranslateText(mode, style: const TextStyle(fontSize: 14)),
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => selectedMode = val!),
@@ -274,7 +275,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         items: ["Distributor", "Retailer"].map((type) {
                           return DropdownMenuItem(
                             value: type,
-                            child: Text(type, style: const TextStyle(fontSize: 14)),
+                            child: AutoTranslateText(type, style: const TextStyle(fontSize: 14)),
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => selectedUserType = val!),
@@ -310,12 +311,12 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                             OutlinedButton.icon(
                               onPressed: _pickDateGlobal,
                               icon: const Icon(Icons.calendar_today, size: 18),
-                              label: const Text("Pick Date"),
+                              label: const AutoTranslateText("Pick Date"),
                             ),
                             if (globalDate != null)
                               Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: Text(
+                                child: AutoTranslateText(
                                   "${globalDate!.toLocal()}".split(' ')[0],
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -383,7 +384,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                               color: Colors.white,
                             ),
                           )
-                              : const Text(
+                              : const AutoTranslateText(
                             "Submit",
                             style:
                             TextStyle(color: Colors.white, fontSize: 15),
@@ -421,7 +422,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AutoTranslateText(
                 title,
                 style: const TextStyle(
                   fontSize: 20,
@@ -458,11 +459,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: CheckboxListTile(
             value: selectedUsers.contains(user["id"]),
-            title: Text(
+            title: AutoTranslateText(
               user["name"]!,
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
-            subtitle: user["phone"]!.isNotEmpty ? Text(user["phone"]!) : null,
+            subtitle: user["phone"]!.isNotEmpty ? AutoTranslateText(user["phone"]!) : null,
             secondary: const Icon(Icons.person, color: Colors.blueGrey),
             activeColor: Colors.green,
             onChanged: (_) => _toggleUser(user["id"]!, selectedUsers),
@@ -499,11 +500,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name,
+                          AutoTranslateText(name,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w600, fontSize: 15)),
                           if (phone.isNotEmpty)
-                            Text(phone,
+                            AutoTranslateText(phone,
                                 style: const TextStyle(color: Colors.grey)),
                         ],
                       ),
@@ -522,7 +523,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                   runSpacing: -6,
                   children: userDates
                       .map((d) => Chip(
-                    label: Text("${d.toLocal()}".split(' ')[0]),
+                    label: AutoTranslateText("${d.toLocal()}".split(' ')[0]),
                     avatar: const Icon(Icons.date_range,
                         size: 16, color: Colors.green),
                     deleteIcon: const Icon(Icons.close,

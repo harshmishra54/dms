@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/ipt_order_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -64,7 +65,7 @@ class _DistributorReceivedIptlistState
 
       if (updateProvider.successMessage != null) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(updateProvider.successMessage!)));
+            .showSnackBar(SnackBar(content: AutoTranslateText(updateProvider.successMessage!)));
 
         // Update local UI
         final index =
@@ -76,11 +77,11 @@ class _DistributorReceivedIptlistState
         }
       } else if (updateProvider.errorMessage != null) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(updateProvider.errorMessage!)));
+            .showSnackBar(SnackBar(content: AutoTranslateText(updateProvider.errorMessage!)));
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Something went wrong!')));
+          .showSnackBar(const SnackBar(content: AutoTranslateText('Something went wrong!')));
     } finally {
       setState(() => _loadingOrders.remove(orderId));
     }
@@ -110,7 +111,7 @@ class _DistributorReceivedIptlistState
                   ),
                 ),
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Received IPT List',
                     style: TextStyle(
                       fontSize: 18,
@@ -130,10 +131,10 @@ class _DistributorReceivedIptlistState
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 } else if (provider.iptOrders.isEmpty) {
                   return const Center(
-                      child: Text('No Received IPT orders found.'));
+                      child: AutoTranslateText('No Received IPT orders found.'));
                 } else {
                   return ListView.builder(
                     padding: const EdgeInsets.all(12),
@@ -172,14 +173,14 @@ class _DistributorReceivedIptlistState
                                   mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       order.name ?? '-',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 15,
                                       ),
                                     ),
-                                    Text(
+                                    AutoTranslateText(
                                       'Date : ${_formatDate(order.orderDate)}',
                                       style: const TextStyle(
                                         fontSize: 14,
@@ -195,7 +196,7 @@ class _DistributorReceivedIptlistState
                                   mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       'Value : ₹${order.price ?? '0.0'}',
                                       style: const TextStyle(
                                         color: Color(0xFFA259FF),
@@ -205,7 +206,7 @@ class _DistributorReceivedIptlistState
                                     ),
                                     Row(
                                       children: [
-                                        const Text(
+                                        const AutoTranslateText(
                                           'Status: ',
                                           style: TextStyle(
                                             fontSize: 14,
@@ -213,7 +214,7 @@ class _DistributorReceivedIptlistState
                                             color: Colors.black,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           order.status ?? '-',
                                           style: TextStyle(
                                             fontSize: 14,
@@ -261,7 +262,7 @@ class _DistributorReceivedIptlistState
                                         onPressed: () =>
                                             _handleAcceptReject(
                                                 order.id!, 'accept'),
-                                        child: const Text(
+                                        child: const AutoTranslateText(
                                           'Accept',
                                           style: TextStyle(
                                               color: Colors.purple),
@@ -278,7 +279,7 @@ class _DistributorReceivedIptlistState
                                         onPressed: () =>
                                             _handleAcceptReject(
                                                 order.id!, 'reject'),
-                                        child: const Text(
+                                        child: const AutoTranslateText(
                                           'Reject',
                                           style: TextStyle(
                                               color: Colors.purple),

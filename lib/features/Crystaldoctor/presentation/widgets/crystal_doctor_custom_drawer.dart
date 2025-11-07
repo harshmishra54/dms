@@ -1,5 +1,6 @@
 
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_meeting_history_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/add_beat_plan_doctor_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_plan_doctor_screen.dart';
@@ -8,6 +9,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_list_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/new_activity_screen.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/targetfarmer.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -50,21 +52,21 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const Text("Logout"),
+              title: const AutoTranslateText("Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  Text("Logging out..."),
+                  AutoTranslateText("Logging out..."),
                 ],
               )
-                  : const Text("Are you sure you want to logout?"),
+                  : const AutoTranslateText("Are you sure you want to logout?"),
               actions: [
                 TextButton(
                   onPressed:
                   provider.isLoading ? null : () => Navigator.of(ctx).pop(),
-                  child: const Text("Cancel"),
+                  child: const AutoTranslateText("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
@@ -85,7 +87,7 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text(provider.errorMessage!)),
+                            content: AutoTranslateText(provider.errorMessage!)),
                       );
                     }
                   },
@@ -95,7 +97,7 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text("Yes, Logout"),
+                      : const AutoTranslateText("Yes, Logout"),
                 ),
               ],
             );
@@ -196,7 +198,7 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
-                            child: Text('Menu', style: TextStyle(fontSize: 16)),
+                            child: AutoTranslateText('Menu', style: TextStyle(fontSize: 16)),
                           ),
                           _drawerItem(context, Icons.location_on, 'Farmer Location', const PhoneLocationScreen()),
                           _drawerItem(context, Icons.agriculture, 'Farmers Details', const FarmerListScreen()),
@@ -204,29 +206,31 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                           _drawerItem(context, Icons.card_travel, 'Meeting History', const CrystalMeetingHistoryScreen()),
                           _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
                           _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
+                          _drawerItem(context, Icons.recommend, 'Farmer Analytics', const RetargetFarmerScreen()),
+
 
 
 
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
-                            child: Text('Account', style: TextStyle(fontSize: 16)),
+                            child: AutoTranslateText('Account', style: TextStyle(fontSize: 16)),
                           ),
                           _drawerItem(context, Icons.person_outline, 'Profile', const ProfileScreen()),
                           ListTile(
                             leading: const Icon(Icons.logout, color: Colors.black),
-                            title: const Text('Logout'),
+                            title: const AutoTranslateText('Logout'),
                             onTap: () => _handleLogout(context),
                           ),
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4.0),
-                            child: Text('v 1.0.4', style: TextStyle(fontSize: 14)),
+                            child: AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
                           ),
                           const SizedBox(height: 20),
                           const Padding(
                             padding: EdgeInsets.only(left: 4.0),
-                            child: Text('© 2020 - 2025', style: TextStyle(fontSize: 14)),
+                            child: AutoTranslateText('© 2020 - 2025', style: TextStyle(fontSize: 14)),
                           ),
                           const SizedBox(height: 20),
                         ],
@@ -246,7 +250,7 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
   static Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
+      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/tsi_return_order_models.dart';
 import 'package:TrustTags_DMS/data/models/tsi_approve_return_models.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/return_order_bill_details.dart';
@@ -57,14 +58,14 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("Confirm Status Change"),
-        content: Text(
+        title: const AutoTranslateText("Confirm Status Change"),
+        content: AutoTranslateText(
           "Are you sure you want to ${newStatus.toLowerCase() == 'accepted' ? 'Accept' : 'Reject'} this return order?",
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () async {
@@ -96,7 +97,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content: AutoTranslateText(
                         "Order ${order.orderNo} ${newStatus.toUpperCase()}"),
                     backgroundColor: newStatus.toLowerCase() == "accepted"
                         ? Colors.green
@@ -106,14 +107,14 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(approveProvider.errorMessage ??
+                    content: AutoTranslateText(approveProvider.errorMessage ??
                         "Something went wrong!"),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -156,7 +157,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       order.orderNo,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
@@ -164,7 +165,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  AutoTranslateText(
                     "Date : ${formatDate(order.orderDate)}",
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -175,7 +176,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
               // Value + Status
               Row(
                 children: [
-                  Text(
+                  AutoTranslateText(
                     "Value : ₹${order.price}",
                     style:
                     const TextStyle(color: Colors.purple, fontSize: 16),
@@ -183,14 +184,14 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
                   const Spacer(),
                   Row(
                     children: [
-                      const Text(
+                      const AutoTranslateText(
                         "Status: ",
                         style: TextStyle(
                           color: Colors.black, // always black for label
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
+                      AutoTranslateText(
                         order.status ?? "Pending",
                         style: TextStyle(
                           color: (order.status?.toLowerCase() == "accepted")
@@ -223,7 +224,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
                         ),
                         onPressed: () => _confirmStatusChange(
                             context, order, "Accepted"),
-                        child: const Text("ACCEPT"),
+                        child: const AutoTranslateText("ACCEPT"),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -236,7 +237,7 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
                         ),
                         onPressed: () => _confirmStatusChange(
                             context, order, "Rejected"),
-                        child: const Text("REJECT"),
+                        child: const AutoTranslateText("REJECT"),
                       ),
                     ),
                   ],
@@ -256,13 +257,13 @@ class _TsiReturnCreatedState extends State<TsiReturnCreated> {
           return const Center(child: CircularProgressIndicator());
         }
         if (provider.errorMessage != null) {
-          return Center(child: Text(provider.errorMessage!));
+          return Center(child: AutoTranslateText(provider.errorMessage!));
         }
         final orders =
         filteredOrders.isEmpty ? provider.orders : filteredOrders;
 
         if (orders.isEmpty) {
-          return const Center(child: Text("No return orders found"));
+          return const Center(child: AutoTranslateText("No return orders found"));
         }
 
         return Column(

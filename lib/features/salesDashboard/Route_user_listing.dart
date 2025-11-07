@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_user_list_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Visit_Details_page.dart';
@@ -58,7 +59,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: const Text('Enter reason for pending'),
+                title: const AutoTranslateText('Enter reason for pending'),
                 content: TextField(
                   controller: _reasonController,
                   decoration: const InputDecoration(hintText: 'Reason...'),
@@ -66,7 +67,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                 actions: [
                   TextButton(
                     onPressed: isLoading ? null : () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: const AutoTranslateText('Cancel'),
                   ),
                   ElevatedButton(
                     onPressed: isLoading
@@ -74,7 +75,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         : () async {
                       if (_reasonController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter a reason')),
+                          const SnackBar(content: AutoTranslateText('Please enter a reason')),
                         );
                         return;
                       }
@@ -93,11 +94,11 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
 
                       if (routeProvider.errorMessage != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(routeProvider.errorMessage!)),
+                          SnackBar(content: AutoTranslateText(routeProvider.errorMessage!)),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Route completed successfully')),
+                          const SnackBar(content: AutoTranslateText('Route completed successfully')),
                         );
                         Navigator.pop(context, _reasonController.text.trim()); // close dialog
                         Navigator.pop(context, true); // go back
@@ -115,7 +116,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         strokeWidth: 2,
                       ),
                     )
-                        : const Text('Submit'),
+                        : const AutoTranslateText('Submit'),
                   ),
                 ],
               );
@@ -132,11 +133,11 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
 
       if (routeProvider.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(routeProvider.errorMessage!)),
+          SnackBar(content: AutoTranslateText(routeProvider.errorMessage!)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Route completed successfully')),
+          const SnackBar(content: AutoTranslateText('Route completed successfully')),
         );
         Navigator.pop(context, true);
       }
@@ -166,7 +167,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       widget.routeName,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
@@ -188,14 +189,14 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : provider.data == null
-                ? const Center(child: Text('No data available'))
+                ? const Center(child: AutoTranslateText('No data available'))
                 : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const AutoTranslateText(
                     "Visit Retailers",
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
@@ -230,7 +231,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  const AutoTranslateText(
                     "Visit Distributors",
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
@@ -289,7 +290,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: AutoTranslateText(
                   widget.status?.toLowerCase() == 'completed'
                       ? 'Completed'
                       : 'Complete',
@@ -347,14 +348,14 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         name,
                         style: const TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 15),
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      AutoTranslateText(
                         firm,
                         style: const TextStyle(
                             fontSize: 13, color: Colors.black87),
@@ -363,12 +364,12 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          AutoTranslateText(
                             contact,
                             style: const TextStyle(
                                 fontSize: 13, color: Colors.black54),
                           ),
-                          Text(
+                          AutoTranslateText(
                             status,
                             style: TextStyle(
                               color: status == 'Completed'

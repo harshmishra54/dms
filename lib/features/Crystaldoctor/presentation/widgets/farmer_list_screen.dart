@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/farmer_form_details_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_form_details_provider.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                   ),
                   const Expanded(
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         "Farmer Details",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -122,7 +123,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                                   : Colors.grey,
                             ),
                             const SizedBox(width: 8),
-                            const Text('Sort by Name'),
+                            const AutoTranslateText('Sort by Name'),
                           ],
                         ),
                       ),
@@ -138,7 +139,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                                   : Colors.grey,
                             ),
                             const SizedBox(width: 8),
-                            const Text('Sort by Date'),
+                            const AutoTranslateText('Sort by Date'),
                           ],
                         ),
                       ),
@@ -160,7 +161,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                           color: Theme.of(context).primaryColor,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
+                        const AutoTranslateText(
                           "Loading farmers...",
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
@@ -182,7 +183,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                             color: Colors.black,
                           ),
                           const SizedBox(height: 16),
-                          Text(
+                          AutoTranslateText(
                             provider.errorMessage!,
                             style:
                             const TextStyle(fontSize: 16, color: Colors.black),
@@ -197,7 +198,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                               Icons.refresh,
                               color: Colors.white,
                             ),
-                            label: const Text(
+                            label: const AutoTranslateText(
                               "Retry",
                               style: TextStyle(color: Colors.white),
                             ),
@@ -267,7 +268,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            AutoTranslateText(
                               '${filteredFarmers.length} farmer${filteredFarmers.length != 1 ? 's' : ''} found',
                               style: TextStyle(
                                 fontSize: 14,
@@ -278,7 +279,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                             if (_sortBy.isNotEmpty)
                               Row(
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     'Sorted by $_sortBy',
                                     style: TextStyle(
                                       fontSize: 12,
@@ -313,7 +314,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                               color: Colors.grey[400],
                             ),
                             const SizedBox(height: 16),
-                            Text(
+                            AutoTranslateText(
                               _searchQuery.isEmpty
                                   ? "No farmers found."
                                   : "No results for '$_searchQuery'",
@@ -329,7 +330,7 @@ class _FarmerListScreenState extends State<FarmerListScreen> {
                                     _searchQuery = '';
                                   });
                                 },
-                                child: const Text("Clear search"),
+                                child: const AutoTranslateText("Clear search"),
                               ),
                             ],
                           ],
@@ -452,7 +453,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         farmer.farmerName[0].toUpperCase(),
                         style: const TextStyle(
                             fontSize: 24,
@@ -463,7 +464,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       farmer.farmerName,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w600),
@@ -518,7 +519,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        const Text(
+                        const AutoTranslateText(
                           'Products',
                           style: TextStyle(
                             fontSize: 14,
@@ -557,7 +558,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                         const Icon(Icons.calendar_today,
                             size: 14, color: Colors.black),
                         const SizedBox(width: 4),
-                        Text(
+                        AutoTranslateText(
                           farmer.createdAt != null
                               ? dateFormatter.format(farmer.createdAt!)
                               : 'N/A',
@@ -572,7 +573,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                           const Icon(Icons.location_on, size: 14, color: Colors.redAccent),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(
+                            child: AutoTranslateText(
                               locationName,
                               style: const TextStyle(
                                 fontSize: 12,
@@ -581,7 +582,7 @@ class _FarmerCardState extends State<_FarmerCard> {
                               ),
                               overflow: TextOverflow.ellipsis, // ✅ prevents overflow
                               maxLines: 1,
-                              softWrap: false,
+                              // softWrap: false,
                             ),
                           ),
                         ],
@@ -634,7 +635,7 @@ class _ProductRow extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(
+          child: AutoTranslateText(
             '$product — $company (${duration.isNotEmpty ? duration : "N/A"})',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
@@ -677,7 +678,7 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AutoTranslateText(
                 label,
                 style: TextStyle(
                   fontSize: 12,
@@ -686,7 +687,7 @@ class _InfoRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              AutoTranslateText(
                 value,
                 style: const TextStyle(
                   fontSize: 14,

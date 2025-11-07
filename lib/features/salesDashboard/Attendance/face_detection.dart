@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -118,7 +119,7 @@ class _SelfieCameraScreenState extends State<SelfieCameraScreen> {
               left: 20,
               right: 20,
               child: Center(
-                child: Text(
+                child: AutoTranslateText(
                   "Align your face within the frame",
                   style: TextStyle(
                     color: Colors.white,
@@ -161,7 +162,7 @@ class _SelfieCameraScreenState extends State<SelfieCameraScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text(
+                    child: const AutoTranslateText(
                       "Retake",
                       style: TextStyle(fontSize: 16,color: Colors.white
                       ),
@@ -178,7 +179,7 @@ class _SelfieCameraScreenState extends State<SelfieCameraScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text(
+                    child: const AutoTranslateText(
                       "Confirm",
                       style: TextStyle(fontSize: 16,color: Colors.white),
                     ),

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -8,7 +9,7 @@ Future<void> launchContactDialer(BuildContext context) async {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not launch the dialer')),
+      const SnackBar(content: AutoTranslateText('Could not launch the dialer')),
     );
   }
 }

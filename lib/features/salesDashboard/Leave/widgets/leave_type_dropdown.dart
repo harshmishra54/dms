@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../../common/app_colors.dart'; // Adjust this if your path differs
 
@@ -48,7 +49,7 @@ class LeaveTypeDropdown extends StatelessWidget {
         items: leaveTypes.map((type) {
           return DropdownMenuItem<String>(
             value: type,
-            child: Text(type),
+            child: AutoTranslateText(type),
           );
         }).toList(),
         onChanged: onChanged,

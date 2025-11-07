@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_details_provider.dart';
@@ -37,7 +38,7 @@ class _CustomerInfoCardState extends State<CustomerInfoCard> {
 
     if (provider.errorMessage.isNotEmpty) {
       return Center(
-        child: Text(
+        child: AutoTranslateText(
           provider.errorMessage,
           style: const TextStyle(color: Colors.red),
         ),
@@ -46,7 +47,7 @@ class _CustomerInfoCardState extends State<CustomerInfoCard> {
 
     if (routeDetails == null) {
       return const Center(
-        child: Text("Customer information not available."),
+        child: AutoTranslateText("Customer information not available."),
       );
     }
 
@@ -63,7 +64,7 @@ class _CustomerInfoCardState extends State<CustomerInfoCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
+          AutoTranslateText(
             routeDetails.name,
             style: const TextStyle(
               fontWeight: FontWeight.w500,
@@ -71,10 +72,10 @@ class _CustomerInfoCardState extends State<CustomerInfoCard> {
             ),
             overflow: TextOverflow.ellipsis, // adds "..." if text overflows
             maxLines: 1, // limits to one line
-            softWrap: false, // prevents wrapping to the next line
+            // softWrap: false, // prevents wrapping to the next line
           ),
 
-          Text(
+          AutoTranslateText(
             routeDetails.firmName,
             style: const TextStyle(
               color: Colors.grey,
@@ -82,10 +83,10 @@ class _CustomerInfoCardState extends State<CustomerInfoCard> {
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            softWrap: false,
+            // softWrap: false,
           ),
 
-          Text(
+          AutoTranslateText(
             routeDetails.mobileNo,
             style: const TextStyle(
               color: Colors.grey,

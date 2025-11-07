@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +62,7 @@ class _PointsUnitsCardState extends State<PointsUnitsCard>
       child: Consumer<ChannelPerformanceProvider>(
         builder: (context, provider, _) {
           if (provider.errorMessage.isNotEmpty) {
-            return Center(child: Text(provider.errorMessage));
+            return Center(child: AutoTranslateText(provider.errorMessage));
           }
 
           final rewards = provider.data?.data?.rewards;
@@ -98,7 +99,7 @@ class _PointsUnitsCardState extends State<PointsUnitsCard>
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const Text("Points Earned", style: TextStyle(fontSize: 13)),
+                    const AutoTranslateText("Points Earned", style: TextStyle(fontSize: 13)),
                   ],
                 ),
 
@@ -122,7 +123,7 @@ class _PointsUnitsCardState extends State<PointsUnitsCard>
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const Text("Units Scanned", style: TextStyle(fontSize: 13)),
+                    const AutoTranslateText("Units Scanned", style: TextStyle(fontSize: 13)),
                   ],
                 ),
               ],

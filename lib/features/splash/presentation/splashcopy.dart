@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_home_navigation.dart';
@@ -134,7 +135,7 @@ class _SplashScreenState extends State<SplashScreenn>
               left: 0,
               right: 0,
               child: const Center(
-                child: Text(
+                child: AutoTranslateText(
                   'TrustTags-DMS',
                   style: TextStyle(
                     fontSize: 28,

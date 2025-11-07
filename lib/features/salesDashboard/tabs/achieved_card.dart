@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 
 class Product {
@@ -32,7 +33,7 @@ class AchievedTargetListingScreen extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                const Text(
+                const AutoTranslateText(
                   "Achieved Target",
                   style: TextStyle(
                     fontSize: 22,
@@ -89,7 +90,7 @@ class AchievedTargetListingScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            AutoTranslateText(
                               product.name,
                               style: const TextStyle(
                                 fontSize: 18,
@@ -103,7 +104,7 @@ class AchievedTargetListingScreen extends StatelessWidget {
                                 const Icon(Icons.track_changes,
                                     size: 16, color: Colors.grey),
                                 const SizedBox(width: 4),
-                                Text(
+                                AutoTranslateText(
                                   "Tracking target...",
                                   style: TextStyle(
                                     fontSize: 13,
@@ -123,7 +124,7 @@ class AchievedTargetListingScreen extends StatelessWidget {
                             color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(
+                          child: AutoTranslateText(
                             "Achieved: ${product.target}",
                             style: const TextStyle(
                               fontSize: 14,

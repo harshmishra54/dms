@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -53,7 +54,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         onPressed: () => Navigator.pop(context),
                       ),
                       const Expanded(
-                        child: Text(
+                        child: AutoTranslateText(
                           'Notifications',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -96,7 +97,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 8),
-          Text("No Notification", style: const TextStyle(color: Colors.black)),
+          AutoTranslateText("No Notification", style: const TextStyle(color: Colors.black)),
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
@@ -108,7 +109,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text("Retry"),
+            child: const AutoTranslateText("Retry"),
           ),
         ],
       ),
@@ -118,7 +119,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   /// Empty state widget
   Widget _buildEmptyState() {
     return const Center(
-      child: Text(
+      child: AutoTranslateText(
         "No notifications yet.",
         style: TextStyle(color: Colors.grey, fontSize: 16),
       ),
@@ -172,7 +173,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
+                        child: AutoTranslateText(
                           notification.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -184,7 +185,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       AnimatedOpacity(
                         opacity: 1,
                         duration: const Duration(milliseconds: 300),
-                        child: Text(
+                        child: AutoTranslateText(
                           _formatTimestamp(notification.timestamp),
                           style: const TextStyle(
                             fontSize: 12,
@@ -202,7 +203,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     child: isExpanded
                         ? Padding(
                       padding: const EdgeInsets.only(top: 12),
-                      child: Text(
+                      child: AutoTranslateText(
                         notification.message,
                         style: const TextStyle(
                           fontSize: 14,

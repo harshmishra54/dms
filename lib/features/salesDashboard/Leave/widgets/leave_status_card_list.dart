@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,7 @@ class LeaveStatusCardList extends StatelessWidget {
         }
 
         if (list.isEmpty) {
-          return const Center(child: Text('No leave history found.'));
+          return const Center(child: AutoTranslateText('No leave history found.'));
         }
 
         return SizedBox(
@@ -83,7 +84,7 @@ class LeaveStatusCardList extends StatelessWidget {
                             color: color.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
+                          child: AutoTranslateText(
                             leave.status,
                             style: TextStyle(
                               fontSize: 12,
@@ -96,7 +97,7 @@ class LeaveStatusCardList extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          AutoTranslateText(
                             'Leave Type: ${leave.leaveType}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -104,9 +105,9 @@ class LeaveStatusCardList extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Text('From: $formattedStartDate', style: const TextStyle(fontSize: 14)),
-                          Text('To:   $formattedEndDate', style: const TextStyle(fontSize: 14)),
-                          Text('Reason: ${leave.reason}', style: const TextStyle(fontSize: 14)),
+                          AutoTranslateText('From: $formattedStartDate', style: const TextStyle(fontSize: 14)),
+                          AutoTranslateText('To:   $formattedEndDate', style: const TextStyle(fontSize: 14)),
+                          AutoTranslateText('Reason: ${leave.reason}', style: const TextStyle(fontSize: 14)),
                         ],
                       ),
                     ],

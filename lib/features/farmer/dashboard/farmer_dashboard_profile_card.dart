@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -99,9 +100,9 @@ class _FarmerDashboardProfileCardState
             child: channelProvider.isLoading || profileProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : (channelProvider.errorMessage?.isNotEmpty ?? false)
-                ? Center(child: Text(channelProvider.errorMessage!))
+                ? Center(child: AutoTranslateText(channelProvider.errorMessage!))
                 : (profileProvider.errorMessage?.isNotEmpty ?? false)
-                ? Center(child: Text(profileProvider.errorMessage!))
+                ? Center(child: AutoTranslateText(profileProvider.errorMessage!))
                 : Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,7 +112,7 @@ class _FarmerDashboardProfileCardState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         "Hi, $userName",
                         style: const TextStyle(
                           fontSize: 18,
@@ -134,7 +135,7 @@ class _FarmerDashboardProfileCardState
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Text(
+                          const AutoTranslateText(
                             "Points Balance",
                             style: TextStyle(
                               fontSize: 18,
@@ -156,7 +157,7 @@ class _FarmerDashboardProfileCardState
                           "assets/images/trust_tags.png"),
                     ),
                     const SizedBox(height: 6),
-                    Text(
+                    AutoTranslateText(
                       tier,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,

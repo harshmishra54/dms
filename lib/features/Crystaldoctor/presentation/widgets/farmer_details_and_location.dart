@@ -2,6 +2,7 @@
 
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -46,7 +47,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Enter phone number")));
+          .showSnackBar(const SnackBar(content: AutoTranslateText("Enter phone number")));
       return;
     }
 
@@ -57,7 +58,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
 
     if (provider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.errorMessage!)),
+        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
       );
       return;
     }
@@ -96,7 +97,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No location data found for this farmer.")),
+        const SnackBar(content: AutoTranslateText("No location data found for this farmer.")),
       );
     }
   }
@@ -124,7 +125,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
                         onPressed: () => Navigator.pop(context),
                       ),
                       const Expanded(
-                        child: Text(
+                        child: AutoTranslateText(
                           'Farmer Location',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -228,7 +229,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
                                     ),
                                     child: Column(
                                       children: [
-                                        Text(
+                                        AutoTranslateText(
                                           farmer?.name ?? "Farmer", // ✅ Farmer name
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -237,7 +238,7 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
                                           ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
+                                        AutoTranslateText(
                                           _placeName ?? "Loading…", // ✅ Place name
                                           style: const TextStyle(
                                             fontWeight: FontWeight.normal,
@@ -289,14 +290,14 @@ class _PhoneLocationScreenState extends State<PhoneLocationScreen>
                         backgroundColor: AppColors.topBarColor,
                         child: Icon(Icons.person, color: Colors.white),
                       ),
-                      title: Text(farmer.name),
-                      subtitle: Text("📍$_placeName"),
+                      title: AutoTranslateText(farmer.name),
+                      subtitle: AutoTranslateText("📍$_placeName"),
                       trailing: _markerLocation != null
                           ? TextButton.icon(
                         onPressed: () => launchUrl(Uri.parse(
                             'https://www.google.com/maps/search/?api=1&query=${_markerLocation!.latitude},${_markerLocation!.longitude}')),
                         icon: const Icon(Icons.navigation, color: AppColors.topBarColor),
-                        label: const Text(
+                        label: const AutoTranslateText(
                           "Navigate",
                           style: TextStyle(color:AppColors.topBarColor, fontSize: 14),
                         ),

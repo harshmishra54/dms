@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/complete_return_model.dart';
 import 'package:TrustTags_DMS/data/models/order_details_model.dart';
@@ -65,7 +66,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(msg)));
   }
 
   Future<void> _handleCompleteReturn() async {
@@ -113,7 +114,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : orderDetails == null
-                ? const Center(child: Text("Failed to load order details"))
+                ? const Center(child: AutoTranslateText("Failed to load order details"))
                 : _buildOrderContent(orderDetails!),
           ),
         ],
@@ -140,7 +141,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
               strokeWidth: 2,
             ),
           )
-              : const Text(
+              : const AutoTranslateText(
             "Complete Return",
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
@@ -162,7 +163,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
-            child: Text(
+            child: AutoTranslateText(
               'Order Details',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -192,18 +193,18 @@ class _ReorderScreenState extends State<ReorderScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Order Details",
+                const AutoTranslateText("Order Details",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text("Order ID : ${data.data.orderNo ?? ""}"),
+                AutoTranslateText("Order ID : ${data.data.orderNo ?? ""}"),
                 const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Date : ${data.data.orderDate.split('T')[0]}"),
+                    AutoTranslateText("Date : ${data.data.orderDate.split('T')[0]}"),
                     Row(
                       children: [
-                        Text(
+                        AutoTranslateText(
                           "Order ${data.data.status}",
                           style: TextStyle(
                             color: _getStatusColor(data.data.status),
@@ -250,7 +251,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                                   if (provider.status == ReorderStatus.success) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
+                                        content: AutoTranslateText(
                                           "Reorder created: ${provider.reorderResponse?.newOrderNo ?? ''}",
                                         ),
                                       ),
@@ -260,7 +261,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
                                       ReorderStatus.error) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
+                                        content: AutoTranslateText(
                                             "Failed to reorder: ${provider.errorMessage}"),
                                       ),
                                     );
@@ -299,15 +300,15 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.product.name,
+                    AutoTranslateText(item.product.name,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Qty : $qty"),
-                        Text("Price : ₹${price.toStringAsFixed(2)}"),
-                        Text(
+                        AutoTranslateText("Qty : $qty"),
+                        AutoTranslateText("Price : ₹${price.toStringAsFixed(2)}"),
+                        AutoTranslateText(
                           "₹${lineTotal.toStringAsFixed(2)}",
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.deepPurple),
@@ -332,7 +333,7 @@ class _ReorderScreenState extends State<ReorderScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Bill Summary",
+                const AutoTranslateText("Bill Summary",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const Divider(),
                 _billRow("Discounted Price :", "₹${discountPrice.toStringAsFixed(2)}"),
@@ -342,14 +343,14 @@ class _ReorderScreenState extends State<ReorderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       "Total :",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: Colors.deepPurple),
                     ),
-                    Text(
+                    AutoTranslateText(
                       "₹${total.toStringAsFixed(2)}",
                       style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -370,8 +371,8 @@ class _ReorderScreenState extends State<ReorderScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label),
-        Text(value),
+        AutoTranslateText(label),
+        AutoTranslateText(value),
       ]),
     );
   }

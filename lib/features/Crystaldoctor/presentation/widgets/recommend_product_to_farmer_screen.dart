@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
@@ -50,16 +51,16 @@ class _RecommendProductToFarmerScreenState
 
     for (var rec in translatedRecs) {
       rec.directionsOfUse =
-      await _translateText(rec.original.directionsOfUse ?? 'N/A');
+      await _translateAutoTranslateText(rec.original.directionsOfUse ?? 'N/A');
       rec.features =
-      await _translateText(rec.original.features?.join(', ') ?? 'N/A');
-      rec.reason = await _translateText(rec.original.reason ?? 'N/A');
+      await _translateAutoTranslateText(rec.original.features?.join(', ') ?? 'N/A');
+      rec.reason = await _translateAutoTranslateText(rec.original.reason ?? 'N/A');
     }
 
     setState(() => _loadingTranslations = false);
   }
 
-  Future<String> _translateText(String text, {String to = 'hi'}) async {
+  Future<String> _translateAutoTranslateText(String text, {String to = 'hi'}) async {
     if (text.isEmpty) return '';
     try {
       var translation = await _translator.translate(text, to: to);
@@ -140,7 +141,7 @@ class _RecommendProductToFarmerScreenState
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    AutoTranslateText(
                       'Smart Recommendations',
                       style: TextStyle(
                         color: Colors.white,
@@ -150,7 +151,7 @@ class _RecommendProductToFarmerScreenState
                       ),
                     ),
                     SizedBox(height: 2),
-                    Text(
+                    AutoTranslateText(
                       'AI-Powered Product Suggestions',
                       style: TextStyle(
                         color: Colors.white70,
@@ -179,7 +180,7 @@ class _RecommendProductToFarmerScreenState
             strokeWidth: 3,
           ),
           const SizedBox(height: 24),
-          const Text(
+          const AutoTranslateText(
             'Preparing recommendations...',
             style: TextStyle(
               fontSize: 16,
@@ -188,7 +189,7 @@ class _RecommendProductToFarmerScreenState
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          const AutoTranslateText(
             'Translating content for you',
             style: TextStyle(fontSize: 13, color: Colors.black38),
           ),
@@ -233,7 +234,7 @@ class _RecommendProductToFarmerScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  AutoTranslateText(
                     'Farmer Details',
                     style: TextStyle(
                       fontSize: 13,
@@ -243,7 +244,7 @@ class _RecommendProductToFarmerScreenState
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  AutoTranslateText(
                     widget.mobileNumber,
                     style: const TextStyle(
                       fontSize: 18,
@@ -261,7 +262,7 @@ class _RecommendProductToFarmerScreenState
                 color: Colors.green.shade700,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
+              child: AutoTranslateText(
                 '${translatedRecs.length} Products',
                 style: const TextStyle(
                   color: Colors.white,
@@ -306,7 +307,7 @@ class _RecommendProductToFarmerScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoTranslateText(
                   'Language Preference',
                   style: TextStyle(
                     fontSize: 14,
@@ -315,7 +316,7 @@ class _RecommendProductToFarmerScreenState
                   ),
                 ),
                 SizedBox(height: 2),
-                Text(
+                AutoTranslateText(
                   'Switch to Hindi translation',
                   style: TextStyle(fontSize: 11, color: Colors.black54),
                 ),
@@ -400,7 +401,7 @@ class _RecommendProductToFarmerScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         r.name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -416,7 +417,7 @@ class _RecommendProductToFarmerScreenState
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(
+                        child: AutoTranslateText(
                           '${r.crop} • ${r.disease}',
                           style: TextStyle(
                             fontSize: 12,
@@ -550,7 +551,7 @@ class _RecommendProductToFarmerScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         r.original.name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -566,7 +567,7 @@ class _RecommendProductToFarmerScreenState
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(
+                        child: AutoTranslateText(
                           '${r.original.crop} • ${r.original.disease}',
                           style: TextStyle(
                             fontSize: 12,
@@ -655,7 +656,7 @@ class _RecommendProductToFarmerScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoTranslateText(
                   label,
                   style: const TextStyle(
                     fontSize: 12,
@@ -664,7 +665,7 @@ class _RecommendProductToFarmerScreenState
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                AutoTranslateText(
                   value,
                   style: const TextStyle(
                     fontSize: 14,
@@ -701,7 +702,7 @@ class _RecommendProductToFarmerScreenState
             ),
             child: Icon(icon, size: 18, color: color),
           ),
-          title: Text(
+          title: AutoTranslateText(
             title,
             style: TextStyle(
               fontSize: 14,
@@ -712,7 +713,7 @@ class _RecommendProductToFarmerScreenState
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text(
+              child: AutoTranslateText(
                 content,
                 style: const TextStyle(
                   fontSize: 13,

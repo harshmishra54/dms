@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/schemes/presentation/distributor_schemes.dart';
 import 'package:flutter/material.dart';
 import '../widgets/schemes_tab_section.dart';
@@ -32,7 +33,7 @@ class SchemesScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        const AutoTranslateText(
                           'Schemes',
                           style: TextStyle(
                             color: Colors.black,
@@ -83,7 +84,7 @@ class SchemesScreen extends StatelessWidget {
                 children: [
                   const SchemesTabSection(),
                   const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Coming Soon',
                       style: TextStyle(
                         color: AppColors.topBarColor,

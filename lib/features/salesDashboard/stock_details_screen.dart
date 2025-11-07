@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,7 @@ class StockDetailsScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       title,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
@@ -65,7 +66,7 @@ class StockDetailsScreen extends StatelessWidget {
                 }
                 if (stockProvider.errorMessage != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       stockProvider.errorMessage!,
                       style: const TextStyle(color: Colors.red),
                     ),
@@ -73,7 +74,7 @@ class StockDetailsScreen extends StatelessWidget {
                 }
                 if (stockProvider.stockList.isEmpty) {
                   return const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       "No stock data found",
                       style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
@@ -93,11 +94,11 @@ class StockDetailsScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: const [
-                            Expanded(flex: 2, child: Text("Item Code", style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 2, child: Text("Batch No.", style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Text("Pack", style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Text("Bin", style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Text("Qty", style: TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(flex: 2, child: AutoTranslateText("Item Code", style: TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(flex: 2, child: AutoTranslateText("Batch No.", style: TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: AutoTranslateText("Pack", style: TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: AutoTranslateText("Bin", style: TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: AutoTranslateText("Qty", style: TextStyle(fontWeight: FontWeight.bold))),
                           ],
                         ),
                       );
@@ -122,10 +123,10 @@ class StockDetailsScreen extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Expanded(flex: 2, child: Text(stock.itemCode)),
-                          Expanded(flex: 2, child: Text(stock.batchNo)),
-                          Expanded(flex: 1, child: Text(stock.packagingLevel)),
-                          Expanded(flex: 1, child: Text(stock.bin)),
+                          Expanded(flex: 2, child: AutoTranslateText(stock.itemCode)),
+                          Expanded(flex: 2, child: AutoTranslateText(stock.batchNo)),
+                          Expanded(flex: 1, child: AutoTranslateText(stock.packagingLevel)),
+                          Expanded(flex: 1, child: AutoTranslateText(stock.bin)),
                           Expanded(
                             flex: 1,
                             child: Container(
@@ -134,7 +135,7 @@ class StockDetailsScreen extends StatelessWidget {
                                 color: getQuantityColor(stock.quantity).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Text(
+                              child: AutoTranslateText(
                                 stock.quantity.toString(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(

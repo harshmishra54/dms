@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- NEW -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="trusttags_dms"
@@ -39,11 +39,17 @@
             android:value="2" />
     </application>
 
+    <!-- Required for share_plus -->
     <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
         </intent>
         <package android:name="com.google.android.youtube" />
     </queries>
+
 </manifest>

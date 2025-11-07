@@ -5,6 +5,7 @@ import 'package:TrustTags_DMS/features/home/presentation/scan_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/schemes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/widgets/custom_bottom_nav_bar.dart';
 import '../../dashboard/provider/channel_performance_provider.dart';
@@ -24,6 +25,19 @@ class FarmerDashboardHomenavigation extends StatefulWidget {
 class _FarmerDashboardHomenavigationState
     extends State<FarmerDashboardHomenavigation> {
   late int _selectedIndex;
+  int? roleId;
+
+
+  Future<void> _loadRoleId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // ❌ Wrong
+      // roleId = prefs.getInt('roleId');
+
+      // ✅ Correct (use the same key name you used in SharedPrefsHelper)
+      roleId = prefs.getInt('role_id');
+    });
+  }
 
   final List<Widget> _screens = const [
     FarmerDashboard(),
@@ -37,6 +51,7 @@ class _FarmerDashboardHomenavigationState
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _loadRoleId();
   }
 
   void _onItemTapped(int index) {
@@ -71,6 +86,7 @@ class _FarmerDashboardHomenavigationState
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
+          roleId: roleId,
         ),
       ),
     );

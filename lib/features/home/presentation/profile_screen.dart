@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
@@ -33,19 +34,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             bool isLoading = logoutProvider.isLoading;
 
             return AlertDialog(
-              title: const Text("Logout"),
+              title: const AutoTranslateText("Logout"),
               content: isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  Text("Logging out..."),
+                  AutoTranslateText("Logging out..."),
                 ],
               )
-                  : const Text("Are you sure you want to logout?"),
+                  : const AutoTranslateText("Are you sure you want to logout?"),
               actions: [
                 TextButton(
-                  child: const Text("Cancel"),
+                  child: const AutoTranslateText("Cancel"),
                   onPressed: isLoading
                       ? null
                       : () {
@@ -59,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text("Yes"),
+                      : const AutoTranslateText("Yes"),
                   onPressed: isLoading
                       ? null
                       : () async {
@@ -80,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     } else if (logoutProvider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(logoutProvider.errorMessage!),
+                          content: AutoTranslateText(logoutProvider.errorMessage!),
                         ),
                       );
                     }
@@ -151,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
               ],
             ),
-            child: const Text(
+            child: const AutoTranslateText(
               "Profile",
               style: TextStyle(
                 color: Colors.black,
@@ -166,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : error != null
-                ? Center(child: Text(error))
+                ? Center(child: AutoTranslateText(error))
                 : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment:
                             MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 customer?.name ?? 'No Name',
                                 style: const TextStyle(
                                   color: Colors.white,
@@ -220,7 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   );
                                 },
-                                child: const Text(
+                                child: const AutoTranslateText(
                                   'View',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -267,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       borderRadius:
                                       BorderRadius.circular(20),
                                     ),
-                                    child: const Text(
+                                    child: const AutoTranslateText(
                                       'Verified',
                                       style: TextStyle(
                                         color: Colors.white,
@@ -282,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 crossAxisAlignment:
                                 CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  const AutoTranslateText(
                                     'Mobile Number:',
                                     style: TextStyle(
                                       fontSize: 14,
@@ -290,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
+                                  AutoTranslateText(
                                     customer?.phone ?? 'N/A',
                                     style: const TextStyle(
                                       fontSize: 18,
@@ -403,7 +404,7 @@ class _ProfileTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       leading: Icon(icon, color: AppColors.primaryPurple),
-      title: Text(
+      title: AutoTranslateText(
         label,
         style: TextStyle(
           color: isLogout ? Colors.black : Colors.black,

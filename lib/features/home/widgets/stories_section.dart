@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/dashboard_provider.dart';
 import 'package:TrustTags_DMS/features/home/widgets/story_full_screen.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class StoriesSection extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 0),
-          child: Text(
+          child: AutoTranslateText(
             "Top Stories",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/add_return_scan_code_models.dart';
 import 'package:TrustTags_DMS/data/models/ipt_add_order_model.dart';
@@ -31,7 +32,7 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
     bool alreadyScanned = provider.scannedItems.any((item) => item.uniqueCode == code);
     if (alreadyScanned) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ This code has already been scanned")),
+        const SnackBar(content: AutoTranslateText("⚠️ This code has already been scanned")),
       );
       _scannerKey.currentState?.resetScanner();
       return;
@@ -59,14 +60,14 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
 
     if (fromLocation == null || toLocation.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Missing from/to location")),
+        const SnackBar(content: AutoTranslateText("Missing from/to location")),
       );
       return;
     }
 
     if (scanProvider.scannedItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please scan at least 1 item")),
+        const SnackBar(content: AutoTranslateText("Please scan at least 1 item")),
       );
       return;
     }
@@ -97,13 +98,13 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
     if (orderProvider.response != null && orderProvider.response!.success == 1) {
       scanProvider.clear(); // ✅ clear list after successful order
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("✅ Order Created: ${orderProvider.response!.orderId}")),
+        SnackBar(content: AutoTranslateText("✅ Order Created: ${orderProvider.response!.orderId}")),
       );
       Navigator.of(context).pop(true); // return success
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ ${orderProvider.errorMessage ?? 'Order failed'}")),
+        SnackBar(content: AutoTranslateText("❌ ${orderProvider.errorMessage ?? 'Order failed'}")),
       );
     }
   }
@@ -143,7 +144,7 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
                     child: const Icon(Icons.arrow_back, color: Colors.black),
                   ),
                   const SizedBox(width: 16),
-                  const Text(
+                  const AutoTranslateText(
                     "IPT Scan Screen",
                     style: TextStyle(
                       fontSize: 18,
@@ -176,7 +177,7 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
                   SizedBox(
                     height: 60,
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         scanProvider.errorMessage!,
                         style: const TextStyle(color: Colors.red),
                       ),
@@ -195,8 +196,8 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.qr_code),
                               title:
-                              Text(data.product?.name ?? 'Unknown Product'),
-                              subtitle: Text(
+                              AutoTranslateText(data.product?.name ?? 'Unknown Product'),
+                              subtitle: AutoTranslateText(
                                 'MRP: ₹${data.productBatch?.mrp ?? 'N/A'}',
                               ),
                             ),
@@ -214,7 +215,7 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
                 onPressed: orderProvider.isLoading ? null : _onSubmitOrder, // optional icon
-                label: const Text(
+                label: const AutoTranslateText(
                   "Add IPT Order",
                   style: TextStyle(color: Colors.white),
                 ),

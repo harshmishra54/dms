@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/product_price_provider.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
@@ -78,7 +79,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
       if (invalidRows.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("⚠️ Invalid rows: ${invalidRows.join(', ')}"),
+            content: AutoTranslateText("⚠️ Invalid rows: ${invalidRows.join(', ')}"),
             backgroundColor: Colors.orange,
           ),
         );
@@ -87,7 +88,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
       if (missingProducts.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("⚠️ ${missingProducts.length} product(s) missing from file."),
+            content: AutoTranslateText("⚠️ ${missingProducts.length} product(s) missing from file."),
             backgroundColor: Colors.orange,
           ),
         );
@@ -101,7 +102,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
     if (_productList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please select a valid Excel file."),
+          content: AutoTranslateText("Please select a valid Excel file."),
           backgroundColor: Colors.red,
         ),
       );
@@ -114,7 +115,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
     if (provider.updateResponse != null && provider.updateResponse!.success == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✅ ${provider.updateResponse!.message}"),
+          content: AutoTranslateText("✅ ${provider.updateResponse!.message}"),
           backgroundColor: Colors.green,
         ),
       );
@@ -128,7 +129,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("❌ ${provider.errorMessage ?? 'Upload failed.'}"),
+          content: AutoTranslateText("❌ ${provider.errorMessage ?? 'Upload failed.'}"),
           backgroundColor: Colors.red,
         ),
       );
@@ -210,7 +211,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
-            child: Text(
+            child: AutoTranslateText(
               'Add Price',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -246,7 +247,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                 size: 48, color: Colors.white),
           ),
           const SizedBox(height: 16),
-          Text(
+          AutoTranslateText(
             "Upload Excel File",
             style: TextStyle(
               fontSize: 24,
@@ -255,7 +256,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          AutoTranslateText(
             "Select an Excel file containing product prices",
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
@@ -264,7 +265,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
           ElevatedButton.icon(
             onPressed: _pickExcelFile,
             icon: const Icon(Icons.folder_open),
-            label: const Text("Choose File"),
+            label: const AutoTranslateText("Choose File"),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.topBarColor,
               foregroundColor: Colors.white,
@@ -291,12 +292,12 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
         ),
         child: ListTile(
           leading: Icon(icon, color: color[700], size: 30),
-          title: Text(title,
+          title: AutoTranslateText(title,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: color[900])),
-          subtitle: Text(subtitle,
+          subtitle: AutoTranslateText(subtitle,
               style: TextStyle(fontSize: 14, color: color[700])),
         ),
       );
@@ -325,13 +326,13 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
+                  AutoTranslateText(title,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: color[900])),
                   const SizedBox(height: 4),
-                  Text(
+                  AutoTranslateText(
                     message,
                     style: TextStyle(fontSize: 12, color: color[800]),
                   ),
@@ -361,7 +362,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
           ),
         )
             : const Icon(Icons.backup),
-        label: Text(
+        label: AutoTranslateText(
           provider.isLoading ? "Uploading..." : "Upload to Server",
           style:
           const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -395,7 +396,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                const AutoTranslateText(
                   "File Requirements",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -404,7 +405,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                AutoTranslateText(
                   "• Supported formats: .xlsx, .xls\n"
                       "• Required columns: Item Code, Product Name, Price\n"
                       "• Optional: Unique Name, Scheme Price",

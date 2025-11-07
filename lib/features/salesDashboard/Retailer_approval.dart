@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/update_retailer_registration_provider.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
       // Show success message
       if (provider.message != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(provider.message!)),
+          SnackBar(content: AutoTranslateText(provider.message!)),
         );
       }
 
@@ -65,7 +66,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
     } else {
       if (provider.message != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(provider.message!)),
+          SnackBar(content: AutoTranslateText(provider.message!)),
         );
       }
     }
@@ -97,7 +98,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                const Text(
+                const AutoTranslateText(
                   "Registered Retailers",
                   style: TextStyle(
                     fontSize: 20,
@@ -126,7 +127,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
 
                 if (provider.errorMessage != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       provider.errorMessage!,
                       style: const TextStyle(color: Colors.red),
                     ),
@@ -134,7 +135,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                 }
 
                 if (provider.rsmList.isEmpty) {
-                  return const Center(child: Text("No Retailers found"));
+                  return const Center(child: AutoTranslateText("No Retailers found"));
                 }
 
                 return ListView.builder(
@@ -160,7 +161,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                               children: [
                                 CircleAvatar(
                                   backgroundColor: Colors.blue.shade100,
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     (distributor.name?.isNotEmpty == true
                                         ? distributor.name![0]
                                         : "-")
@@ -174,7 +175,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      AutoTranslateText(
                                         distributor.name ?? "-",
                                         style: const TextStyle(
                                           fontSize: 16,
@@ -182,7 +183,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                                         ),
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
+                                      AutoTranslateText(
                                         distributor.firmName ?? "No address",
                                         style: const TextStyle(
                                           fontSize: 14,
@@ -222,7 +223,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                      : const Text("Approve",style: TextStyle(color: Colors.purple),),
+                                      : const AutoTranslateText("Approve",style: TextStyle(color: Colors.purple),),
                                 ),
                                 const SizedBox(width: 8),
                                 ElevatedButton(
@@ -246,7 +247,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                      : const Text("Reject",style: TextStyle(color: Colors.purple),),
+                                      : const AutoTranslateText("Reject",style: TextStyle(color: Colors.purple),),
                                 ),
                               ],
                             ),

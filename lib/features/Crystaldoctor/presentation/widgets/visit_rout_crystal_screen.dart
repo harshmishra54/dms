@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/add_farmer_details_model.dart';
 import 'package:TrustTags_DMS/data/models/crop_list_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/register_farmer_by_crystal_doctor.dart';
@@ -324,7 +325,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
               const SizedBox(width: 12),
             ],
             Expanded(
-              child: Text(
+              child: AutoTranslateText(
                 message,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
@@ -396,7 +397,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
               onPressed: () => Navigator.pop(context),
             ),
             const Expanded(
-              child: Text(
+              child: AutoTranslateText(
                 'Visit Rout Details',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
@@ -437,7 +438,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                 child: Icon(Icons.person, color: Colors.purple.shade700, size: 20),
               ),
               const SizedBox(width: 10),
-              const Text(
+              const AutoTranslateText(
                 'Farmer Information',
                 style: TextStyle(
                   fontSize: 16,
@@ -512,7 +513,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                 width: isSelected ? 2 : 1,
               ),
             ),
-            child: Text(
+            child: AutoTranslateText(
               season,
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.grey.shade700,
@@ -540,7 +541,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
         children: [
           Icon(Icons.location_on, color: Colors.purple.shade700, size: 14),
           const SizedBox(width: 4),
-          Text(
+          AutoTranslateText(
             'Location: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
             style: TextStyle(
               color: Colors.purple.shade900,
@@ -584,7 +585,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                     child: Icon(Icons.agriculture, color: Colors.amber.shade700, size: 20),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  const AutoTranslateText(
                     'Crop Details',
                     style: TextStyle(
                       fontSize: 16,
@@ -668,7 +669,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                 const Icon(Icons.eco, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
+                  child: AutoTranslateText(
                     crop.cropName,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
@@ -733,7 +734,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                     });
                   },
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add Product', style: TextStyle(fontSize: 13)),
+                  label: const AutoTranslateText('Add Product', style: TextStyle(fontSize: 13)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.purple.shade700,
                     side: BorderSide(color: Colors.purple.shade300),
@@ -772,7 +773,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
               children: [
                 Icon(Icons.shopping_bag, size: 14, color: Colors.grey.shade700),
                 const SizedBox(width: 6),
-                Text(
+                AutoTranslateText(
                   'Product ${productIndex + 1}',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
@@ -807,7 +808,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: SwitchListTile(
-                    title: const Text('Currently Using', style: TextStyle(fontSize: 13)),
+                    title: const AutoTranslateText('Currently Using', style: TextStyle(fontSize: 13)),
                     value: product.currentlyUsing,
                     onChanged: (val) => setState(() => product.currentlyUsing = val),
                     activeColor: Colors.purple.shade600,
@@ -833,7 +834,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                               : Colors.grey,
                         ),
                         const SizedBox(width: 6),
-                        Text(e, style: const TextStyle(fontSize: 13)),
+                        AutoTranslateText(e, style: const TextStyle(fontSize: 13)),
                       ],
                     ),
                   ))
@@ -902,7 +903,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 20),
             SizedBox(width: 8),
-            Text(
+            AutoTranslateText(
               'Submit Details',
               style: TextStyle(
                 fontSize: 16,
@@ -926,7 +927,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
             Icon(icon, size: small ? 13 : 14, color: Colors.grey.shade600),
             const SizedBox(width: 4),
           ],
-          Text(
+          AutoTranslateText(
             text,
             style: TextStyle(
               fontWeight: FontWeight.w600,

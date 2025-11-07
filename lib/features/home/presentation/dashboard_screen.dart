@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -88,12 +89,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Do you want to exit the app?"),
+        title: const AutoTranslateText("Exit App"),
+        content: const AutoTranslateText("Do you want to exit the app?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () {
@@ -103,7 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 exit(0);
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -213,9 +214,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                         if (provider.isLoading) {
                           return const Center(child: CircularProgressIndicator());
                         } else if (provider.errorMessage.isNotEmpty) {
-                          return Center(child: Text(provider.errorMessage));
+                          return Center(child: AutoTranslateText(provider.errorMessage));
                         } else {
-                          return const Center(child: Text('No data available'));
+                          return const Center(child: AutoTranslateText('No data available'));
                         }
                       }
 

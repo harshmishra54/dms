@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../../common/app_colors.dart';
@@ -43,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (fullPhoneNumber.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 10-digit mobile number')),
+        const SnackBar(content: AutoTranslateText('Please enter a valid 10-digit mobile number')),
       );
       return;
     }
@@ -81,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send OTP.')),
+        const SnackBar(content: AutoTranslateText('Failed to send OTP.')),
       );
     }
   }
@@ -109,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               alignment: Alignment.centerLeft,
-              child: Text(
+              child: AutoTranslateText(
                 '${widget.selectedRole} selected',
                 style: const TextStyle(
                   color: Colors.white,
@@ -136,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Icon(Icons.arrow_back, size: 26),
                         ),
                         const SizedBox(width: 18),
-                        const Text(
+                        const AutoTranslateText(
                           'Login',
                           style: TextStyle(fontSize: 20, letterSpacing: 0.2),
                         ),
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
+                    child: AutoTranslateText(
                       'Login via mobile number',
                       style: TextStyle(
                         fontSize: 34,
@@ -161,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
+                    child: AutoTranslateText(
                       'Select your country code and enter your mobile number to get an OTP',
                       style: TextStyle(
                         color: Colors.grey,
@@ -216,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.white,
                           ),
                         )
-                            : const Text(
+                            : const AutoTranslateText(
                           'Get OTP',
                           style: TextStyle(
                             fontSize: 17,

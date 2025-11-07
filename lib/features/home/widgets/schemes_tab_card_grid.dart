@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 
 class SchemesTabCardGrid extends StatelessWidget {
@@ -40,9 +41,9 @@ class SchemesTabCardGrid extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Scheme Title", style: TextStyle(fontWeight: FontWeight.bold)),
+                    AutoTranslateText("Scheme Title", style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(height: 6),
-                    Text(
+                    AutoTranslateText(
                       "Short description about the scheme...",
                       style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),

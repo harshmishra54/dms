@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +65,7 @@ class _InwardScreenState extends State<InwardScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(inwardProvider.error ?? "Something went wrong")),
+        SnackBar(content: AutoTranslateText(inwardProvider.error ?? "Something went wrong")),
       );
     }
   }
@@ -83,7 +84,7 @@ class _InwardScreenState extends State<InwardScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please enter a valid 36-digit UID"),
+          content: AutoTranslateText("Please enter a valid 36-digit UID"),
           duration: Duration(seconds: 2),
         ),
       );
@@ -105,7 +106,7 @@ class _InwardScreenState extends State<InwardScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const AutoTranslateText(
                   'Scan QR',
                   style: TextStyle(
                     color: Colors.black,
@@ -176,7 +177,7 @@ class _InwardScreenState extends State<InwardScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 24),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
+                      child: AutoTranslateText(
                         'SCAN DETAILS',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
@@ -194,7 +195,7 @@ class _InwardScreenState extends State<InwardScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
+                      child: AutoTranslateText(
                         scannedUID.isNotEmpty ? 'Scanned UID: $scannedUID' : 'No scan yet.',
                         style: const TextStyle(fontSize: 16),
                       ),

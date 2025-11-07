@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/cancel_order_%20model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -122,7 +123,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(msg)));
   }
 
   @override
@@ -152,7 +153,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                   child: const Icon(Icons.arrow_back, color: Colors.black),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                const AutoTranslateText(
                   "Order Update",
                   style: TextStyle(
                     fontSize: 18,
@@ -168,7 +169,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : orderDetails == null
-                ? const Center(child: Text("Failed to load order details"))
+                ? const Center(child: AutoTranslateText("Failed to load order details"))
                 : Column(
               children: [
                 Expanded(
@@ -195,7 +196,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       item.product.name,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
@@ -203,7 +204,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
+                                    AutoTranslateText(
                                       "Price: ₹${item.price}",
                                       style: TextStyle(
                                         fontSize: 13,
@@ -285,7 +286,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                 strokeWidth: 2,
                                 color: Colors.white),
                           )
-                              : const Text("Cancel Order",style: TextStyle(color: Colors.white),),
+                              : const AutoTranslateText("Cancel Order",style: TextStyle(color: Colors.white),),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -312,7 +313,7 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                 strokeWidth: 2,
                                 color: Colors.white),
                           )
-                              : const Text("Update Order",style: TextStyle(color: Colors.white),),
+                              : const AutoTranslateText("Update Order",style: TextStyle(color: Colors.white),),
                         ),
                       ),
                     ],

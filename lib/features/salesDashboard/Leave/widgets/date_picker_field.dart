@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -44,7 +45,7 @@ class DatePickerField extends StatelessWidget {
         builder: (context) {
           String? tempValue = halfDay ?? 'Morning';
           return AlertDialog(
-            title: const Text('Select Half Day'),
+            title: const AutoTranslateText('Select Half Day'),
             content: SizedBox(
               width: 150,
               child: Column(
@@ -71,7 +72,7 @@ class DatePickerField extends StatelessWidget {
                         return Container(
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          child: Text(
+                          child: AutoTranslateText(
                             item,
                             style: TextStyle(
                               fontSize: 14,
@@ -100,7 +101,7 @@ class DatePickerField extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, tempValue),
-                child: const Text('OK'),
+                child: const AutoTranslateText('OK'),
               ),
             ],
           );
@@ -138,12 +139,12 @@ class DatePickerField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AutoTranslateText(
                 label,
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 2),
-              Text(
+              AutoTranslateText(
                 dateText,
                 style: const TextStyle(fontSize: 15, color: Colors.black87),
               ),

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/ipt_order_detail.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/ipt_scanner_screen.dart';
@@ -72,7 +73,7 @@ class _DistributorIptState extends State<DistributorIpt> {
                   ? const Center(child: CircularProgressIndicator())
                   : distributorProvider.errorMessage != null
                   ? Center(
-                child: Text(distributorProvider.errorMessage ?? ''),
+                child: AutoTranslateText(distributorProvider.errorMessage ?? ''),
               )
                   : Column(
                 mainAxisSize: MainAxisSize.min,
@@ -166,7 +167,7 @@ class _DistributorIptState extends State<DistributorIpt> {
                   ),
                 ),
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'IPT List',
                     style: TextStyle(
                       fontSize: 18,
@@ -184,9 +185,9 @@ class _DistributorIptState extends State<DistributorIpt> {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 } else if (provider.iptOrders.isEmpty) {
-                  return const Center(child: Text('No IPT orders found.'));
+                  return const Center(child: AutoTranslateText('No IPT orders found.'));
                 } else {
                   return ListView.builder(
                     padding: const EdgeInsets.all(12),
@@ -221,14 +222,14 @@ class _DistributorIptState extends State<DistributorIpt> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       order.name ?? '-',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 15,
                                       ),
                                     ),
-                                    Text(
+                                    AutoTranslateText(
                                       'Date : ${_formatDate(order.orderDate)}',
                                       style: const TextStyle(
                                         fontSize: 14,
@@ -241,7 +242,7 @@ class _DistributorIptState extends State<DistributorIpt> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       'Value : ₹${order.price ?? '0.0'}',
                                       style: const TextStyle(
                                         color: Color(0xFFA259FF),
@@ -251,7 +252,7 @@ class _DistributorIptState extends State<DistributorIpt> {
                                     ),
                                     Row(
                                       children: [
-                                        const Text(
+                                        const AutoTranslateText(
                                           'Status: ',
                                           style: TextStyle(
                                             fontSize: 14,
@@ -259,7 +260,7 @@ class _DistributorIptState extends State<DistributorIpt> {
                                             color: Colors.black, // always black
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           order.status ?? '-',
                                           style: TextStyle(
                                             fontSize: 14,

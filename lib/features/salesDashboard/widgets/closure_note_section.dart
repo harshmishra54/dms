@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_details_provider.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/route_visit_provider.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +83,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
     if (inventory == null) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enter valid inventory stock")),
+        const SnackBar(content: AutoTranslateText("Enter valid inventory stock")),
       );
       return;
     }
@@ -90,7 +91,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
     if (_capturedPhoto == null) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Photo is required")),
+        const SnackBar(content: AutoTranslateText("Photo is required")),
       );
       return;
     }
@@ -103,7 +104,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
     if (dailyRouteId == null || locationId == null) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Route or location ID missing")),
+        const SnackBar(content: AutoTranslateText("Route or location ID missing")),
       );
       return;
     }
@@ -137,7 +138,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
       setState(() => _isCompleted = true);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Visit completed successfully")),
+        const SnackBar(content: AutoTranslateText("Visit completed successfully")),
       );
       Navigator.pop(context);
     }
@@ -146,12 +147,12 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
       setState(() => _isCompleted = false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(routeVisitProvider.response!.message)),
+        SnackBar(content: AutoTranslateText(routeVisitProvider.response!.message)),
       );
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(routeVisitProvider.errorMessage ?? "Error submitting data")),
+        SnackBar(content: AutoTranslateText(routeVisitProvider.errorMessage ?? "Error submitting data")),
       );
     }
   }
@@ -165,7 +166,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Closure Note of Meeting", style: TextStyle(fontWeight: FontWeight.bold)),
+        const AutoTranslateText("Closure Note of Meeting", style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           height: 100,
@@ -185,7 +186,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
         const SizedBox(height: 10),
 
         // Capture Photo Section
-        const Text("Meeting Photo", style: TextStyle(fontWeight: FontWeight.w500)),
+        const AutoTranslateText("Meeting Photo", style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 10),
         _capturedPhoto != null
             ? ClipRRect(
@@ -197,7 +198,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
           child: ElevatedButton.icon(
             onPressed: _isCompleted ? null : _capturePhoto,
             icon: const Icon(Icons.camera_alt),
-            label: const Text("Capture Photo"),
+            label: const AutoTranslateText("Capture Photo"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -224,7 +225,7 @@ class _ClosureNoteSectionState extends State<ClosureNoteSection> {
               height: 22,
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             )
-                : Text(
+                : AutoTranslateText(
               _isCompleted ? "Meeting Completed" : "Complete Meeting",
               style: const TextStyle(fontSize: 16, color: Colors.white),
             ),

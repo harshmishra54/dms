@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
   void _showSnackBar(String message, {Color? color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
+        content: AutoTranslateText(
           message,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
@@ -143,7 +144,7 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Add Beat Plan',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -214,13 +215,13 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
                           );
                         } else if (farmerProvider.errorMessage != null) {
                           return Center(
-                            child: Text(
+                            child: AutoTranslateText(
                               farmerProvider.errorMessage!,
                               style: const TextStyle(color: Colors.redAccent),
                             ),
                           );
                         } else if (farmerProvider.farmers.isEmpty) {
-                          return const Center(child: Text("No farmers found"));
+                          return const Center(child: AutoTranslateText("No farmers found"));
                         } else {
                           return ListView.builder(
                             padding: EdgeInsets.zero,
@@ -241,12 +242,12 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
                                   value: isSelected,
                                   onChanged: (_) =>
                                       _toggleFarmerSelection(farmer.id ?? ""),
-                                  title: Text(
+                                  title: AutoTranslateText(
                                     farmer.name ?? "Unknown Farmer",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
-                                  subtitle: Text(
+                                  subtitle: AutoTranslateText(
                                     "Area: ${farmer.area ?? 'N/A'}",
                                     style: const TextStyle(fontSize: 13),
                                   ),
@@ -296,7 +297,7 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
                         ),
                       ),
                       SizedBox(width: 10),
-                      Text(
+                      AutoTranslateText(
                         "Please wait...",
                         style: TextStyle(
                           color: Colors.white,
@@ -305,7 +306,7 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen> {
                       ),
                     ],
                   )
-                      : const Text(
+                      : const AutoTranslateText(
                     "Submit",
                     style: TextStyle(
                       color: Colors.white,

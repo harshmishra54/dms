@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/get_recommendation_by_crystal_doctor_model.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +90,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             const Expanded(
-              child: Text(
+              child: AutoTranslateText(
                 'Recommended Products',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -117,7 +118,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
-          Text(
+          AutoTranslateText(
             'Loading recommendations...',
             style: TextStyle(
               color: Colors.grey[600],
@@ -150,7 +151,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            AutoTranslateText(
               'Oops! Something went wrong',
               style: TextStyle(
                 fontSize: 20,
@@ -159,7 +160,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
+            AutoTranslateText(
               errorMessage,
               style: TextStyle(
                 color: Colors.grey[600],
@@ -172,7 +173,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             ElevatedButton.icon(
               onPressed: _loadRecommendations,
               icon: const Icon(Icons.refresh_rounded, size: 20),
-              label: const Text('Try Again'),
+              label: const AutoTranslateText('Try Again'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.topBarColor,
                 foregroundColor: Colors.white,
@@ -212,7 +213,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            AutoTranslateText(
               'No Recommendations Yet',
               style: TextStyle(
                 fontSize: 20,
@@ -221,7 +222,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
+            AutoTranslateText(
               'Check back later for personalized\nproduct recommendations',
               style: TextStyle(
                 color: Colors.grey[600],
@@ -311,7 +312,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         'Recommendation #${index + 1}',
                         style: TextStyle(
                           fontSize: 16,
@@ -320,7 +321,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      AutoTranslateText(
                         '${product.recommendations.length} product${product.recommendations.length != 1 ? 's' : ''} suggested',
                         style: TextStyle(
                           fontSize: 13,
@@ -344,7 +345,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(
+                      child: AutoTranslateText(
                         'No products available',
                         style: TextStyle(
                           fontSize: 14,
@@ -400,7 +401,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
+                child: AutoTranslateText(
                   rec.productName,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,

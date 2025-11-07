@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/state_district_data.dart';
 
@@ -17,7 +18,7 @@ class DistrictSelectionScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select District'),
+        title: AutoTranslateText('Select District'),
         backgroundColor: Colors.deepPurple.shade700,
         foregroundColor: Colors.white,
       ),
@@ -26,7 +27,7 @@ class DistrictSelectionScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final district = districts[index];
           return ListTile(
-            title: Text(district),
+            title: AutoTranslateText(district),
             onTap: () {
               onDistrictSelected(district);
               Navigator.pop(context);

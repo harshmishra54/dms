@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/provider/recommend_product_query_provider.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/general_query_request.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_request.dart';
@@ -309,7 +310,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
           children: [
             const Icon(Icons.info_outline, color: Colors.white),
             const SizedBox(width: 12),
-            Expanded(child: Text(message)),
+            Expanded(child: AutoTranslateText(message)),
           ],
         ),
         backgroundColor: Colors.deepPurple,
@@ -387,7 +388,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoTranslateText(
                   'Smart Assistant',
                   style: TextStyle(
                     color: Colors.black87,
@@ -395,7 +396,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                     fontSize: 17,
                   ),
                 ),
-                Text(
+                AutoTranslateText(
                   'AI-Powered Crop Advisor',
                   style: TextStyle(
                     color: Colors.black45,
@@ -518,7 +519,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          height: 100, // Fixed height for consistent sizing
+          height: 100, // ✅ consistent height
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           decoration: BoxDecoration(
             gradient: gradient,
@@ -529,13 +530,18 @@ class _RecommendationScreenState extends State<RecommendationScreen>
             children: [
               Icon(icon, color: Colors.white, size: 28),
               const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+              Flexible(
+                child: AutoTranslateText(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                    maxLines: null,
+                    overflow: null,
+                    softWrap: true // ✅ trims gracefully
                 ),
               ),
             ],
@@ -544,6 +550,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
       ),
     );
   }
+
 
   Widget _buildProductRecommendationFlow(CropProvider cropProvider) {
     if (_selectedCrop == null) {
@@ -590,7 +597,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                   ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(
+                  child: AutoTranslateText(
                     "No crops found matching '$searchQuery'",
                     style: TextStyle(color: Colors.grey[600]),
                   ),
@@ -636,7 +643,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                               color: Color(0xFF8E2DE2),
                             ),
                             const SizedBox(width: 6),
-                            Text(
+                            AutoTranslateText(
                               crop,
                               style: const TextStyle(
                                 color: Color(0xFF8E2DE2),
@@ -666,7 +673,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          const Text("No crops available. Please try again later."),
+          const AutoTranslateText("No crops available. Please try again later."),
           const SizedBox(height: 12),
           _buildCancelButton(),
         ],
@@ -802,7 +809,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
     return TextButton.icon(
       onPressed: _resetConversationFlow,
       icon: const Icon(Icons.close, size: 16),
-      label: const Text("Cancel"),
+      label: const AutoTranslateText("Cancel"),
       style: TextButton.styleFrom(
         foregroundColor: Colors.grey[600],
       ),
@@ -815,7 +822,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AutoTranslateText(
             "Select an option:",
             style: TextStyle(
               fontSize: 12,
@@ -860,7 +867,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                         color: const Color(0xFF8E2DE2),
                       ),
                       const SizedBox(width: 6),
-                      Text(
+                      AutoTranslateText(
                         e,
                         style: const TextStyle(
                           color: Color(0xFF8E2DE2),
@@ -939,7 +946,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                     height: 24,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : Text(
+                      : AutoTranslateText(
                     message.text,
                     style: TextStyle(
                       color:
@@ -947,6 +954,9 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                       fontSize: 14,
                       height: 1.4,
                     ),
+                    maxLines: null,   // ✅ allow unlimited lines
+                    overflow: null,   // ✅ prevent ellipsis
+                    softWrap: true,
                   ),
                 ),
                 if (message.recommendations != null &&
@@ -1055,7 +1065,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
+                child:AutoTranslateText(
                   rec.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -1076,7 +1086,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
             _buildInfoRow(Icons.water_drop, "Water Volume", rec.waterVolume!),
           if (rec.features.isNotEmpty) ...[
             const SizedBox(height: 8),
-            const Text(
+            const AutoTranslateText(
               "Key Features:",
               style: TextStyle(
                 fontWeight: FontWeight.w600,
@@ -1097,7 +1107,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       feature,
                       style: const TextStyle(
                         fontSize: 13,
@@ -1121,7 +1131,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
         children: [
           Icon(icon, size: 16, color: const Color(0xFF8E2DE2)),
           const SizedBox(width: 8),
-          Text(
+          AutoTranslateText(
             "$label: ",
             style: const TextStyle(
               fontWeight: FontWeight.w600,
@@ -1130,7 +1140,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
             ),
           ),
           Expanded(
-            child: Text(
+            child: AutoTranslateText(
               value,
               style: const TextStyle(
                 fontSize: 13,

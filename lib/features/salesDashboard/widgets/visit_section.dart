@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
@@ -22,7 +23,7 @@ class VisitSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            const AutoTranslateText(
               "Today Visits",
               style: TextStyle(
                 fontSize: 14,
@@ -73,7 +74,7 @@ class _VisitStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
+        AutoTranslateText(
           count,
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -82,7 +83,7 @@ class _VisitStat extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        AutoTranslateText(
           title,
           style: const TextStyle(
             fontSize: 12,

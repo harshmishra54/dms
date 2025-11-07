@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_plan_doctor_details_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/add_beat_plan_doctor_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/get_beat_plan_doctor_provider.dart';
@@ -79,7 +80,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Beat Plan',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -105,7 +106,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
 
                 if (provider.errorMessage != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       provider.errorMessage!,
                       style: const TextStyle(
                         fontSize: 14,
@@ -118,7 +119,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                 final data = provider.beatPlanDoctorResponse?.data;
                 if (data == null || data.isEmpty) {
                   return const Center(
-                    child: Text("No beat plan doctor data found"),
+                    child: AutoTranslateText("No beat plan doctor data found"),
                   );
                 }
 
@@ -167,7 +168,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      AutoTranslateText(
                                         beatPlan.routeName ?? 'No Route Name',
                                         style: const TextStyle(
                                           fontSize: 16,
@@ -181,7 +182,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                                           const Icon(Icons.calendar_today,
                                               size: 14, color: Colors.purple),
                                           const SizedBox(width: 4),
-                                          Text(
+                                          AutoTranslateText(
                                             beatPlan.date ?? '',
                                             style: const TextStyle(
                                               fontSize: 13,
@@ -207,7 +208,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                                             .withOpacity(0.15),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         status,
                                         style: TextStyle(
                                           color: _getStatusColor(status),
@@ -226,7 +227,7 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                                         color: Colors.purple.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         "$farmerCount Farmers",
                                         style: const TextStyle(
                                           color: Colors.purple,

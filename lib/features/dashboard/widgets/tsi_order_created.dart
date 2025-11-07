@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/reject_tsi_order_provider.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/order_bill_details_screen.dart';
@@ -83,11 +84,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("Raise Dispute"),
+        title: const AutoTranslateText("Raise Dispute"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Please enter a reason for cancelling this order:"),
+            const AutoTranslateText("Please enter a reason for cancelling this order:"),
             const SizedBox(height: 8),
             TextField(
               controller: reasonController,
@@ -102,14 +103,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
+            child: const AutoTranslateText("Cancel"),
           ),
           TextButton(
             onPressed: () async {
               final reason = reasonController.text.trim();
               if (reason.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Reason cannot be empty")),
+                  const SnackBar(content: AutoTranslateText("Reason cannot be empty")),
                 );
                 return;
               }
@@ -137,12 +138,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Order cancelled successfully")),
+                  const SnackBar(content: AutoTranslateText("Order cancelled successfully")),
                 );
                 await _loadOrders();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(provider.errorMessage ?? "Failed to cancel order")),
+                  SnackBar(content: AutoTranslateText(provider.errorMessage ?? "Failed to cancel order")),
                 );
               }
 
@@ -150,7 +151,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 _loadingOrders.remove(order.id ?? "");
               });
             },
-            child: const Text("Submit"),
+            child: const AutoTranslateText("Submit"),
           ),
         ],
       ),
@@ -195,7 +196,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       order.orderNo,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
@@ -203,7 +204,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  AutoTranslateText(
                     "Date : ${formatDate(order.orderDate)}",
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -214,14 +215,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
               // Value + Delivery Row
               Row(
                 children: [
-                  Text(
+                  AutoTranslateText(
                     "Value : ₹${total.toStringAsFixed(2)}",
                     style: const TextStyle(
                         color: AppColors.topBarColor,
                         fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
-                  Text(
+                  AutoTranslateText(
                     "Delivery : ${formatDate(order.deliveryDate)}",
                     style: TextStyle(
                       color: (order.deliveryDate != null &&
@@ -253,7 +254,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ),
                       onPressed: () => _showCancelDialog(order),
                       icon: const Icon(Icons.cancel_outlined, size: 18),
-                      label: const Text(
+                      label: const AutoTranslateText(
                         "Dispute",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -280,7 +281,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         }
 
         if (provider.errorMessage != null) {
-          return Center(child: Text(provider.errorMessage!));
+          return Center(child: AutoTranslateText(provider.errorMessage!));
         }
 
         return Column(

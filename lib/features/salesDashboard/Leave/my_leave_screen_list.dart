@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/update_leave_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/update_leave_provider.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Expanded(
-                      child: Text(
+                      child: AutoTranslateText(
                         'Leave Approval',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -72,11 +73,11 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                   }
 
                   if (provider.errorMessage != null) {
-                    return Center(child: Text(provider.errorMessage!));
+                    return Center(child: AutoTranslateText(provider.errorMessage!));
                   }
 
                   if (provider.leaves.isEmpty) {
-                    return const Center(child: Text("No leaves found"));
+                    return const Center(child: AutoTranslateText("No leaves found"));
                   }
 
                   return ListView.builder(
@@ -101,7 +102,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
-                                    child: Text(
+                                    child: AutoTranslateText(
                                       leave.reason,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -116,7 +117,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                       color: _getStatusColor(leave.status),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Text(
+                                    child: AutoTranslateText(
                                       leave.status,
                                       style: const TextStyle(
                                         color: Colors.white,
@@ -128,7 +129,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                               ),
 
                               const SizedBox(height: 4),
-                              Text(
+                              AutoTranslateText(
                                 "${leave.startDate} → ${leave.endDate}\nTotal Days: ${leave.totalDays}",
                               ),
                               const SizedBox(height: 8),
@@ -164,7 +165,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                              : const Text(
+                                              : const AutoTranslateText(
                                             "Approve",
                                             style: TextStyle(color: Colors.purple),
                                           ),
@@ -195,7 +196,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                              : const Text(
+                                              : const AutoTranslateText(
                                             "Reject",
                                             style: TextStyle(color: Colors.purple),
                                           ),
@@ -238,11 +239,11 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
         updateProvider.response!.success == 1) {
       myLeaveProvider.fetchMyLeaves();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Leave ${status.toLowerCase()} successfully")),
+        SnackBar(content: AutoTranslateText("Leave ${status.toLowerCase()} successfully")),
       );
     } else if (updateProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(updateProvider.errorMessage!)),
+        SnackBar(content: AutoTranslateText(updateProvider.errorMessage!)),
       );
     }
   }

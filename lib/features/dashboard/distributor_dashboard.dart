@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
 import 'package:TrustTags_DMS/features/home/presentation/scan_screen.dart';
 import 'package:flutter/material.dart';
@@ -87,12 +88,12 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Do you want to exit the app?"),
+        title: const AutoTranslateText("Exit App"),
+        content: const AutoTranslateText("Do you want to exit the app?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () {
@@ -102,7 +103,7 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
                 exit(0);
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),

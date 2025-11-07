@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/rsm_approve_update_order_model.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/order_bill_details_screen.dart';
@@ -69,7 +70,7 @@ class _MyScreenState extends State<MyScreen>
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'My Orders',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -108,12 +109,12 @@ class _MyScreenState extends State<MyScreen>
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final data = provider.responseData;
                 if (data == null) {
-                  return const Center(child: Text("No data available"));
+                  return const Center(child: AutoTranslateText("No data available"));
                 }
 
                 final distributorOrders =
@@ -144,7 +145,7 @@ class _MyScreenState extends State<MyScreen>
                   children: [
                     // ---------- Retailer Orders Tab ----------
                     retailerOrders.isEmpty
-                        ? const Center(child: Text("No Retailer Orders"))
+                        ? const Center(child: AutoTranslateText("No Retailer Orders"))
                         : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: retailerOrders.length,
@@ -154,7 +155,7 @@ class _MyScreenState extends State<MyScreen>
 
                     // ---------- Distributor Orders Tab ----------
                     distributorOrders.isEmpty
-                        ? const Center(child: Text("No Distributor Orders"))
+                        ? const Center(child: AutoTranslateText("No Distributor Orders"))
                         : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: distributorOrders.length,
@@ -194,7 +195,7 @@ class _MyScreenState extends State<MyScreen>
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
+      child: AutoTranslateText(
         status[0].toUpperCase() + status.substring(1),
         style: TextStyle(
           fontSize: 12,
@@ -257,7 +258,7 @@ class _MyScreenState extends State<MyScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
+                      child: AutoTranslateText(
                         item["from_location_name"] ?? "",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -273,14 +274,14 @@ class _MyScreenState extends State<MyScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    AutoTranslateText(
                       "Order No: ${item["order_no"] ?? ""}",
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black87,
                       ),
                     ),
-                    Text(
+                    AutoTranslateText(
                       ": $createdDate",
                       style: const TextStyle(
                         fontSize: 14,
@@ -302,7 +303,7 @@ class _MyScreenState extends State<MyScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         "Value: ${totalValue.toStringAsFixed(2)}",
                         style: const TextStyle(
                           fontSize: 14,
@@ -311,7 +312,7 @@ class _MyScreenState extends State<MyScreen>
                         ),
                       ),
                       if (tsmroleId == "18") ...[
-                        const Text("RSM Approval:",
+                        const AutoTranslateText("RSM Approval:",
                             style: TextStyle(fontWeight: FontWeight.w500)),
 
                         _buildStatusBadge(
@@ -322,7 +323,7 @@ class _MyScreenState extends State<MyScreen>
                       ],
 
                       if (tsmroleId == "19") ...[
-                        const Text("Status:",
+                        const AutoTranslateText("Status:",
                             style: TextStyle(fontWeight: FontWeight.w500)),
                         _buildStatusBadge(item["status"]?.toString() ?? "Pending"),
                       ],
@@ -366,7 +367,7 @@ class _MyScreenState extends State<MyScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                        Text(rsmProvider.response!.message)),
+                                        AutoTranslateText(rsmProvider.response!.message)),
                                   );
                                   tsiProvider.fetchTsiDisRetailerOrders(
                                       tsiId: widget.tsiId);
@@ -374,11 +375,11 @@ class _MyScreenState extends State<MyScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                        Text(rsmProvider.errorMessage!)),
+                                        AutoTranslateText(rsmProvider.errorMessage!)),
                                   );
                                 }
                               },
-                              child: const Text("Approve"),
+                              child: const AutoTranslateText("Approve"),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -404,7 +405,7 @@ class _MyScreenState extends State<MyScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                        Text(rsmProvider.response!.message)),
+                                        AutoTranslateText(rsmProvider.response!.message)),
                                   );
                                   tsiProvider.fetchTsiDisRetailerOrders(
                                       tsiId: widget.tsiId);
@@ -412,11 +413,11 @@ class _MyScreenState extends State<MyScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content:
-                                        Text(rsmProvider.errorMessage!)),
+                                        AutoTranslateText(rsmProvider.errorMessage!)),
                                   );
                                 }
                               },
-                              child: const Text("Reject"),
+                              child: const AutoTranslateText("Reject"),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -444,7 +445,7 @@ class _MyScreenState extends State<MyScreen>
                                     ),
                                   );
                                 },
-                                child: const Text("Edit"),
+                                child: const AutoTranslateText("Edit"),
                               ),
                             ),
                         ],

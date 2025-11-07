@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/attendance_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/face_detection.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/provider/attendance_mark_provider.dart';
@@ -77,21 +78,21 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
     if (widget.mode == "leave") {
       if (_reasonController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter a reason")),
+          const SnackBar(content: AutoTranslateText("Please enter a reason")),
         );
         return;
       }
     } else {
       if (_selfie == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please capture a selfie")),
+          const SnackBar(content: AutoTranslateText("Please capture a selfie")),
         );
         return;
       }
 
       if (_currentPosition == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Fetching location, please wait...")),
+          const SnackBar(content: AutoTranslateText("Fetching location, please wait...")),
         );
         return;
       }
@@ -122,12 +123,12 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
 
     if (attendanceProvider.attendanceResponse != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(attendanceProvider.attendanceResponse!.message)),
+        SnackBar(content: AutoTranslateText(attendanceProvider.attendanceResponse!.message)),
       );
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(attendanceProvider.errorMessage)),
+        SnackBar(content: AutoTranslateText(attendanceProvider.errorMessage)),
       );
     }
   }
@@ -149,7 +150,7 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
                   child: const Icon(Icons.arrow_back, size: 28),
                 ),
                 const SizedBox(width: 12),
-                Text(
+                AutoTranslateText(
                   widget.mode == "leave" ? "Leave Form" : "Mark Attendance",
                   style: const TextStyle(
                       fontSize: 22, fontWeight: FontWeight.bold),
@@ -177,7 +178,7 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (widget.mode == "leave") ...[
-                      const Text(
+                      const AutoTranslateText(
                         "Reason for Leave",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w500),
@@ -194,7 +195,7 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
                         ),
                       ),
                     ] else ...[
-                      const Text(
+                      const AutoTranslateText(
                         "Selfie",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w500),
@@ -208,7 +209,7 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
                           : ElevatedButton.icon(
                         onPressed: _captureSelfie,
                         icon: const Icon(Icons.camera_alt),
-                        label: const Text("Capture Selfie"),
+                        label: const AutoTranslateText("Capture Selfie"),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               vertical: 14),
@@ -229,7 +230,7 @@ class _AttendanceFormScreenState extends State<AttendanceFormScreen> {
                             borderRadius: BorderRadius.circular(12)),
                         backgroundColor: AppColors.topBarColor,
                       ),
-                      child: Text(
+                      child: AutoTranslateText(
                         widget.mode == "leave"
                             ? "Submit Leave"
                             : "Mark Attendance",

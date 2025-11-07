@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/get_tsi_list_for_rsm_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/my_screen.dart';
@@ -52,20 +53,20 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const Text("Logout"),
+              title: const AutoTranslateText("Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  Text("Logging out..."),
+                  AutoTranslateText("Logging out..."),
                 ],
               )
-                  : const Text("Are you sure you want to logout?"),
+                  : const AutoTranslateText("Are you sure you want to logout?"),
               actions: [
                 TextButton(
                   onPressed: provider.isLoading ? null : () => Navigator.of(ctx).pop(),
-                  child: const Text("Cancel"),
+                  child: const AutoTranslateText("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
@@ -82,7 +83,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                       );
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(provider.errorMessage!)),
+                        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
                       );
                     }
                   },
@@ -92,7 +93,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text("Yes, Logout"),
+                      : const AutoTranslateText("Yes, Logout"),
                 ),
               ],
             );
@@ -109,7 +110,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
 
     if (provider.tsiUsers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No TSI found for your account")),
+        const SnackBar(content: AutoTranslateText("No TSI found for your account")),
       );
       return null;
     }
@@ -118,7 +119,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Select TSI"),
+          title: const AutoTranslateText("Select TSI"),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
@@ -127,7 +128,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
               itemBuilder: (context, index) {
                 final tsi = provider.tsiUsers[index];
                 return ListTile(
-                  title: Text(tsi.name ?? "Unnamed TSI"),
+                  title: AutoTranslateText(tsi.name ?? "Unnamed TSI"),
                   onTap: () => Navigator.pop(context, tsi),
                 );
               },
@@ -263,7 +264,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
-                            child: Text('Menu', style: TextStyle(fontSize: 16)),
+                            child: AutoTranslateText('Menu', style: TextStyle(fontSize: 16)),
                           ),
 
                           _drawerItem(context, Icons.dashboard, 'Dashboard', SalesDashboardScreen()),
@@ -272,19 +273,19 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
 
                           ListTile(
                             leading: const Icon(Icons.shopping_cart, color: Colors.black),
-                            title: const Text('Order History', style: TextStyle(fontSize: 15)),
+                            title: const AutoTranslateText('Order History', style: TextStyle(fontSize: 15)),
                             onTap: () => _onOrderHistoryTap(context),
                           ),
                           ListTile(
                             leading: const Icon(Icons.meeting_room_outlined, color: Colors.black),
-                            title: const Text('Meeting History', style: TextStyle(fontSize: 15)),
+                            title: const AutoTranslateText('Meeting History', style: TextStyle(fontSize: 15)),
                             onTap: () => _onMeetingHistoryTap(context),
                           ),
 
                           if (roleId == 19)
                             ListTile(
                               leading: const Icon(Icons.verified_user, color: Colors.black),
-                              title: const Text('Approve Distributor', style: TextStyle(fontSize: 15)),
+                              title: const AutoTranslateText('Approve Distributor', style: TextStyle(fontSize: 15)),
                               onTap: () {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => DistributorApprovalListScreen()));
                               },
@@ -292,7 +293,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           if (roleId == 19)
                             ListTile(
                               leading: const Icon(Icons.verified_user, color: Colors.black),
-                              title: const Text('Approve Retailer', style: TextStyle(fontSize: 15)),
+                              title: const AutoTranslateText('Approve Retailer', style: TextStyle(fontSize: 15)),
                               onTap: () {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => RetailerApprovalScren()));
                               },
@@ -300,7 +301,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           if (roleId == 19)
                             ListTile(
                               leading: const Icon(Icons.work_off, color: Colors.black),
-                              title: const Text('Approve Leaves', style: TextStyle(fontSize: 15)),
+                              title: const AutoTranslateText('Approve Leaves', style: TextStyle(fontSize: 15)),
                               onTap: () {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyLeaveScreen()));
                               },
@@ -309,25 +310,25 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
-                            child: Text('Account', style: TextStyle(fontSize: 16)),
+                            child: AutoTranslateText('Account', style: TextStyle(fontSize: 16)),
                           ),
 
                           _drawerItem(context, Icons.person_outline, 'Profile', const ProfileScreen()),
                           ListTile(
                             leading: const Icon(Icons.logout, color: Colors.black),
-                            title: const Text('Logout'),
+                            title: const AutoTranslateText('Logout'),
                             onTap: () => _handleLogout(context),
                           ),
 
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4.0),
-                            child: Text('v 1.0.4', style: TextStyle(fontSize: 14)),
+                            child: AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
                           ),
                           const SizedBox(height: 20),
                           const Padding(
                             padding: EdgeInsets.only(left: 4.0),
-                            child: Text('© 2020 - 2025', style: TextStyle(fontSize: 14)),
+                            child: AutoTranslateText('© 2020 - 2025', style: TextStyle(fontSize: 14)),
                           ),
                           const SizedBox(height: 20),
                         ],
@@ -346,7 +347,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
   static Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
+      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

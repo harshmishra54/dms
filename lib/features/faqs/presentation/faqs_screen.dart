@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../common/app_colors.dart';
 import '../../../common/widgets/app_status_bar.dart';
@@ -29,7 +30,7 @@ class FAQsScreen extends StatelessWidget {
                   ),
                   const Expanded(
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         'FAQs',
                         style: TextStyle(
                           color: Colors.black,
@@ -87,7 +88,7 @@ class FAQsScreen extends StatelessWidget {
                               color: AppColors.primaryPurple,
                             ),
                             SizedBox(height: 8),
-                            Text(
+                            AutoTranslateText(
                               'Programme',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -104,7 +105,7 @@ class FAQsScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
+                      child: AutoTranslateText(
                         'FAQs',
                         style: TextStyle(
                           fontSize: 18,
@@ -182,7 +183,7 @@ class _FAQCategoryCard extends StatelessWidget {
           children: [
             Icon(icon, size: 36, color: AppColors.primaryPurple),
             const SizedBox(height: 8),
-            Text(
+            AutoTranslateText(
               label,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
@@ -211,14 +212,14 @@ class _FAQItem extends StatelessWidget {
         elevation: 1,
         child: ExpansionTile(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          title: Text(
+          title: AutoTranslateText(
             question,
             style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
+              child: AutoTranslateText(
                 answer,
                 style: const TextStyle(color: Colors.black54),
               ),

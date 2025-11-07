@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 
@@ -193,9 +194,9 @@ class _DashboardActionButtonsState extends State<DashboardActionButtons>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: const [
-                        Text("📦", style: TextStyle(fontSize: 26)),
+                        AutoTranslateText("📦", style: TextStyle(fontSize: 26)),
                         SizedBox(height: 6),
-                        Text("Inward",
+                        AutoTranslateText("Inward",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 13)),
                       ],
@@ -220,9 +221,9 @@ class _DashboardActionButtonsState extends State<DashboardActionButtons>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: const [
-                        Text("🎁", style: TextStyle(fontSize: 26)),
+                        AutoTranslateText("🎁", style: TextStyle(fontSize: 26)),
                         SizedBox(height: 6),
-                        Text("Reward",
+                        AutoTranslateText("Reward",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 13)),
                       ],

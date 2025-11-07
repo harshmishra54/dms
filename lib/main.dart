@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
+import 'package:TrustTags_DMS/common/provider/product_catalogue_provider.dart';
 import 'package:TrustTags_DMS/common/provider/recommend_product_query_provider.dart';
 import 'package:TrustTags_DMS/common/provider/recommend_provider.dart';
 import 'package:TrustTags_DMS/common/provider/smart_recommendation_provider.dart';
@@ -9,6 +10,7 @@ import 'package:TrustTags_DMS/data/repositories/rout_repository.dart';
 import 'package:TrustTags_DMS/data/services/notification_service.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_beat_plan_doctor_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_details_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_points_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_form_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_query_provider.dart';
@@ -18,9 +20,12 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/get_beat_plan_doct
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/get_my_farmers_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_query_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/notify_farmer_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/product_recommendation_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/recommended_history_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_farmer_new_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_gap_farmer_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/update_beat_plan_doctor_individual_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/update_beat_plan_doctor_provider.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/RouteUpdateStatusProvider.dart';
@@ -60,6 +65,7 @@ import 'package:TrustTags_DMS/features/dashboard/provider/scheme_products_provid
 import 'package:TrustTags_DMS/features/dashboard/provider/tsi_approve_order_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/tsi_order_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/distributor_new_order_screen.dart';
+import 'package:TrustTags_DMS/features/farmer/provider/invite_earn_provider.dart';
 import 'package:TrustTags_DMS/features/farmer/provider/recommended_products_provider.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/notifications/provider/notification_provider.dart';
@@ -122,6 +128,7 @@ import 'package:TrustTags_DMS/features/scan/providers/inward_scan_details_provid
 import 'package:TrustTags_DMS/features/scan/providers/product_level_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/scan_provider.dart';
 import 'package:TrustTags_DMS/features/schemes/provider/scheme_running_provider.dart';
+import 'package:TrustTags_DMS/features/spinner/provider/spinner_reward_provider.dart';
 import 'package:TrustTags_DMS/features/themes/theme_provider.dart';
 import 'package:TrustTags_DMS/firebase_options.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -137,6 +144,8 @@ import 'features/splash/presentation/splash_screen.dart';
 
 import 'features/authentication/presentation/otp_verification_screen.dart';
 import 'features/authentication/provider/auth_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -181,26 +190,38 @@ void main() async {
       statusBarBrightness: Brightness.dark,
     ),
   );
+  final prefs = await SharedPreferences.getInstance();
+  final String savedLangCode = prefs.getString('app_lang') ?? 'en';
 
   // 7️⃣ Run app
   runApp(
     EasyLocalization(
       supportedLocales: const [
-        Locale('en'),
-        Locale('hi'),
-        Locale('bn'),
-        Locale('gu'),
-        Locale('ta'),
-        Locale('te'),
-        Locale('ml'),
-        Locale('kn'),
-        Locale('mr'),
-        Locale('pa'),
-        Locale('or'),
-        Locale('as'),
+        Locale('en'), // English
+        Locale('hi'), // Hindi
+        Locale('bn'), // Bengali
+        Locale('te'), // Telugu
+        Locale('mr'), // Marathi
+        Locale('ta'), // Tamil
+        Locale('or'), // Odia
+        Locale('gu'), // Gujarati
+        Locale('kn'), // Kannada
+        Locale('ml'), // Malayalam
+        Locale('pa'), // Punjabi
+        Locale('as'), // Assamese
+        Locale('sa'), // Sanskrit
+        Locale('mai'), // Maithili
+        Locale('kok'), // Konkani
+        Locale('sat'), // Santali
+        Locale('ks'), // Kashmiri
+        Locale('ne'), // Nepali
+        Locale('doi'), // Dogri
+        Locale('mni'), // Manipuri (Meitei)
+        Locale('brx'), // Bodo
       ],
       path: 'assets/translations', // Path to your translation JSONs
       fallbackLocale: const Locale('en'),
+      startLocale: Locale(savedLangCode),
       child: TrustTagsApp(
         dioClient: dioClient,
         profileRepository: profileRepository,
@@ -378,6 +399,13 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorIndividualProvider()),
         ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorProvider()),
         ChangeNotifierProvider(create: (_)=> GetActivityTimelineProvider()),
+        ChangeNotifierProvider(create: (_)=> ProductCatalogueProvider()),
+        ChangeNotifierProvider(create: (_)=> SpinnerRewardProvider()),
+        ChangeNotifierProvider(create: (_)=> RetargetFarmerNewProvider()),
+        ChangeNotifierProvider(create: (_)=> RetargetGapFarmerProvider()),
+        ChangeNotifierProvider(create: (_)=> NotifyFarmer()),
+        ChangeNotifierProvider(create: (_)=> AddFarmerPointsProvider()),
+        ChangeNotifierProvider(create: (_)=> InviteEarnProvider()),
 
 
       ],

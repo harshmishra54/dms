@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/dist_by_Id_model.dart';
 import 'package:TrustTags_DMS/data/models/taluka_model.dart';
 import 'package:TrustTags_DMS/data/models/tsi_retailer_model.dart';
@@ -196,7 +197,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
 
     if (!_locationFetched) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Fetching location, please wait...")),
+        const SnackBar(content: AutoTranslateText("Fetching location, please wait...")),
       );
       setState(() => _isSubmitting = false); // unlock
       return;
@@ -210,7 +211,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
     final selectedDistributors = _selectedDistributors;
     if (selectedDistributors.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select at least one distributor")),
+        const SnackBar(content: AutoTranslateText("Please select at least one distributor")),
       );
       setState(() => _isSubmitting = false); // unlock
       return;
@@ -256,14 +257,14 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
 
     if (retailerProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ ${retailerProvider.errorMessage}")),
+        SnackBar(content: AutoTranslateText("❌ ${retailerProvider.errorMessage}")),
       );
     } else if (retailerProvider.retailerResponse != null &&
         retailerProvider.retailerResponse!.success.toString() == "1") {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-            Text(retailerProvider.retailerResponse!.message ?? "Success ✅")),
+            AutoTranslateText(retailerProvider.retailerResponse!.message ?? "Success ✅")),
       );
 
       _formKey.currentState!.reset();
@@ -298,7 +299,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         "Retailer Registration",
                         style: TextStyle(
                             fontSize: 22,
@@ -420,7 +421,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                       items: states
                           .map((s) => DropdownMenuItem<int>(
                         value: s['id'],
-                        child: Text(
+                        child: AutoTranslateText(
                           s['name'],
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -444,7 +445,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                       items: districts
                           .map((d) => DropdownMenuItem<int>(
                         value: d['id'],
-                        child: Text(
+                        child: AutoTranslateText(
                           d['name'],
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -473,7 +474,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                         final talukas = talukaProvider.talukaList;
 
                         if (talukas.isEmpty) {
-                          return const Text("No Taluka available");
+                          return const AutoTranslateText("No Taluka available");
                         }
 
                         return DropdownButtonFormField<TalukaData>(
@@ -483,7 +484,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                           items: talukas.map((t) {
                             return DropdownMenuItem<TalukaData>(
                               value: t,
-                              child: Text(t.name),
+                              child: AutoTranslateText(t.name),
                             );
                           }).toList(),
                           onChanged: (t) {
@@ -507,7 +508,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                         }
 
                         if (distributorProvider.errorMessage != null) {
-                          return Text(
+                          return AutoTranslateText(
                               "❌ Error: ${distributorProvider.errorMessage}");
                         }
 
@@ -515,7 +516,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                             distributorProvider.distributors?? [];
 
                         if (distributors.isEmpty) {
-                          return const Text("No distributors found");
+                          return const AutoTranslateText("No distributors found");
                         }
 
                         final distributorItems = distributors
@@ -566,7 +567,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                             strokeWidth: 2,
                           ),
                         )
-                            : const Text(
+                            : const AutoTranslateText(
                           "Register",
                           style: TextStyle(
                               fontSize: 18,
@@ -587,7 +588,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
 
   Widget buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(top: 12, bottom: 4),
-    child: Text(
+    child: AutoTranslateText(
       text,
       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
     ),

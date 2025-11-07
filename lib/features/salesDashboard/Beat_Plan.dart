@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Route_user_listing.dart';
@@ -30,7 +31,7 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Session expired. Please login again.")),
+            const SnackBar(content: AutoTranslateText("Session expired. Please login again.")),
           );
           Navigator.pop(context);
         }
@@ -48,7 +49,7 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Session expired. Please login again.")),
+          const SnackBar(content: AutoTranslateText("Session expired. Please login again.")),
         );
         Navigator.pop(context);
       }
@@ -105,7 +106,7 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Beat Plan',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
@@ -122,8 +123,8 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
             child: Consumer<RoutProvider>(
               builder: (context, provider, child) {
                 if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-                if (provider.error.isNotEmpty) return Center(child: Text('Error: ${provider.error}'));
-                if (provider.routes.isEmpty) return const Center(child: Text('No routes found'));
+                if (provider.error.isNotEmpty) return Center(child: AutoTranslateText('Error: ${provider.error}'));
+                if (provider.routes.isEmpty) return const Center(child: AutoTranslateText('No routes found'));
 
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -177,12 +178,12 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         beat.routeName,
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                       ),
                                     ),
-                                    Text(
+                                    AutoTranslateText(
                                       beat.status ?? '',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -199,8 +200,8 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("Retailer visit: ${beat.totalRetailers}"),
-                                    Text("Distributor visit: ${beat.totalDistributors}"),
+                                    AutoTranslateText("Retailer visit: ${beat.totalRetailers}"),
+                                    AutoTranslateText("Distributor visit: ${beat.totalDistributors}"),
                                   ],
                                 ),
 
@@ -208,7 +209,7 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
 
                                 // Bottom row: Date
                                 if (beat.date != null)
-                                  Text(
+                                  AutoTranslateText(
                                     formatDate(beat.date!),
                                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                   ),

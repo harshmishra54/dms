@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/models/send_otp_request.dart';
@@ -37,14 +38,14 @@ class AuthProvider extends ChangeNotifier {
       } else {
         errorMessage = response.message ?? 'Missing session or registration ID.';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage!)),
+          SnackBar(content: AutoTranslateText(errorMessage!)),
         );
         return null;
       }
     } catch (e) {
       errorMessage = 'Error: $e';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage!)),
+        SnackBar(content: AutoTranslateText(errorMessage!)),
       );
       return null;
     } finally {

@@ -1,6 +1,7 @@
 // reward_claim_history_screen.dart
 
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/rewards/provider/reward_claim_history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
     });
   }
 
-  String _getStatusText(int? status) {
+  String _getStatusAutoTranslateText(int? status) {
     switch (status) {
       case 0:
         return "Pending";
@@ -54,14 +55,14 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("Reward Rejected"),
-          content: Text(item.verifyComment?.isNotEmpty == true
+          title: const AutoTranslateText("Reward Rejected"),
+          content: AutoTranslateText(item.verifyComment?.isNotEmpty == true
               ? item.verifyComment!
               : "No reason provided."),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: const AutoTranslateText("Close"),
             ),
           ],
         ),
@@ -71,20 +72,20 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("Reward Approved"),
+          title: const AutoTranslateText("Reward Approved"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Partner: ${item.partnerName ?? 'N/A'}"),
+              AutoTranslateText("Partner: ${item.partnerName ?? 'N/A'}"),
               const SizedBox(height: 6),
-              Text("Transaction ID: ${item.transactionId ?? 'N/A'}"),
+              AutoTranslateText("Transaction ID: ${item.transactionId ?? 'N/A'}"),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: const AutoTranslateText("Close"),
             ),
           ],
         ),
@@ -116,7 +117,7 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Reward Claim History',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -140,14 +141,14 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final historyList = provider.response?.data ?? [];
 
                 if (historyList.isEmpty) {
                   return const Center(
-                    child: Text("No reward claim history found."),
+                    child: AutoTranslateText("No reward claim history found."),
                   );
                 }
 
@@ -221,7 +222,7 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
                                     Row(
                                       children: [
                                         Expanded(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             item.reward?.name ?? "Reward",
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -242,8 +243,8 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
                                               borderRadius:
                                               BorderRadius.circular(20),
                                             ),
-                                            child: Text(
-                                              _getStatusText(item.isVerified),
+                                            child: AutoTranslateText(
+                                              _getStatusAutoTranslateText(item.isVerified),
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -258,7 +259,7 @@ class _RewardClaimHistoryScreenState extends State<RewardClaimHistoryScreen> {
                                     const SizedBox(height: 6),
 
                                     // Date
-                                    Text(
+                                    AutoTranslateText(
                                       item.createdAt != null
                                           ? "Date: ${item.createdAt!.split("T").first}"
                                           : "Date: N/A",

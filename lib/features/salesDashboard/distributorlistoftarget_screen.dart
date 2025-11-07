@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/tabs/achieved_card.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/tabs/target_card.dart';
@@ -76,7 +77,7 @@ class _DistributorListScreenState extends State<DistributorListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text("View Target"),
+              title: const AutoTranslateText("View Target"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -88,7 +89,7 @@ class _DistributorListScreenState extends State<DistributorListScreen> {
               },
             ),
             ListTile(
-              title: const Text("View Sales"),
+              title: const AutoTranslateText("View Sales"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -126,7 +127,7 @@ class _DistributorListScreenState extends State<DistributorListScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Distributors',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -149,13 +150,13 @@ class _DistributorListScreenState extends State<DistributorListScreen> {
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final distributors = provider.distributors;
 
                 if (distributors.isEmpty) {
-                  return const Center(child: Text('No distributors found.'));
+                  return const Center(child: AutoTranslateText('No distributors found.'));
                 }
 
                 return ListView.builder(
@@ -180,7 +181,7 @@ class _DistributorListScreenState extends State<DistributorListScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     dist.name ?? 'Unknown Distributor',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(

@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/recieve_return_order_model.dart';
 import 'package:TrustTags_DMS/data/models/return_claim_order_post_data.dart';
@@ -60,14 +61,14 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
     showDialog(
       context: rootContext,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("Confirm Status Change"),
-        content: Text(
+        title: const AutoTranslateText("Confirm Status Change"),
+        content: AutoTranslateText(
           "Are you sure you want to ${newStatus == 'accepted' ? 'Accept' : 'Reject'} this return order?",
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () async {
@@ -103,7 +104,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
 
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content: AutoTranslateText(
                         "Order ${order.orderNo ?? order.id} ${newStatus.toUpperCase()}"),
                     backgroundColor: newStatus == "accepted"
                         ? Colors.green
@@ -115,13 +116,13 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(
                     content:
-                    Text(provider.error ?? "Something went wrong!"),
+                    AutoTranslateText(provider.error ?? "Something went wrong!"),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -162,7 +163,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       order.orderNo ?? 'N/A',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
@@ -170,7 +171,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text("Date : ${formatDate(order.orderDate)}"),
+                  AutoTranslateText("Date : ${formatDate(order.orderDate)}"),
                 ],
               ),
               const SizedBox(height: 8),
@@ -178,12 +179,12 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
               // Value + Status
               Row(
                 children: [
-                  Text(
+                  AutoTranslateText(
                     "Value : ₹${order.price}",
                     style: const TextStyle(color: Colors.purple, fontSize: 16),
                   ),
                   const Spacer(),
-                  Text(
+                  AutoTranslateText(
                     "Status: ${order.status}",
                     style: TextStyle(
                       color: order.status.toLowerCase() == "accepted"
@@ -215,7 +216,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                         ),
                         onPressed: () => _confirmStatusChange(
                             context, order, "Accepted"),
-                        child: const Text("ACCEPT"),
+                        child: const AutoTranslateText("ACCEPT"),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -229,7 +230,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                         ),
                         onPressed: () => _confirmStatusChange(
                             context, order, "Rejected"),
-                        child: const Text("REJECT"),
+                        child: const AutoTranslateText("REJECT"),
                       ),
                     ),
                   ],
@@ -261,7 +262,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Recieved Returns',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -284,7 +285,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final allOrders = provider.response?.data ?? [];
@@ -292,7 +293,7 @@ class _ReceiveReturnOrderScreenState extends State<ReceiveReturnOrderScreen> {
                 (_lastQuery.isEmpty) ? allOrders : filteredOrders;
 
                 if (orders.isEmpty) {
-                  return const Center(child: Text("No return orders found"));
+                  return const Center(child: AutoTranslateText("No return orders found"));
                 }
 
                 return Column(

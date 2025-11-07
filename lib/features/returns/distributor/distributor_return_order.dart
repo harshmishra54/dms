@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/app_status_bar.dart'; // Custom status bar
 import '../../../common/app_colors.dart'; // Theme colors
@@ -32,7 +33,7 @@ class DistributorReturnOrder extends StatelessWidget {
 
                 // Centered title
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Return Orders',
                     style: TextStyle(
                       fontSize: 18,
@@ -70,7 +71,7 @@ class DistributorReturnOrder extends StatelessWidget {
                   // No orders message
                   const Expanded(
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         'No orders found.',
                         style: TextStyle(color: Colors.grey),
                       ),

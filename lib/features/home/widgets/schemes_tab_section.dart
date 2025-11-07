@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/scheme_wise_points_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
         }
 
         if (channelPerformanceProvider.errorMessage.isNotEmpty) {
-          return Center(child: Text(channelPerformanceProvider.errorMessage));
+          return Center(child: AutoTranslateText(channelPerformanceProvider.errorMessage));
         }
 
         final offers = channelPerformanceProvider.data?.data?.offers ?? [];
@@ -79,7 +80,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              const AutoTranslateText(
                 'All Running Schemes',
                 style: TextStyle(
                   fontSize: 16,
@@ -111,7 +112,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                         DataColumn(
                           label: SizedBox(
                             width: schemeColumnWidth,
-                            child: const Text(
+                            child: const AutoTranslateText(
                               'Scheme',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -124,7 +125,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                           label: SizedBox(
                             width: numericColumnWidth,
                             child: const Center(
-                              child: Text(
+                              child: AutoTranslateText(
                                 'Earned',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
@@ -136,7 +137,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                           label: SizedBox(
                             width: numericColumnWidth,
                             child: const Center(
-                              child: Text(
+                              child: AutoTranslateText(
                                 'Redeem',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
@@ -148,7 +149,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                           label: SizedBox(
                             width: numericColumnWidth,
                             child: const Center(
-                              child: Text(
+                              child: AutoTranslateText(
                                 'Available',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
@@ -193,11 +194,11 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                                   SizedBox(width: spacingRow),
                                   SizedBox(
                                     width: schemeColumnWidth - imageWidth - spacingRow,
-                                    child: Text(
+                                    child: AutoTranslateText(
                                       scheme.name ?? '',
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
+                                      // softWrap: true,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -212,7 +213,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                               SizedBox(
                                 width: numericColumnWidth,
                                 child: Center(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     schemePoints["earned"] ?? "0",
                                     style: const TextStyle(fontSize: 13),
                                   ),
@@ -223,7 +224,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                               SizedBox(
                                 width: numericColumnWidth,
                                 child: Center(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     schemePoints["redeemed"] ?? "0",
                                     style: const TextStyle(fontSize: 13),
                                   ),
@@ -234,7 +235,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                               SizedBox(
                                 width: numericColumnWidth,
                                 child: Center(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     schemePoints["available"] ?? "0",
                                     style: const TextStyle(fontSize: 13),
                                   ),
@@ -250,7 +251,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
               ),
 
               const SizedBox(height: 20),
-              const Text(
+              const AutoTranslateText(
                 'Redeem Points Via',
                 style: TextStyle(
                   fontSize: 16,
@@ -267,7 +268,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                     icon: Icons.card_giftcard,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coming Soon')),
+                        const SnackBar(content: AutoTranslateText('Coming Soon')),
                       );
                     },
                   ),
@@ -278,7 +279,7 @@ class _SchemesTabSectionState extends State<SchemesTabSection> {
                     icon: Icons.currency_rupee_rounded,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coming Soon')),
+                        const SnackBar(content: AutoTranslateText('Coming Soon')),
                       );
                     },
                   ),
@@ -353,7 +354,7 @@ class _RedeemOptionCard extends StatelessWidget {
           children: [
             Icon(icon, size: 40, color: AppColors.topBarColor),
             const SizedBox(height: 12),
-            Text(
+            AutoTranslateText(
               title,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w500),

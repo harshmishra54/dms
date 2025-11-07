@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/features/faqs/presentation/faqs_screen.dart';
 import 'package:TrustTags_DMS/features/authentication/presentation/login_screen.dart';
@@ -23,7 +24,7 @@ class DistributorProfileScreen extends StatelessWidget {
           const SizedBox(height: 20),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
+            child: AutoTranslateText(
               'Profile',
               style: TextStyle(
                 fontSize: 24,
@@ -55,7 +56,7 @@ class DistributorProfileScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Text(
+                      AutoTranslateText(
                         'Sanjay Chaudhary',
                         style: TextStyle(
                           color: Colors.white,
@@ -63,7 +64,7 @@ class DistributorProfileScreen extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
+                      AutoTranslateText(
                         'View',
                         style: TextStyle(
                           color: Colors.white,
@@ -101,7 +102,7 @@ class DistributorProfileScreen extends StatelessWidget {
                               color: Colors.green,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text(
+                            child: const AutoTranslateText(
                               'Verified',
                               style: TextStyle(
                                 color: Colors.white,
@@ -115,7 +116,7 @@ class DistributorProfileScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
-                          Text(
+                          AutoTranslateText(
                             'Mobile Number:',
                             style: TextStyle(
                               fontSize: 14,
@@ -123,7 +124,7 @@ class DistributorProfileScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text(
+                          AutoTranslateText(
                             '9409666802',
                             style: TextStyle(
                               fontSize: 18,
@@ -222,7 +223,7 @@ class _ProfileTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       leading: Icon(icon, color: AppColors.primaryPurple),
-      title: Text(
+      title: AutoTranslateText(
         label,
         style: TextStyle(
           color: isLogout ? Colors.black : Colors.black,

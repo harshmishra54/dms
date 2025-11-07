@@ -163,7 +163,7 @@
   "order_approved_successfully": "Order approved successfully",
   "reject_order": "Reject Order",
   "order_rejected_successfully": "Order rejected successfully",
-  "70": "70%",
+  "seventy": "70%",
   "qty_orderedqty": "Qty : $orderedQty",
   "price_unitprice_tostringasfixed_2": "Price : ₹${unitPrice.toStringAsFixed(2)}",
   "no_data_available": "No data available",

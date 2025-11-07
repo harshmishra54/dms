@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/farmer_funnel_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_meeting.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/fill_details_form.dart';
@@ -94,12 +95,12 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Do you want to exit the app?"),
+        title: const AutoTranslateText("Exit App"),
+        content: const AutoTranslateText("Do you want to exit the app?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () {
@@ -109,7 +110,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                 exit(0);
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -296,7 +297,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     SizedBox(height: 12),
-                    Text(
+                    AutoTranslateText(
                       'Welcome Back,',
                       style: TextStyle(
                         color: Colors.white70,
@@ -304,7 +305,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
+                    AutoTranslateText(
                       'Farmer Advisor',
                       style: TextStyle(
                         color: Colors.white,
@@ -463,7 +464,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                 children: [
                   CircularProgressIndicator(color: Colors.deepPurple),
                   const SizedBox(height: 12),
-                  Text(
+                  AutoTranslateText(
                     "Loading funnel data...",
                     style: TextStyle(color: Colors.grey),
                   ),
@@ -497,7 +498,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    AutoTranslateText(
                       'Sales Analytics',
                       style: TextStyle(
                         fontSize: 18,
@@ -528,7 +529,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
               if (metrics.awareness == 0)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
+                  child: AutoTranslateText(
                     'No farmer data available yet',
                     style: TextStyle(
                       color: Colors.grey.shade500,
@@ -615,7 +616,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                   child: Icon(icon, color: Colors.white, size: 28),
                 ),
                 const SizedBox(height: 12),
-                Text(
+                AutoTranslateText(
                   title,
                   style: const TextStyle(
                     fontSize: 13,

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/Attendance_form.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class AttendancePopup extends StatelessWidget {
               children: const [
                 Icon(Icons.access_time, color: Colors.blue, size: 30),
                 SizedBox(width: 10),
-                Text(
+                AutoTranslateText(
                   "Mark Attendance",
                   style: TextStyle(
                     fontSize: 20,
@@ -45,7 +46,7 @@ class AttendancePopup extends StatelessWidget {
             const SizedBox(height: 15),
 
             // Message
-            const Text(
+            const AutoTranslateText(
               "Please select your status for today:",
               style: TextStyle(fontSize: 16, color: Colors.black87),
               textAlign: TextAlign.center,
@@ -61,7 +62,7 @@ class AttendancePopup extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => _openForm(context, "leave"),
                     icon: const Icon(Icons.free_cancellation, color: Colors.white),
-                    label: const Text("On Leave",style: TextStyle(color: Colors.white),),
+                    label: const AutoTranslateText("On Leave",style: TextStyle(color: Colors.white),),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: Colors.redAccent,
@@ -79,7 +80,7 @@ class AttendancePopup extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => _openForm(context, "working"),
                     icon: const Icon(Icons.work_outline, color: Colors.white),
-                    label: const Text("Working",style: TextStyle(color: Colors.white),),
+                    label: const AutoTranslateText("Working",style: TextStyle(color: Colors.white),),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: Colors.green,

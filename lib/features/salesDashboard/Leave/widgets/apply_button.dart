@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../../common/app_colors.dart';
 
@@ -17,7 +18,7 @@ class ApplyButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         onPressed: onPressed,
-        child: const Text('Apply Leave', style: TextStyle(fontSize: 16,color: Colors.white)),
+        child: const AutoTranslateText('Apply Leave', style: TextStyle(fontSize: 16,color: Colors.white)),
       ),
     );
   }

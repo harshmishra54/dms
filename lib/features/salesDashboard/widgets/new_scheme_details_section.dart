@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 
 class NewSchemeDetailsSection extends StatelessWidget {
@@ -8,7 +9,7 @@ class NewSchemeDetailsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("New Scheme Details", style: TextStyle(fontWeight: FontWeight.bold)),
+        const AutoTranslateText("New Scheme Details", style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SizedBox(
           height: 120,

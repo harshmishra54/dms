@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
 import 'package:flutter/services.dart'; // for SystemNavigator.pop
 import 'package:flutter/material.dart';
@@ -61,12 +62,12 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Do you want to exit the app?"),
+        title: const AutoTranslateText("Exit App"),
+        content: const AutoTranslateText("Do you want to exit the app?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () {
@@ -76,7 +77,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
                 exit(0);
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -191,7 +192,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
 
                         if (provider.data == null) {
                           return const Center(
-                              child: Text("Failed to load dashboard data."));
+                              child: AutoTranslateText("Failed to load dashboard data."));
                         }
 
                         return CustomScrollView(

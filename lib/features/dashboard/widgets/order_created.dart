@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/cancel_update_order_screen.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/order_bill_details_screen.dart';
@@ -53,11 +54,11 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
           }
 
           if (provider.error != null) {
-            return Center(child: Text(provider.error!));
+            return Center(child: AutoTranslateText(provider.error!));
           }
 
           if (provider.orders.isEmpty) {
-            return const Center(child: Text("No orders found."));
+            return const Center(child: AutoTranslateText("No orders found."));
           }
 
           final filteredOrders = provider.orders.where((order) {
@@ -129,13 +130,13 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         order.orderNo,
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w600, fontSize: 15),
                                       ),
                                     ),
-                                    Text("Date: ${formatDate(order.orderDate)}",
+                                    AutoTranslateText("Date: ${formatDate(order.orderDate)}",
                                         style: const TextStyle(fontSize: 13)),
                                   ],
                                 ),
@@ -144,7 +145,7 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                 // 💰 Total + Delivery
                                 Row(
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       "Value: ₹${totalAmount.toStringAsFixed(2)}",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -153,7 +154,7 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                       ),
                                     ),
                                     const Spacer(),
-                                    Text(
+                                    AutoTranslateText(
                                       "Delivery: ${order.deliveryDate.isNotEmpty ? formatDate(order.deliveryDate) : 'Pending'}",
                                       style: const TextStyle(fontSize: 13),
                                     ),
@@ -190,7 +191,7 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                           ).then((_) => _refreshOrders());
                                         },
                                         icon: const Icon(Icons.edit, size: 14),
-                                        label: const Text("Edit", style: TextStyle(fontSize: 12)),
+                                        label: const AutoTranslateText("Edit", style: TextStyle(fontSize: 12)),
                                       )
                                     else
                                       Row(
@@ -205,7 +206,7 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                                   : Colors.red[100],
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: Text(
+                                            child: AutoTranslateText(
                                               order.status,
                                               style: TextStyle(
                                                 color: order.status.toLowerCase() == "accepted" ||
@@ -243,7 +244,7 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                           if (order.status.toLowerCase() == "accepted" ||
                                               order.status.toLowerCase() == "partially accepted")
                                             TextButton.icon(
-                                              label: const Text("Return", style: TextStyle(color: Colors.red)),
+                                              label: const AutoTranslateText("Return", style: TextStyle(color: Colors.red)),
                                               onPressed: () async {
                                                 Navigator.push(
                                                   context,

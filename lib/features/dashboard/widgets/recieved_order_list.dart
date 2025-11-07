@@ -1,4 +1,5 @@
 
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/order_update_model.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/order_bill_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -47,16 +48,16 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
     return await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("Confirm Order"),
-        content: Text("Are you sure you want to $displayText this order?"),
+        title: AutoTranslateText("Confirm Order"),
+        content: AutoTranslateText("Are you sure you want to $displayText this order?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel"),
+            child: const AutoTranslateText("Cancel"),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -103,11 +104,11 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
     final updateProvider = context.read<OrderUpdateProvider>();
     if (updateProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${updateProvider.errorMessage}")),
+        SnackBar(content: AutoTranslateText("Error: ${updateProvider.errorMessage}")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(updateProvider.orderResponse?.message ?? "Success")),
+        SnackBar(content: AutoTranslateText(updateProvider.orderResponse?.message ?? "Success")),
       );
       context.read<OrderListProvider>().fetchOrderList();
     }
@@ -165,7 +166,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                   icon: const Icon(Icons.arrow_back, color: Colors.black),
                 ),
                 const SizedBox(width: 8),
-                const Text(
+                const AutoTranslateText(
                   "Received Order List",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
                 ),
@@ -199,14 +200,14 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                 }
                 if (provider.errorMessage != null) {
                   return Center(
-                      child: Text(provider.errorMessage!,
+                      child: AutoTranslateText(provider.errorMessage!,
                           style: const TextStyle(color: Colors.red)));
                 }
 
                 final response = provider.orderListResponse;
                 if (response == null || response.data.isEmpty) {
                   return const Center(
-                      child: Text("No orders found",
+                      child: AutoTranslateText("No orders found",
                           style: TextStyle(color: Colors.grey)));
                 }
 
@@ -229,7 +230,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
 
                 if (filteredOrders.isEmpty) {
                   return const Center(
-                      child: Text("No matching orders",
+                      child: AutoTranslateText("No matching orders",
                           style: TextStyle(color: Colors.grey)));
                 }
 
@@ -269,11 +270,11 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                   MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
-                                      child: Text(order.orderNo,
+                                      child: AutoTranslateText(order.orderNo,
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold)),
                                     ),
-                                    Text(
+                                    AutoTranslateText(
                                       "Date : ${formatDate(order.orderDate)}",
                                       style: const TextStyle(
                                           color: Colors.black87,
@@ -286,7 +287,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                   MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         "Value : ₹${((double.tryParse(order.discountPrice.toString()) ?? 0) + (double.tryParse(order.gst.toString()) ?? 0)).toStringAsFixed(2)}",
                                         style: const TextStyle(
                                           color: Colors.purple,
@@ -299,7 +300,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
 
 
                                     Flexible(
-                                      child: Text(
+                                      child: AutoTranslateText(
                                         order.status == "Pending"
                                             ? "Delivery : ${formatDate(order.deliveryDate)}"
                                             : (order.status == "Rejected"
@@ -322,14 +323,14 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    const AutoTranslateText(
                                       "Expected Delivery:",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
                                     ),
-                                    Text(
+                                    AutoTranslateText(
                                       formatDate(order.expectedDate??""),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -362,7 +363,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                           ),
                                           child: const FittedBox(
                                             fit: BoxFit.scaleDown,
-                                            child: Text("ACCEPT"),
+                                            child: AutoTranslateText("ACCEPT"),
                                           ),
                                         ),
                                       ),
@@ -387,7 +388,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                           ),
                                           child: const FittedBox(
                                             fit: BoxFit.scaleDown,
-                                            child: Text("REJECT"),
+                                            child: AutoTranslateText("REJECT"),
                                           ),
                                         ),
                                       ),
@@ -409,7 +410,7 @@ class _RecievedOrderListState extends State<RecievedOrderList> {
                                           ),
                                           child: const FittedBox(
                                             fit: BoxFit.scaleDown,
-                                            child: Text("PARTIAL"),
+                                            child: AutoTranslateText("PARTIAL"),
                                           ),
                                         ),
                                       ),

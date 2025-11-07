@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/to_location_response.dart';
 import 'package:TrustTags_DMS/features/returns/provider/return_order_details_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/visit_helpers.dart';
@@ -91,7 +92,7 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
               child: distributorProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : distributors.isEmpty
-                  ? const Center(child: Text("No distributors found"))
+                  ? const Center(child: AutoTranslateText("No distributors found"))
                   : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -166,14 +167,14 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
               provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : provider.error != null
-                  ? Text(
+                  ? AutoTranslateText(
                 "Error: ${provider.error}",
                 style: const TextStyle(color: Colors.red),
               )
                   : provider.orderDetails == null ||
                   provider.orderDetails!.detail == null ||
                   provider.orderDetails!.detail!.isEmpty
-                  ? const Text("No details available")
+                  ? const AutoTranslateText("No details available")
                   : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

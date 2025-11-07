@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/tsi_activity.dart';
 import 'package:flutter/material.dart';
@@ -127,12 +128,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Do you want to exit the app?"),
+        title: const AutoTranslateText("Exit App"),
+        content: const AutoTranslateText("Do you want to exit the app?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("No"),
+            child: const AutoTranslateText("No"),
           ),
           TextButton(
             onPressed: () {
@@ -142,7 +143,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                 exit(0);
               }
             },
-            child: const Text("Yes"),
+            child: const AutoTranslateText("Yes"),
           ),
         ],
       ),
@@ -251,14 +252,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
+                              const AutoTranslateText(
                                 "Failed to load data",
                                 style: TextStyle(color: Colors.red, fontSize: 16),
                               ),
                               const SizedBox(height: 8),
                               ElevatedButton(
                                 onPressed: _fetchAllData,
-                                child: const Text("Retry"),
+                                child: const AutoTranslateText("Retry"),
                               ),
                             ],
                           ),
@@ -318,7 +319,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       alignment: Alignment.center,
-                                      child: const Text(
+                                      child: const AutoTranslateText(
                                         "No schemes to discover",
                                         style: TextStyle(color: Colors.grey),
                                       ),
@@ -334,7 +335,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       alignment: Alignment.center,
-                                      child: const Text(
+                                      child: const AutoTranslateText(
                                         "No active schemes",
                                         style: TextStyle(color: Colors.grey),
                                       ),

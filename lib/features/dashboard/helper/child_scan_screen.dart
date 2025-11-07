@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/common/widgets/qr_scanner_box.dart';
 import 'package:TrustTags_DMS/data/models/scan_child_code_model.dart';
 import 'package:TrustTags_DMS/features/scan/providers/child_code_delete_provider.dart';
@@ -122,7 +123,7 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      const AutoTranslateText(
                         "Scan QR",
                         style: TextStyle(
                             color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
@@ -193,7 +194,7 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
         setState(() => _activeTab = value);
         _resetScanner();
       },
-      child: Text(label,
+      child: AutoTranslateText(label,
           style: TextStyle(
               color: _activeTab == value ? Colors.white : Colors.black54)),
     );
@@ -229,7 +230,7 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
           color: bgColor,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: borderColor, width: 1.2)),
-      child: Text(text,
+      child: AutoTranslateText(text,
           style: TextStyle(color: borderColor, fontWeight: FontWeight.w600)),
     );
   }
@@ -260,9 +261,9 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
+          AutoTranslateText(label,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          Text(value, style: const TextStyle(fontSize: 14)),
+          AutoTranslateText(value, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -46,7 +47,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
         if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error),
+              content: AutoTranslateText(error),
               duration: const Duration(seconds: 1),
             ),
           );
@@ -70,14 +71,14 @@ class _LeaveScreenState extends State<LeaveScreen> {
   Future<void> _submitLeave() async {
     if (selectedLeaveType == null || fromDate == null || toDate == null || reasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: AutoTranslateText('Please fill all fields')),
       );
       return;
     }
 
     if (toDate!.isBefore(fromDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('To Date cannot be before From Date')),
+        const SnackBar(content: AutoTranslateText('To Date cannot be before From Date')),
       );
       return;
     }
@@ -105,7 +106,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
     if (resp != null && resp.success == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(resp.message)),
+        SnackBar(content: AutoTranslateText(resp.message)),
       );
       await _fetchLeaveList();
       setState(() {
@@ -147,7 +148,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const Expanded(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Leave Management',
                     style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500),
                     textAlign: TextAlign.center,
@@ -203,7 +204,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                   const SizedBox(height: 24),
                   const LeaveStatusCalendar(),
                   const SizedBox(height: 16),
-                  const Text(
+                  const AutoTranslateText(
                     'Leave Status',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 
 class SchemesTabCategoryCard extends StatelessWidget {
@@ -15,7 +16,7 @@ class SchemesTabCategoryCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: const [
-          Text(
+          AutoTranslateText(
             "Scheme Category",
             style: TextStyle(fontWeight: FontWeight.w500),
           ),

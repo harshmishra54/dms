@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -85,7 +86,7 @@ class BottomBar extends StatelessWidget {
 
             if (provider.tsiUsers.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("No TSI found")),
+                const SnackBar(content: AutoTranslateText("No TSI found")),
               );
               return;
             }
@@ -111,8 +112,8 @@ class BottomBar extends StatelessWidget {
                       itemBuilder: (ctx, index) {
                         final tsi = provider.tsiUsers[index];
                         return ListTile(
-                          title: Text(tsi.name ?? "Unknown"),
-                          subtitle: Text(tsi.mobileNo ?? ""),
+                          title: AutoTranslateText(tsi.name ?? "Unknown"),
+                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
                             Navigator.pop(ctx); // close sheet
                             Navigator.push(
@@ -146,7 +147,7 @@ class BottomBar extends StatelessWidget {
 
             if (provider.tsiUsers.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("No TSI found")),
+                const SnackBar(content: AutoTranslateText("No TSI found")),
               );
               return;
             }
@@ -172,8 +173,8 @@ class BottomBar extends StatelessWidget {
                       itemBuilder: (ctx, index) {
                         final tsi = provider.tsiUsers[index];
                         return ListTile(
-                          title: Text(tsi.name ?? "Unknown"),
-                          subtitle: Text(tsi.mobileNo ?? ""),
+                          title: AutoTranslateText(tsi.name ?? "Unknown"),
+                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
                             Navigator.pop(ctx); // close sheet
                             Navigator.push(
@@ -207,7 +208,7 @@ class BottomBar extends StatelessWidget {
 
             if (provider.tsiUsers.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("No TSI found")),
+                const SnackBar(content: AutoTranslateText("No TSI found")),
               );
               return;
             }
@@ -233,8 +234,8 @@ class BottomBar extends StatelessWidget {
                       itemBuilder: (ctx, index) {
                         final tsi = provider.tsiUsers[index];
                         return ListTile(
-                          title: Text(tsi.name ?? "Unknown"),
-                          subtitle: Text(tsi.mobileNo ?? ""),
+                          title: AutoTranslateText(tsi.name ?? "Unknown"),
+                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
                             Navigator.pop(ctx); // close sheet
                             Navigator.push(
@@ -268,7 +269,7 @@ class BottomBar extends StatelessWidget {
 
             if (provider.tsiUsers.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("No TSI found")),
+                const SnackBar(content: AutoTranslateText("No TSI found")),
               );
               return;
             }
@@ -294,8 +295,8 @@ class BottomBar extends StatelessWidget {
                       itemBuilder: (ctx, index) {
                         final tsi = provider.tsiUsers[index];
                         return ListTile(
-                          title: Text(tsi.name ?? "Unknown"),
-                          subtitle: Text(tsi.mobileNo ?? ""),
+                          title: AutoTranslateText(tsi.name ?? "Unknown"),
+                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
                             Navigator.pop(ctx); // close sheet
                             Navigator.push(
@@ -336,7 +337,7 @@ class BottomBar extends StatelessWidget {
           SizedBox(
             height: 32,
             child: Center(
-              child: Text(
+              child: AutoTranslateText(
                 label,
                 textAlign: TextAlign.center,
                 maxLines: 2,

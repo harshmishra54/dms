@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
@@ -26,7 +27,7 @@ class _PunchOutState extends State<PunchOut> {
 
     if (conclusion.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter Summary of the day")),
+        const SnackBar(content: AutoTranslateText("Please enter Summary of the day")),
       );
       return;
     }
@@ -34,7 +35,7 @@ class _PunchOutState extends State<PunchOut> {
     final userId = await SharedPrefsHelper.getUserId();
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User not found. Please login again.")),
+        const SnackBar(content: AutoTranslateText("User not found. Please login again.")),
       );
       return;
     }
@@ -47,7 +48,7 @@ class _PunchOutState extends State<PunchOut> {
     // Show the message from the server regardless of success
     if (response != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message)),
+        SnackBar(content: AutoTranslateText(response.message)),
       );
 
       // Navigate back to SalesDashboard after showing the message
@@ -58,7 +59,7 @@ class _PunchOutState extends State<PunchOut> {
     } else if (provider.errorMessage != null) {
       // Show error if request failed
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.errorMessage!)),
+        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
       );
     }
   }
@@ -87,7 +88,7 @@ class _PunchOutState extends State<PunchOut> {
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  const Text(
+                  const AutoTranslateText(
                     "Punch Out",
                     style: TextStyle(
                       color: Colors.black,
@@ -107,7 +108,7 @@ class _PunchOutState extends State<PunchOut> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
+                      const AutoTranslateText(
                         "Summary of the day",
                         style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
@@ -136,7 +137,7 @@ class _PunchOutState extends State<PunchOut> {
                           ),
                           backgroundColor: AppColors.topBarColor,
                         ),
-                        child: const Text(
+                        child: const AutoTranslateText(
                           "Punch Out",
                           style: TextStyle(
                             fontSize: 16,

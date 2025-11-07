@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/order_details_model.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/distributor_new_order_screen.dart';
 import 'package:TrustTags_DMS/features/orders/provider/order_details_provider.dart';
@@ -81,7 +82,7 @@ class _OrderSectionState extends State<OrderSection> {
             } else if (!snapshot.hasData || snapshot.data == null) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Text(""), // keep blank if no order yet
+                child: AutoTranslateText(""), // keep blank if no order yet
               );
             } else {
               final details = snapshot.data!;

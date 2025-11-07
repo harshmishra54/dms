@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/common/widgets/terms_conditions_dialog.dart';
 import 'package:TrustTags_DMS/core/utils/token_decryptor.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
@@ -161,7 +162,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> _handleVerifyOtp() async {
     if (!isChecked) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please accept the Terms & Conditions")),
+        const SnackBar(content: AutoTranslateText("Please accept the Terms & Conditions")),
       );
       return;
     }
@@ -170,7 +171,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     if (enteredOtp.isEmpty || enteredOtp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a valid OTP")),
+        const SnackBar(content: AutoTranslateText("Please enter a valid OTP")),
       );
       return;
     }
@@ -294,7 +295,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(otpProvider.errorMessage ?? "OTP Verification failed")),
+        SnackBar(content: AutoTranslateText(otpProvider.errorMessage ?? "OTP Verification failed")),
       );
     }
   }
@@ -325,11 +326,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("OTP resent successfully")),
+        const SnackBar(content: AutoTranslateText("OTP resent successfully")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to resend OTP")),
+        const SnackBar(content: AutoTranslateText("Failed to resend OTP")),
       );
     }
   }
@@ -352,7 +353,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   child: const Icon(Icons.arrow_back, size: 26),
                 ),
                 const SizedBox(width: 18),
-                const Text(
+                const AutoTranslateText(
                   'Sign In',
                   style: TextStyle(
                     fontSize: 18,
@@ -380,7 +381,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       'Verify OTP',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
@@ -388,7 +389,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    AutoTranslateText(
                       'OTP has been sent to - ${widget.phoneNumber}',
                       style: const TextStyle(
                         color: Colors.grey,
@@ -397,7 +398,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    const Text(
+                    const AutoTranslateText(
                       'Enter OTP',
                       style: TextStyle(
                         fontSize: 16,
@@ -421,22 +422,50 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             });
                           },
                         ),
-                        const Text('I Agree to the '),
-                        GestureDetector(
-                          onTap: () {
-                            showTermsAndConditionsDialog(context);
-                          },
-                          child: Text(
-                            'Terms & Conditions.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryPurple,
-                              decoration: TextDecoration.underline,
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: const TextStyle(fontSize: 14, color: Colors.black),
+                              children: [
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: AutoTranslateText(
+                                    'I Agree to the ',
+                                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    softWrap: true,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showTermsAndConditionsDialog(context);
+                                    },
+                                    child: AutoTranslateText(
+                                      'Terms & Conditions.',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primaryPurple,
+                                        decoration: TextDecoration.underline,
+                                        fontSize: 14,
+                                      ),
+                                      softWrap: true,
+                                      overflow: TextOverflow.visible,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
                           ),
                         ),
                       ],
                     ),
+
 
                     const SizedBox(height: 10),
 
@@ -463,7 +492,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             color: Colors.white,
                           ),
                         )
-                            : const Text("Verify OTP"),
+                            : const AutoTranslateText("Verify OTP"),
                       ),
                     ),
 
@@ -472,7 +501,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     Center(
                       child: Column(
                         children: [
-                          const Text("Haven’t Received An OTP?"),
+                          const AutoTranslateText("Haven’t Received An OTP?"),
                           TextButton(
                             onPressed: isResending ? null : _handleResendOtp,
                             child: isResending
@@ -484,7 +513,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 color: Colors.black,
                               ),
                             )
-                                : Text(
+                                : AutoTranslateText(
                               "Resend",
                               style: TextStyle(
                                 color: AppColors.primaryPurple,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/tsi_distributor_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_distributor_registration_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/zrt_provider.dart';
@@ -108,7 +109,7 @@ class _TsiDistributorRegistrationState
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enable location services")),
+        const SnackBar(content: AutoTranslateText("Please enable location services")),
       );
       return;
     }
@@ -118,7 +119,7 @@ class _TsiDistributorRegistrationState
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location permission denied")),
+          const SnackBar(content: AutoTranslateText("Location permission denied")),
         );
         return;
       }
@@ -127,7 +128,7 @@ class _TsiDistributorRegistrationState
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
+            content: AutoTranslateText(
                 "Location permission permanently denied. Enable from settings")),
       );
       return;
@@ -145,7 +146,7 @@ class _TsiDistributorRegistrationState
     } catch (e) {
       debugPrint("Error fetching location: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to fetch location")),
+        const SnackBar(content: AutoTranslateText("Failed to fetch location")),
       );
     }
   }
@@ -248,7 +249,7 @@ class _TsiDistributorRegistrationState
   Future<void> _submitRegistration() async {
     if (!_locationFetched) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Fetching location, please wait...")),
+        const SnackBar(content: AutoTranslateText("Fetching location, please wait...")),
       );
       return;
     }
@@ -296,7 +297,7 @@ class _TsiDistributorRegistrationState
         if (provider.errorMessage != null) {
           // ❌ Show error
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(provider.errorMessage!)),
+            SnackBar(content: AutoTranslateText(provider.errorMessage!)),
           );
         } else if (provider.distributorResponse?.success == 1) {
           // ✅ Success → reset form and pop back
@@ -341,7 +342,7 @@ class _TsiDistributorRegistrationState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Center(
-                            child: Text(
+                            child: AutoTranslateText(
                               "Distributor Registration",
                               style: TextStyle(
                                   fontSize: 22,
@@ -402,7 +403,7 @@ class _TsiDistributorRegistrationState
                             items: states
                                 .map((s) => DropdownMenuItem<int>(
                               value: s['id'],
-                              child: Text(
+                              child: AutoTranslateText(
                                 s['name'],
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -426,7 +427,7 @@ class _TsiDistributorRegistrationState
                             items: districts
                                 .map((d) => DropdownMenuItem<int>(
                               value: d['id'],
-                              child: Text(
+                              child: AutoTranslateText(
                                 d['name'],
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -467,7 +468,7 @@ class _TsiDistributorRegistrationState
                               ElevatedButton.icon(
                                 onPressed: _pickImage,
                                 icon: const Icon(Icons.camera_alt),
-                                label: const Text("Capture"),
+                                label: const AutoTranslateText("Capture"),
                               ),
                               const SizedBox(width: 12),
                               _base64Image != null
@@ -511,7 +512,7 @@ class _TsiDistributorRegistrationState
                                   strokeWidth: 2,
                                 ),
                               )
-                                  : const Text(
+                                  : const AutoTranslateText(
                                 "Register",
                                 style: TextStyle(
                                     fontSize: 18,
@@ -536,7 +537,7 @@ class _TsiDistributorRegistrationState
 
   Widget buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(top: 12, bottom: 4),
-    child: Text(
+    child: AutoTranslateText(
       text,
       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
     ),

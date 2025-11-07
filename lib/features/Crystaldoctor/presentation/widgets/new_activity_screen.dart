@@ -1,4 +1,5 @@
 import 'dart:math' show sin, cos, sqrt, atan2, pi;
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/get_activity_timeline_provider.dart';
@@ -82,7 +83,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const AutoTranslateText(
                   "Activity Overview",
                   style:
                   TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -91,7 +92,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
+            AutoTranslateText(
               "Keep it up! You're making great progress.",
               style:
               TextStyle(color: Colors.purple[700], fontSize: 13),
@@ -128,7 +129,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             const SizedBox(height: 8),
             const Divider(),
 
-            const Text(
+            const AutoTranslateText(
               "Recent Activities",
               style:
               TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
@@ -136,7 +137,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             const SizedBox(height: 8),
 
             if (activities.isEmpty)
-              const Text(
+              const AutoTranslateText(
                 "No activities found.",
                 style: TextStyle(color: Colors.grey),
               ),
@@ -174,13 +175,13 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
     ),
     child: Column(
       children: [
-        Text(
+        AutoTranslateText(
           title,
           style: const TextStyle(
               color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
         ),
         const SizedBox(height: 4),
-        Text(
+        AutoTranslateText(
           value,
           style: const TextStyle(
             fontSize: 18,
@@ -202,7 +203,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
               Icon(icon, color: Colors.purpleAccent, size: 18),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
+                child: AutoTranslateText(
                   title,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, color: Colors.black87),
@@ -238,7 +239,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
+              child: AutoTranslateText(
                 title,
                 style: const TextStyle(
                     fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87),

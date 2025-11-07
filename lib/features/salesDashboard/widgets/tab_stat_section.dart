@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/distributorlistoftarget_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
@@ -56,7 +57,7 @@ class _TabStatSectionState extends State<TabStatSection> {
                     onTap: () => _onTabChanged(index),
                     child: Column(
                       children: [
-                        Text(
+                        AutoTranslateText(
                           tabs[index],
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -171,7 +172,7 @@ class _TabStatSectionState extends State<TabStatSection> {
                   ),
                   Positioned.fill(
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         "${(progress * 100).toStringAsFixed(1)}%",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -227,7 +228,7 @@ class _TabStatSectionState extends State<TabStatSection> {
 
           if (provider.tsiUsers.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("No TSI found")),
+              const SnackBar(content: AutoTranslateText("No TSI found")),
             );
             return;
           }
@@ -254,8 +255,8 @@ class _TabStatSectionState extends State<TabStatSection> {
                     itemBuilder: (ctx, index) {
                       final tsi = provider.tsiUsers[index];
                       return ListTile(
-                        title: Text(tsi.name ?? "Unknown"),
-                        subtitle: Text(tsi.mobileNo ?? ""),
+                        title: AutoTranslateText(tsi.name ?? "Unknown"),
+                        subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                         onTap: () {
                           Navigator.pop(ctx); // close sheet
                           // Navigate to distributor list screen with TSI ID
@@ -296,7 +297,7 @@ class _TabStatSectionState extends State<TabStatSection> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              AutoTranslateText(
                 value,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,

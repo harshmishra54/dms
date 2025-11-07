@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/returns/provider/return_order_details_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -66,7 +67,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  const AutoTranslateText(
                     "Return Order Details",
                     style: TextStyle(
                       color: Colors.black,
@@ -87,11 +88,11 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (provider.error != null) {
-                  return Center(child: Text(provider.error!));
+                  return Center(child: AutoTranslateText(provider.error!));
                 }
                 final details = provider.orderDetails;
                 if (details == null || details.data == null) {
-                  return const Center(child: Text("No details found"));
+                  return const Center(child: AutoTranslateText("No details found"));
                 }
 
                 final orderData = details.data!;
@@ -126,7 +127,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          AutoTranslateText(
                             "Order No: ${orderData.orderNo}",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -137,11 +138,11 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 "Date: ${_formatDate(orderData.orderDate)}",
                                 style: const TextStyle(fontSize: 13),
                               ),
-                              Text(
+                              AutoTranslateText(
                                 orderData.status,
                                 style: TextStyle(
                                   color: orderData.status.toLowerCase() ==
@@ -181,7 +182,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            AutoTranslateText(
                               item.product.name,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -192,9 +193,9 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Qty: ${item.qty}"),
-                                Text("Price: ₹${item.price}"),
-                                Text(
+                                AutoTranslateText("Qty: ${item.qty}"),
+                                AutoTranslateText("Price: ₹${item.price}"),
+                                AutoTranslateText(
                                   "Total: ₹${(double.tryParse(item.price) ?? 0) * (double.tryParse(item.qty) ?? 0)}",
                                   style: const TextStyle(
                                     color: Colors.purple,
@@ -204,7 +205,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            Text(
+                            AutoTranslateText(
                               "Reason: ${item.reason}",
                               style: const TextStyle(fontSize: 13),
                             ),
@@ -228,7 +229,7 @@ class _ReturnOrderDetailsScreenState extends State<ReturnOrderDetailsScreen> {
                           )
                         ],
                       ),
-                      child: Text(
+                      child: AutoTranslateText(
                         "Total: ₹$totalAmount",
                         textAlign: TextAlign.center,
                         style: const TextStyle(

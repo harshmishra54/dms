@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/leave_calender_provider.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +72,7 @@ class _LeaveStatusCalendarState extends State<LeaveStatusCalendar> {
         }
 
         if (provider.errorMessage != null) {
-          return Center(child: Text(provider.errorMessage!));
+          return Center(child: AutoTranslateText(provider.errorMessage!));
         }
 
         return Column(
@@ -98,7 +99,7 @@ class _LeaveStatusCalendarState extends State<LeaveStatusCalendar> {
                 if (tooltip != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('$tooltip on ${selectedDay.day}-${selectedDay.month}-${selectedDay.year}'),
+                      content: AutoTranslateText('$tooltip on ${selectedDay.day}-${selectedDay.month}-${selectedDay.year}'),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -153,7 +154,7 @@ class _LeaveStatusCalendarState extends State<LeaveStatusCalendar> {
             : [],
       ),
       alignment: Alignment.center,
-      child: Text(
+      child: AutoTranslateText(
         '${day.day}',
         style: TextStyle(
           color: color == Colors.transparent ? Colors.black : Colors.white,
@@ -193,7 +194,7 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        AutoTranslateText(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
       ],
     );
   }

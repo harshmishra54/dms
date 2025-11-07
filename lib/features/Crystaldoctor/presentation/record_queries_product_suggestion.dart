@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/farmer_query_add_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_query_provider.dart';
@@ -40,7 +41,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location services are disabled.")),
+        const SnackBar(content: AutoTranslateText("Location services are disabled.")),
       );
       return null;
     }
@@ -50,7 +51,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location permissions are denied.")),
+          const SnackBar(content: AutoTranslateText("Location permissions are denied.")),
         );
         return null;
       }
@@ -59,7 +60,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
+          content: AutoTranslateText(
             "Location permissions are permanently denied. Please enable them in settings.",
           ),
         ),
@@ -76,7 +77,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
     if (selectedProducts.isEmpty || _queryController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
+            content: AutoTranslateText(
                 "Please select at least one product and enter a query.")),
       );
       return;
@@ -90,7 +91,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
 
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User ID not found. Please login again.")),
+        const SnackBar(content: AutoTranslateText("User ID not found. Please login again.")),
       );
       setState(() => _isSubmitting = false);
       return;
@@ -118,13 +119,13 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
     if (farmerQueryProvider.response != null &&
         farmerQueryProvider.response!.success == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(farmerQueryProvider.response!.message)),
+        SnackBar(content: AutoTranslateText(farmerQueryProvider.response!.message)),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
+          content: AutoTranslateText(
             farmerQueryProvider.errorMessage ??
                 "Failed to submit query. Please try again.",
           ),
@@ -142,7 +143,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Product already added.")),
+        const SnackBar(content: AutoTranslateText("Product already added.")),
       );
     }
   }
@@ -178,7 +179,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Farmers Queries',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -198,7 +199,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : products.isEmpty
                 ? const Center(
-              child: Text(
+              child: AutoTranslateText(
                 "No products found",
                 style: TextStyle(fontSize: 16),
               ),
@@ -208,7 +209,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const AutoTranslateText(
                     "Select Suggested Product",
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
@@ -253,7 +254,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const AutoTranslateText(
                           "Selected Products",
                           style: TextStyle(
                               fontSize: 16,
@@ -269,7 +270,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                               BorderRadius.circular(8),
                             ),
                             child: ListTile(
-                              title: Text(p["name"] ?? ''),
+                              title: AutoTranslateText(p["name"] ?? ''),
                               trailing: IconButton(
                                 icon: const Icon(Icons.delete,
                                     color: Colors.red),
@@ -282,7 +283,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                       ],
                     ),
 
-                  const Text(
+                  const AutoTranslateText(
                     "Record Query / Demand",
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
@@ -321,7 +322,7 @@ class _RecordFarmerQueryScreenState extends State<RecordFarmerQueryScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                          : const Text(
+                          : const AutoTranslateText(
                         "Add Demand",
                         style: TextStyle(
                             fontSize: 16,

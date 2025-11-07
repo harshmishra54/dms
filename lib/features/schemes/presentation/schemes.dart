@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/schemes/presentation/scheme_program_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/app_status_bar.dart';
@@ -29,7 +30,7 @@ class SchemesScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
-                  const Text(
+                  const AutoTranslateText(
                     'Schemes',
                     style: TextStyle(
                       color: Colors.black, // ✅ Black text
@@ -52,7 +53,7 @@ class SchemesScreen extends StatelessWidget {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Opening scheme details...'),
+                          content: AutoTranslateText('Opening scheme details...'),
                           duration: Duration(seconds: 1),
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -91,7 +92,7 @@ class SchemesScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: const [
-                                Text(
+                                AutoTranslateText(
                                   'Test SIXR scheme',
                                   style: TextStyle(
                                     fontSize: 18,
@@ -100,7 +101,7 @@ class SchemesScreen extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 6),
-                                Text(
+                                AutoTranslateText(
                                   'Scan to participate in the scheme',
                                   style: TextStyle(
                                     fontSize: 15,
@@ -108,7 +109,7 @@ class SchemesScreen extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 4),
-                                Text(
+                                AutoTranslateText(
                                   'Valid from 17-Jun-25 To 18-Jun-25',
                                   style: TextStyle(
                                     fontSize: 14,

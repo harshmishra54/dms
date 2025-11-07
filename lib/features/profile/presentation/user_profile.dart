@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/profile_request.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:flutter/material.dart';
@@ -175,7 +176,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       debugPrint("Error fetching location: $e");
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid or unsupported PIN code")),
+        const SnackBar(content: AutoTranslateText("Invalid or unsupported PIN code")),
       );
     }
   }
@@ -194,7 +195,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
         if (provider.errorMessage != null) {
           return Scaffold(
-            body: Center(child: Text(provider.errorMessage!)),
+            body: Center(child: AutoTranslateText(provider.errorMessage!)),
           );
         }
 
@@ -223,7 +224,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    const Text(
+                    const AutoTranslateText(
                       'User Profile',
                       style: TextStyle(
                         fontSize: 16,
@@ -287,7 +288,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         items: states.map((s) {
                           return DropdownMenuItem<int>(
                             value: s['id'],
-                            child: Text(s['name'], overflow: TextOverflow.ellipsis),
+                            child: AutoTranslateText(s['name'], overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
                         onChanged: _isEditMode
@@ -317,7 +318,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         items: districts.map((d) {
                           return DropdownMenuItem<int>(
                             value: d['id'],
-                            child: Text(d['name'], overflow: TextOverflow.ellipsis),
+                            child: AutoTranslateText(d['name'], overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
                         onChanged: _isEditMode
@@ -419,22 +420,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 final provider = context.read<ProfileProvider>();
                                 if (provider.errorMessage != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Error: ${provider.errorMessage}")),
+                                    SnackBar(content: AutoTranslateText("Error: ${provider.errorMessage}")),
                                   );
                                   setState(() => _isEditMode = true); // re-enable edit on error
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Profile Updated Successfully")),
+                                    const SnackBar(content: AutoTranslateText("Profile Updated Successfully")),
                                   );
                                 }
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Error: $e")),
+                                  SnackBar(content: AutoTranslateText("Error: $e")),
                                 );
                                 setState(() => _isEditMode = true);
                               }
                             },
-                            child: const Text(
+                            child: const AutoTranslateText(
                               "Update Profile",
                               style: TextStyle(
                                   fontSize: 16,
@@ -460,7 +461,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, top: 16),
-      child: Text(
+      child: AutoTranslateText(
         text,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),

@@ -1,3 +1,6 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_screen.dart';
+import 'package:TrustTags_DMS/features/farmer/dashboard/invite_earn_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/recommended_product_by_advisor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,22 +50,22 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const Text("Confirm Logout"),
+              title: const AutoTranslateText("Confirm Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  Text("Logging out..."),
+                  AutoTranslateText("Logging out..."),
                 ],
               )
-                  : const Text("Are you sure you want to log out?"),
+                  : const AutoTranslateText("Are you sure you want to log out?"),
               actions: [
                 TextButton(
                   onPressed: provider.isLoading
                       ? null
                       : () => Navigator.of(ctx).pop(false),
-                  child: const Text("Cancel"),
+                  child: const AutoTranslateText("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
@@ -85,7 +88,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       );
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(provider.errorMessage!)),
+                        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
                       );
                     }
                   },
@@ -95,7 +98,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text("Yes, Logout"),
+                      : const AutoTranslateText("Yes, Logout"),
                 ),
               ],
             );
@@ -185,7 +188,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: Text('Menu', style: TextStyle(fontSize: 16)),
+                        child: AutoTranslateText('Menu', style: TextStyle(fontSize: 16)),
                       ),
                       _drawerItem(context, Icons.history, 'History',
                           const HistoryScreen()),
@@ -194,8 +197,13 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                           Icons.card_giftcard_sharp,
                           'Reward Claim History',
                           const RewardClaimHistoryScreen()),
-                      _drawerItem(context, Icons.menu_book, 'Catalogue',
-                          const HistoryScreen(initialTab: 1)),
+                      _drawerItem(
+                          context,
+                          Icons.move_to_inbox,
+                          'Catalogue',
+                          const ProductCatalogueScreen()),
+                      // _drawerItem(context, Icons.menu_book, 'Catalogue',
+                      //     const HistoryScreen(initialTab: 1)),
                       _drawerItem(
                           context,
                           Icons.production_quantity_limits,
@@ -204,29 +212,32 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: Text('Account', style: TextStyle(fontSize: 16)),
+                        child: AutoTranslateText('Account', style: TextStyle(fontSize: 16)),
                       ),
                       _drawerItem(context, Icons.person_outline, 'Profile',
                           const ProfileScreen()),
+                      _drawerItem(context, Icons.insert_invitation_outlined, 'Invite and Earn',
+                          InviteEarnScreen()),
+
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: Text('About', style: TextStyle(fontSize: 16)),
+                        child: AutoTranslateText('About', style: TextStyle(fontSize: 16)),
                       ),
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.black),
-                        title: const Text('LogOut'),
+                        title: const AutoTranslateText('LogOut'),
                         onTap: () => _confirmLogout(context),
                       ),
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4.0),
-                        child: Text('v 1.0.4', style: TextStyle(fontSize: 14)),
+                        child: AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
                       ),
                       const SizedBox(height: 20),
                       const Padding(
                         padding: EdgeInsets.only(left: 4.0),
-                        child: Text('© 2020 - 2025', style: TextStyle(fontSize: 14)),
+                        child: AutoTranslateText('© 2020 - 2025', style: TextStyle(fontSize: 14)),
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -244,7 +255,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
       BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
+      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

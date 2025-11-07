@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/network/offline_cache_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -354,8 +355,8 @@ class DioClient {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: Text("session_expired".tr()),
-        content: const Text("Please login again."),
+        title: AutoTranslateText("Session Expired"),
+        content: const AutoTranslateText("Please login again."),
         actions: [
           TextButton(
             onPressed: () async {
@@ -368,7 +369,7 @@ class DioClient {
                 );
               }
             },
-            child: const Text("OK"),
+            child: const AutoTranslateText("OK"),
           ),
         ],
       ),

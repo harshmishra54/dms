@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/visit_rout_crystal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +62,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text(
+          title: const AutoTranslateText(
             "Enter Reason",
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
@@ -76,7 +77,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const AutoTranslateText("Cancel"),
             ),
             Consumer<UpdateBeatPlanDoctorProvider>(
               builder: (context, provider, _) {
@@ -88,7 +89,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                     if (reason.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Please enter a reason."),
+                          content: AutoTranslateText("Please enter a reason."),
                         ),
                       );
                       return;
@@ -106,7 +107,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                       if (success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
+                            content: AutoTranslateText(
                               provider.response?.message ??
                                   "Route completed successfully!",
                             ),
@@ -116,7 +117,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
+                            content: AutoTranslateText(
                               provider.errorMessage ??
                                   "Failed to complete route.",
                             ),
@@ -134,7 +135,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   )
-                      : const Text("OK"),
+                      : const AutoTranslateText("OK"),
                 );
               },
             ),
@@ -178,7 +179,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           Center(
-                            child: Text(
+                            child: AutoTranslateText(
                               routeName,
                               style: const TextStyle(
                                 fontSize: 18,
@@ -199,7 +200,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 12, right: 12, top: 10),
                       child: farmers.isEmpty
                           ? const Center(
-                        child: Text(
+                        child: AutoTranslateText(
                           "No farmers found for this date",
                           style: TextStyle(fontSize: 14, color: Colors.black54),
                         ),
@@ -220,7 +221,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                             onTap: () {
                               if (id.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Farmer ID not found.")),
+                                  const SnackBar(content: AutoTranslateText("Farmer ID not found.")),
                                 );
                                 return;
                               }
@@ -257,7 +258,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             name.isNotEmpty ? name : 'Unknown Farmer',
                                             style: const TextStyle(
                                               fontSize: 16,
@@ -275,7 +276,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                                                 : Colors.orange.shade100,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             status,
                                             style: TextStyle(
                                               color: status == "Completed"
@@ -294,7 +295,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                                           const Icon(Icons.location_on,
                                               size: 16, color: Colors.purple),
                                           const SizedBox(width: 6),
-                                          Text(
+                                          AutoTranslateText(
                                             "Area In Acre: $area",
                                             style: const TextStyle(
                                               color: Colors.black54,
@@ -313,7 +314,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                                               size: 16, color: Colors.purple),
                                           const SizedBox(width: 6),
                                           Expanded(
-                                            child: Text(
+                                            child: AutoTranslateText(
                                               address,
                                               style: const TextStyle(
                                                 color: Colors.black54,
@@ -352,7 +353,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                           child: provider.isLoading
                               ? const CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2)
-                              : const Text(
+                              : const AutoTranslateText(
                             "Complete Route",
                             style: TextStyle(
                               fontSize: 16,
@@ -379,7 +380,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text(
+                          child: const AutoTranslateText(
                             "Route Completed",
                             style: TextStyle(
                               fontSize: 16,

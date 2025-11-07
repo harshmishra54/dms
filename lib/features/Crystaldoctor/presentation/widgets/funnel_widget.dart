@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
@@ -24,7 +25,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Farmer Funnel Dashboard'),
+        title: const AutoTranslateText('Farmer Funnel Dashboard'),
       ),
       body: Consumer<FarmerFunnelProvider>(
         builder: (context, provider, child) {
@@ -33,13 +34,13 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
           }
 
           if (provider.errorMessage != null) {
-            return Center(child: Text(provider.errorMessage!));
+            return Center(child: AutoTranslateText(provider.errorMessage!));
           }
 
           final funnelData = provider.farmerFunnel?.data ?? [];
 
           if (funnelData.isEmpty) {
-            return const Center(child: Text("No farmers found."));
+            return const Center(child: AutoTranslateText("No farmers found."));
           }
 
           // Group farmers by status for funnel
@@ -68,14 +69,14 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                         color: Colors.blue.shade50,
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
-                          title: Text(
+                          title: AutoTranslateText(
                             stage,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           trailing: CircleAvatar(
                             backgroundColor: Colors.blue,
-                            child: Text(
+                            child: AutoTranslateText(
                               count.toString(),
                               style: const TextStyle(color: Colors.white),
                             ),
@@ -93,7 +94,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                   final farmers = funnelMap[stage]!;
                   return ExpansionTile(
                     initiallyExpanded: true,
-                    title: Text(
+                    title: AutoTranslateText(
                       '$stage (${farmers.length})',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
@@ -107,15 +108,15 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 farmer.farmerName ?? "",
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                              Text('Mobile: ${farmer.mobileNumber ?? ""}'),
+                              AutoTranslateText('Mobile: ${farmer.mobileNumber ?? ""}'),
                               if (farmer.villageName != null)
-                                Text('Village: ${farmer.villageName}'),
+                                AutoTranslateText('Village: ${farmer.villageName}'),
                               const SizedBox(height: 6),
 
                               // Crops & Products
@@ -124,7 +125,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Crops & Products:',
+                                    const AutoTranslateText('Crops & Products:',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
@@ -136,7 +137,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                           crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                           children: [
-                                            Text('Crop: ${crop.cropName ?? ""}'),
+                                            AutoTranslateText('Crop: ${crop.cropName ?? ""}'),
                                             if (crop.products != null &&
                                                 crop.products!.isNotEmpty)
                                               Padding(
@@ -147,7 +148,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                                   crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                                   children: crop.products!
-                                                      .map((product) => Text(
+                                                      .map((product) => AutoTranslateText(
                                                       '- ${product.productName ?? ""}'))
                                                       .toList(),
                                                 ),
@@ -167,7 +168,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Queries:',
+                                    const AutoTranslateText('Queries:',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
@@ -178,7 +179,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                           crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                           children: query.details!
-                                              .map((detail) => Text(
+                                              .map((detail) => AutoTranslateText(
                                               '- ${detail.productName ?? ""} | Crop: ${detail.crop ?? ""} | Qty: ${detail.quantity ?? ""}'))
                                               .toList(),
                                         ),
@@ -195,12 +196,12 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Recommended Products:',
+                                    const AutoTranslateText('Recommended Products:',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     ...farmer.recommendedProducts!
-                                        .map((p) => Text('- $p'))
+                                        .map((p) => AutoTranslateText('- $p'))
                                         .toList(),
                                   ],
                                 ),

@@ -1,4 +1,5 @@
 import 'dart:math' show sin, cos, sqrt, atan2, pi;
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/today_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/tsi_mapview.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class _TsiActivityState extends State<TsiActivity> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const AutoTranslateText(
                   "Activity Overview",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
@@ -104,7 +105,7 @@ class _TsiActivityState extends State<TsiActivity> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
+            AutoTranslateText(
               "Today's route progress overview",
               style: TextStyle(
                 color: Colors.purple[700],
@@ -157,7 +158,7 @@ class _TsiActivityState extends State<TsiActivity> {
             const Divider(),
 
             // 🕒 Recent Activities
-            const Text(
+            const AutoTranslateText(
               "Recent Activities",
               style:
               TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
@@ -165,7 +166,7 @@ class _TsiActivityState extends State<TsiActivity> {
             const SizedBox(height: 8),
 
             completedUsers.isEmpty
-                ? const Text(
+                ? const AutoTranslateText(
               "No activities found.",
               style: TextStyle(color: Colors.grey),
             )
@@ -176,14 +177,14 @@ class _TsiActivityState extends State<TsiActivity> {
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.person,
                       color: Colors.purpleAccent),
-                      title: Text(
+                      title: AutoTranslateText(
                         "Visited: ${user.name}",
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
 
-                      subtitle: Text(
+                      subtitle: AutoTranslateText(
                     user.type.toUpperCase(),
                     style:
                     const TextStyle(color: Colors.grey),
@@ -220,7 +221,7 @@ class _TsiActivityState extends State<TsiActivity> {
     ),
     child: Column(
       children: [
-        Text(
+        AutoTranslateText(
           title,
           style: const TextStyle(
               color: Colors.white,
@@ -228,7 +229,7 @@ class _TsiActivityState extends State<TsiActivity> {
               fontSize: 13),
         ),
         const SizedBox(height: 4),
-        Text(
+        AutoTranslateText(
           value,
           style: const TextStyle(
             fontSize: 18,
@@ -250,7 +251,7 @@ class _TsiActivityState extends State<TsiActivity> {
               Icon(icon, color: Colors.purpleAccent, size: 18),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
+                child: AutoTranslateText(
                   title,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, color: Colors.black87),

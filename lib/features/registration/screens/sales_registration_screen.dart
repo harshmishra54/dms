@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/customer_details_response.dart';
 import 'package:TrustTags_DMS/data/models/profile_request.dart';
@@ -147,7 +148,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Sales Registration Form',
                       style: TextStyle(fontSize: 20, color: Colors.black87),
                     ),
@@ -194,7 +195,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                     items: states.map((s) {
                       return DropdownMenuItem<int>(
                         value: s['id'],
-                        child: Text(s['name'], overflow: TextOverflow.ellipsis),
+                        child: AutoTranslateText(s['name'], overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
                     onChanged: isPincodeValid ? null : (value) async {   // ✅ disable if pin is valid
@@ -222,7 +223,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                     items: districts.map((d) {
                       return DropdownMenuItem<int>(
                         value: d['id'],
-                        child: Text(d['name'], overflow: TextOverflow.ellipsis),
+                        child: AutoTranslateText(d['name'], overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
                     onChanged: isPincodeValid ? null : (value) {   // ✅ disable if pin is valid
@@ -242,7 +243,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                         final token = await SharedPrefsHelper.getAccessToken();
                         if (token == null || stateId == null || districtId == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Fill all details")),
+                            const SnackBar(content: AutoTranslateText("Fill all details")),
                           );
                           return;
                         }
@@ -277,7 +278,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed: ${provider.errorMessage}")),
+                            SnackBar(content: AutoTranslateText("Failed: ${provider.errorMessage}")),
                           );
                         }
                       },
@@ -287,7 +288,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
+                      child: const AutoTranslateText(
                         'Next',
                         style: TextStyle(
                           fontSize: 16,
@@ -309,7 +310,7 @@ class _SalesRegistrationScreenState extends State<SalesRegistrationScreen> {
   Widget buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, top: 16),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+      child: AutoTranslateText(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_limit_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_update_provider.dart';
@@ -73,7 +74,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                         icon: const Icon(Icons.arrow_back, color: Colors.black),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      const Text(
+                      const AutoTranslateText(
                         'Credit Limit Update',
                         style: TextStyle(
                           color: Colors.black,
@@ -93,7 +94,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const AutoTranslateText(
                           'Your Current Credit Limit',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
@@ -112,14 +113,14 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey),
                           ),
-                          child: Text(
+                          child: AutoTranslateText(
                             _currentLimitController.text,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
 
                         const SizedBox(height: 20),
-                        const Text(
+                        const AutoTranslateText(
                           'Enter New Limit',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
@@ -136,7 +137,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        const Text(
+                        const AutoTranslateText(
                           'Enter Reason',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
@@ -150,7 +151,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                         ),
                         const SizedBox(height: 20),
                         if (updateProvider.responseMessage.isNotEmpty)
-                          Text(
+                          AutoTranslateText(
                             updateProvider.responseMessage,
                             style: TextStyle(
                               color: updateProvider.responseMessage
@@ -174,7 +175,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                                   newLimit <= 0) {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(const SnackBar(
-                                    content: Text(
+                                    content: AutoTranslateText(
                                         'Please enter a valid new limit')));
                                 return;
                               }
@@ -191,7 +192,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                               if (requestId == null) {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(const SnackBar(
-                                    content: Text(
+                                    content: AutoTranslateText(
                                         'User ID not found')));
                                 return;
                               }
@@ -214,7 +215,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                               } else {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(SnackBar(
-                                    content: Text(updateProvider
+                                    content: AutoTranslateText(updateProvider
                                         .responseMessage)));
                               }
                             },
@@ -227,7 +228,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                             child: updateProvider.isLoading
                                 ? const CircularProgressIndicator(
                                 color: Colors.white)
-                                : const Text(
+                                : const AutoTranslateText(
                               'Add Request',
                               style: TextStyle(
                                 color: Colors.white,

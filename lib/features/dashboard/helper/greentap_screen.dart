@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/scan/providers/child_code_delete_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/inward_scan_details_provider.dart';
 import 'package:flutter/material.dart';
@@ -50,17 +51,17 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: Text("Are you sure you want to delete $uniqueCode?"),
+        title: const AutoTranslateText("Confirm Delete"),
+        content: AutoTranslateText("Are you sure you want to delete $uniqueCode?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel"),
+            child: const AutoTranslateText("Cancel"),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: const AutoTranslateText(
               "Delete",
               style: TextStyle(color: Colors.white),
             ),
@@ -82,7 +83,7 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
     // Show error or success SnackBar
     if (deleteProvider.errorMessage != null) {
       messenger.showSnackBar(
-        SnackBar(content: Text(deleteProvider.errorMessage!)),
+        SnackBar(content: AutoTranslateText(deleteProvider.errorMessage!)),
       );
     } else {
       // Optimistic UI update: remove locally
@@ -90,7 +91,7 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
       scanProvider.notifyListeners();
 
       messenger.showSnackBar(
-        SnackBar(content: Text("Deleted $uniqueCode")),
+        SnackBar(content: AutoTranslateText("Deleted $uniqueCode")),
       );
 
       // Optional: refresh from server for consistency
@@ -143,7 +144,7 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
                   ),
                   const Expanded(
                     child: Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         'Scan Details',
                         style: TextStyle(
                           color: Colors.black,
@@ -170,7 +171,7 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
               child: scanProvider.isLoading || deleteProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : scanProvider.errorMessage != null
-                  ? Center(child: Text(scanProvider.errorMessage!))
+                  ? Center(child: AutoTranslateText(scanProvider.errorMessage!))
                   : ListView.builder(
                 padding: const EdgeInsets.all(12),
                 itemCount: scanProvider.scanData?.list?.length ?? 0,
@@ -193,7 +194,7 @@ class _GreenTapScreenState extends State<GreenTapScreen> {
                         children: [
                           // UID text
                           Expanded(
-                            child: Text(
+                            child: AutoTranslateText(
                               item.uniqueCode,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontSize: 16),

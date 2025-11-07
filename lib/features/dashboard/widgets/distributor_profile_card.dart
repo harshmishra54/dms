@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -163,7 +164,7 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
+                                const AutoTranslateText(
                                   "Distributor",
                                   style: TextStyle(
                                     fontSize: 14,
@@ -258,6 +259,10 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                                   fontSize: 13,
                                   color: Colors.purpleAccent,
                                 ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
                               ),
                             ],
                           ),
@@ -340,7 +345,7 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: milestones.map((m) {
                             return Expanded( // <-- flexible width
-                              child: Text(
+                              child: AutoTranslateText(
                                 m.label,
                                 style: const TextStyle(
                                   fontSize: 12,

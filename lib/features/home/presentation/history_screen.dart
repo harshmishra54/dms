@@ -1,5 +1,6 @@
 // import 'package:TrustTags_DMS/features/points/providers/points_provider.dart';
 // import 'package:TrustTags_DMS/features/points/providers/scheme_provider.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../common/app_colors.dart';
@@ -76,7 +77,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       "History",
                       style: TextStyle(
                         color: Colors.black,
@@ -113,7 +114,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             _tabs[index],
                             style: TextStyle(
                               color: isSelected ? Colors.white : Colors.black,

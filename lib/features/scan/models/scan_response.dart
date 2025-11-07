@@ -1,37 +1,71 @@
 class ScanResponse {
   final int success;
   final String message;
-  final SchemeData? data;
+  final dynamic data;  // ✅ allow String OR object
+  final List<Segment>? segments;
 
   ScanResponse({
     required this.success,
     required this.message,
     this.data,
+    this.segments,
   });
 
   factory ScanResponse.fromJson(Map<String, dynamic> json) {
     return ScanResponse(
       success: json['success'] ?? 0,
       message: json['message'] ?? '',
-      data: json['data'] != null ? SchemeData.fromJson(json['data']) : null,
+      data: json['data'], // ✅ accept any type (string here)
+      segments: json['segments'] != null
+          ? List<Segment>.from(
+        json['segments'].map((x) => Segment.fromJson(x)),
+      )
+          : null,
     );
   }
 }
 
-class SchemeData {
-  final String? productName; // name of the scheme
-  final int? points;        // points earned
-  final String? schemeUID;  // UID of the scheme
-  final String? message;
 
-  SchemeData({this.productName, this.points, this.schemeUID,this.message});
+class SchemeData {
+  final String? productName;
+  final int? points;
+  final String? schemeUID;
+  final String? message;
+  final String? spinnerId;
+
+  SchemeData({
+    this.productName,
+    this.points,
+    this.schemeUID,
+    this.message,
+    this.spinnerId
+
+  });
 
   factory SchemeData.fromJson(Map<String, dynamic> json) {
     return SchemeData(
-      productName: json['productName'],   // make sure this matches API key
-      points: json['points'],           // make sure this matches API key
+      productName: json['productName'],
+      points: json['points'],
       schemeUID: json['uid'],
-      message: json['msg']// make sure this matches API key
+      message: json['msg'],
+      spinnerId: json['spinner_id'],
+    );
+  }
+}
+
+class Segment {
+  final int? point;
+  final int? probability;
+
+  Segment({
+    this.point,
+    this.probability,
+  });
+
+  factory Segment.fromJson(Map<String, dynamic> json) {
+    return Segment(
+      point: json['point'],
+      probability: json['probability'],
     );
   }
 }

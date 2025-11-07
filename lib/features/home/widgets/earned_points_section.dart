@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../common/app_colors.dart';
 
@@ -99,7 +100,7 @@ class _EarnedPointsSectionState extends State<EarnedPointsSection>
                         ),
                       ],
                     ),
-                    const Text(
+                    const AutoTranslateText(
                       "Earned Points",
                       style: TextStyle(
                         fontSize: 13,
@@ -141,7 +142,7 @@ class _EarnedPointsSectionState extends State<EarnedPointsSection>
                         ),
                       ],
                     ),
-                    const Text(
+                    const AutoTranslateText(
                       "Scan Codes",
                       style: TextStyle(
                         fontSize: 13,

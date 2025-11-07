@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -162,7 +163,7 @@ class _PointsSection extends State<PointsSection>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
+                                const AutoTranslateText(
                                   "Retailer",
                                   style: TextStyle(
                                     fontSize: 14,
@@ -229,7 +230,7 @@ class _PointsSection extends State<PointsSection>
                           ),
                           child: Column(
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 neededPoints > 0
                                     ? "Next Reward: ${nextMilestone.label} Need $neededPoints More Points"
                                     : "Next Reward: ${nextMilestone.label} - Unlocked!",
@@ -320,7 +321,7 @@ class _PointsSection extends State<PointsSection>
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: milestones.map((m) {
                             return Expanded( // <-- flexible width
-                              child: Text(
+                              child: AutoTranslateText(
                                 m.label,
                                 style: const TextStyle(
                                   fontSize: 12,

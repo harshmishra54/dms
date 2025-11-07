@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
@@ -88,7 +89,7 @@ class _RecommendedProductsFarmerScreenState
                   color: Color(0xFF8E2DE2),
                 ),
                 SizedBox(height: 16),
-                Text(
+                AutoTranslateText(
                   "Sending recommendation...",
                   style: TextStyle(
                     fontSize: 16,
@@ -169,7 +170,7 @@ class _RecommendedProductsFarmerScreenState
                         onPressed: () => Navigator.pop(context),
                       ),
                       const Expanded(
-                        child: Text(
+                        child: AutoTranslateText(
                           'Recommended Products',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -291,7 +292,7 @@ class _RecommendedProductsFarmerScreenState
                                 Icon(Icons.error_outline, color: Colors.red.shade700),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     provider.errorMessage!,
                                     style: TextStyle(
                                       color: Colors.red.shade700,
@@ -328,7 +329,7 @@ class _RecommendedProductsFarmerScreenState
                             ),
                             const SizedBox(width: 12),
                             const Expanded(
-                              child: Text(
+                              child: AutoTranslateText(
                                 "Recommended Products",
                                 style: TextStyle(
                                   fontSize: 18,
@@ -355,7 +356,7 @@ class _RecommendedProductsFarmerScreenState
                                     color: Color(0xFFCBD5E0),
                                   ),
                                   SizedBox(height: 16),
-                                  Text(
+                                  AutoTranslateText(
                                     "No recommended products available.",
                                     style: TextStyle(
                                       color: Color(0xFF718096),
@@ -401,7 +402,7 @@ class _RecommendedProductsFarmerScreenState
                                   ),
                                 ),
                                 icon: const Icon(Icons.chat),
-                                label: const Text(
+                                label: const AutoTranslateText(
                                   "Send on WhatsApp",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -440,7 +441,7 @@ class _RecommendedProductsFarmerScreenState
                                   ),
                                 ),
                                 icon: const Icon(Icons.send),
-                                label: const Text(
+                                label: const AutoTranslateText(
                                   "Send Recommendation",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -522,7 +523,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
               color: Colors.white,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message)),
+            Expanded(child: AutoTranslateText(message)),
           ],
         ),
         backgroundColor: isError ? Colors.red.shade600 : const Color(0xFF25D366),
@@ -582,7 +583,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       "Farmer Details",
                       style: TextStyle(
                         fontSize: 12,
@@ -591,7 +592,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    AutoTranslateText(
                       farmer.data?.name ?? 'N/A',
                       style: const TextStyle(
                         fontSize: 18,
@@ -609,7 +610,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
             children: [
               const Icon(Icons.phone, size: 18, color: Color(0xFF8E2DE2)),
               const SizedBox(width: 8),
-              Text(
+              AutoTranslateText(
                 farmer.data?.phone ?? 'N/A',
                 style: const TextStyle(
                   fontSize: 15,
@@ -638,7 +639,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                const AutoTranslateText(
                   "Nearest Retailer",
                   style: TextStyle(
                     fontSize: 15,
@@ -669,7 +670,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
       children: [
         Icon(icon, size: 16, color: const Color(0xFF718096)),
         const SizedBox(width: 8),
-        Text(
+        AutoTranslateText(
           "$label: ",
           style: const TextStyle(
             fontSize: 14,
@@ -678,7 +679,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
           ),
         ),
         Expanded(
-          child: Text(
+          child: AutoTranslateText(
             value,
             style: const TextStyle(
               fontSize: 14,
@@ -745,7 +746,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  AutoTranslateText(
                     rec.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
@@ -796,7 +797,7 @@ Retailer: ${nearest?.name ?? 'N/A'}
           Icon(icon, size: 14, color: const Color(0xFF8E2DE2)),
           const SizedBox(width: 6),
           Expanded(
-            child: Text(
+            child: AutoTranslateText(
               text,
               style: const TextStyle(
                 fontSize: 13,

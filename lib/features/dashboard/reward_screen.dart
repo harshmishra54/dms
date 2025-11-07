@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:TrustTags_DMS/common/widgets/qr_scanner_box.dart';
@@ -38,7 +39,7 @@ class _ScanQRScreenState extends State<RewardScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const AutoTranslateText(
                   'Scan QR',
                   style: TextStyle(
                     color: Colors.black,
@@ -109,7 +110,7 @@ class _ScanQRScreenState extends State<RewardScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 24),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
+                      child: AutoTranslateText(
                         'SCAN DETAILS',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
@@ -127,7 +128,7 @@ class _ScanQRScreenState extends State<RewardScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
+                      child: AutoTranslateText(
                         scannedUID.isNotEmpty ? 'Scanned UID: $scannedUID' : 'No scan yet.',
                         style: const TextStyle(fontSize: 16),
                       ),

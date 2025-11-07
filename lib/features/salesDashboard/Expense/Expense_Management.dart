@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/expense_provider.dart';
@@ -66,7 +67,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
 
                 if (expenseListProvider.error != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       expenseListProvider.error!,
                       style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
@@ -75,7 +76,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
 
                 if (expenseListProvider.expenses.isEmpty) {
                   return const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       "No expenses found",
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
@@ -150,7 +151,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
           ),
           const SizedBox(width: 12),
           const Expanded(
-            child: Text(
+            child: AutoTranslateText(
               'Expenses Detail',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -194,11 +195,11 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
+              AutoTranslateText(title,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 4),
-              Text(
+              AutoTranslateText(
                 amount,
                 style: TextStyle(
                   color: AppColors.primaryColor,
@@ -212,7 +213,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
+              AutoTranslateText(
                 status,
                 style: TextStyle(
                   color: statusColor,
@@ -220,7 +221,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
+              AutoTranslateText(
                 date,
                 style: const TextStyle(color: Colors.grey),
               ),
@@ -324,7 +325,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     alignment: Alignment.center,
                     children: [
                       const Center(
-                        child: Text(
+                        child: AutoTranslateText(
                           'Add New Expense',
                           style: TextStyle(
                             fontSize: 18,
@@ -405,10 +406,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
       child: DropdownButton<String>(
         isExpanded: true,
-        hint: const Text("Select Expense Type"),
+        hint: const AutoTranslateText("Select Expense Type"),
         value: _selectedExpenseType,
         underline: const SizedBox(),
-        items: expenseTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: expenseTypes.map((e) => DropdownMenuItem(value: e, child: AutoTranslateText(e))).toList(),
         onChanged: (val) => setState(() => _selectedExpenseType = val),
       ),
     );
@@ -416,8 +417,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Widget _buildRouteDropdown(RoutProvider provider) {
     if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-    if (provider.error.isNotEmpty) return Text("Error: ${provider.error}", style: const TextStyle(color: Colors.red));
-    if (provider.routes.isEmpty) return const Text("No routes found");
+    if (provider.error.isNotEmpty) return AutoTranslateText("Error: ${provider.error}", style: const TextStyle(color: Colors.red));
+    if (provider.routes.isEmpty) return const AutoTranslateText("No routes found");
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -428,12 +429,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
       child: DropdownButton<String>(
         isExpanded: true,
-        hint: const Text("Select Route"),
+        hint: const AutoTranslateText("Select Route"),
         value: _selectedRouteId,
         underline: const SizedBox(),
         items: provider.routes.map((route) => DropdownMenuItem(
           value: route.id.toString(),
-          child: Text(route.routeName ?? "Route ${route.id}"),
+          child: AutoTranslateText(route.routeName ?? "Route ${route.id}"),
         )).toList(),
         onChanged: (val) => setState(() => _selectedRouteId = val),
       ),
@@ -451,7 +452,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(_selectedDate != null ? "${_selectedDate!.toLocal()}".split(" ")[0] : "Select Date",
+          AutoTranslateText(_selectedDate != null ? "${_selectedDate!.toLocal()}".split(" ")[0] : "Select Date",
             style: TextStyle(color: _selectedDate != null ? Colors.black : Colors.grey.shade600),
           ),
           const Icon(Icons.calendar_today, size: 18, color: Colors.grey),
@@ -472,7 +473,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(_pickedFileName ?? "Upload Document (Image/PDF)",
+            child: AutoTranslateText(_pickedFileName ?? "Upload Document (Image/PDF)",
               style: TextStyle(color: _pickedFileName != null ? Colors.black : Colors.grey.shade600),
               overflow: TextOverflow.ellipsis,
             ),
@@ -490,7 +491,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: ElevatedButton(
         onPressed: provider.isLoading ? null : () async {
           if (_selectedExpenseType == null || _reasonController.text.isEmpty || _amountController.text.isEmpty || _selectedRouteId == null || _selectedDate == null) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: AutoTranslateText("Please fill all fields")));
             return;
           }
 
@@ -509,9 +510,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           await provider.addExpense(request);
 
           if (provider.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.errorMessage!)));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(provider.errorMessage!)));
           } else if (provider.expenseResponse != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.expenseResponse!.message)));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(provider.expenseResponse!.message)));
             _resetForm();
             Navigator.pop(context); // close page after successful submission
             Provider.of<ExpenseListProvider>(context, listen: false).fetchExpenses();
@@ -522,7 +523,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
-        child: provider.isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Add Expense', style: TextStyle(fontSize: 16, color: Colors.white)),
+        child: provider.isLoading ? const CircularProgressIndicator(color: Colors.white) : const AutoTranslateText('Add Expense', style: TextStyle(fontSize: 16, color: Colors.white)),
       ),
     );
   }

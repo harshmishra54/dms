@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:flutter/material.dart';
@@ -116,7 +117,7 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Create Meeting',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -137,13 +138,13 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Meeting Type', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Meeting Type', style: TextStyle(fontWeight: FontWeight.bold)),
                   DropdownButtonFormField<String>(
                     value: _selectedMeetingType,
                     items: _meetingTypes
                         .map((type) => DropdownMenuItem(
                       value: type,
-                      child: Text(type, style: const TextStyle(fontSize: 14)),
+                      child: AutoTranslateText(type, style: const TextStyle(fontSize: 14)),
                     ))
                         .toList(),
                     onChanged: (value) => setState(() => _selectedMeetingType = value),
@@ -155,28 +156,28 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Meeting Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Meeting Name', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _meetingNameController,
                     decoration: InputDecoration(
                         hintText: 'Enter meeting name', border: inputBorder),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Place Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Place Name', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _routeNameController,
                     decoration: InputDecoration(
                         hintText: 'Enter Place name', border: inputBorder),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Meeting Date & Time',
+                  const AutoTranslateText('Meeting Date & Time',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   DateTimePickerField(
                     controller: _meetingDateTimeController,
                     hintText: 'Tap to select date and time',
                   ),
                   const SizedBox(height: 12),
-                  const Text('Meeting Duration',
+                  const AutoTranslateText('Meeting Duration',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _meetingdurationController,
@@ -187,14 +188,14 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Crop Focus', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Crop Focus', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _cropFocusController,
                     decoration:
                     InputDecoration(hintText: 'Enter crop focus', border: inputBorder),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Product Discussed',
+                  const AutoTranslateText('Product Discussed',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _productDiscussedController,
@@ -202,7 +203,7 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                         hintText: 'Enter product discussed', border: inputBorder),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Schemes Discussed',
+                  const AutoTranslateText('Schemes Discussed',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _schemesDiscussedController,
@@ -220,14 +221,14 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  const Text('Event Notes', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Event Notes', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _eventNotesController,
                     maxLines: 3,
                     decoration: InputDecoration(border: inputBorder),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Event Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Event Actions', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _eventActionsController,
                     maxLines: 3,
@@ -295,7 +296,7 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                             }
 
                             ScaffoldMessenger.of(context)
-                                .showSnackBar(SnackBar(content: Text(res.message)));
+                                .showSnackBar(SnackBar(content: AutoTranslateText(res.message)));
 
                             // ✅ Navigate to Meeting QR Screen
                             Navigator.pushReplacement(
@@ -306,13 +307,13 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
 
                           else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: ${res.message}')),
+                              SnackBar(content: AutoTranslateText('Error: ${res.message}')),
                             );
                           }
                         } catch (e) {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to submit: $e')),
+                            SnackBar(content: AutoTranslateText('Failed to submit: $e')),
                           );
                         } finally {
                           if (mounted) setState(() => _isSubmitting = false);
@@ -332,7 +333,7 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                           strokeWidth: 2,
                         ),
                       )
-                          : const Text(
+                          : const AutoTranslateText(
                         'Submit',
                         style: TextStyle(
                           color: Colors.white,

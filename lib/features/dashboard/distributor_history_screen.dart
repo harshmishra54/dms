@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/order_created.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/tsi_order_created.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _OrderListScreenState extends State<DistributorHistoryScreen> with SingleT
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
                 Spacer(),
-                Text(
+                AutoTranslateText(
                   'Order Details',
                   style: TextStyle(
                     color: Colors.black,

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/app_status_bar.dart';
 import '../../../../common/app_colors.dart';
@@ -31,7 +32,7 @@ class SchemeProgramScreen extends StatelessWidget {
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Spacer(),
-                    const Text(
+                    const AutoTranslateText(
                       'Scheme Programme',
                       style: TextStyle(
                         color: Colors.black,
@@ -62,7 +63,7 @@ class SchemeProgramScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            Text(
+                            AutoTranslateText(
                               'Terms and Condition',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -70,8 +71,8 @@ class SchemeProgramScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 4),
-                            Text('TEXT1'),
-                            Text('TEXT2'),
+                            AutoTranslateText('TEXT1'),
+                            AutoTranslateText('TEXT2'),
                           ],
                         )
                       ],
@@ -80,7 +81,7 @@ class SchemeProgramScreen extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // ✅ Program Information Header
-                    const Text(
+                    const AutoTranslateText(
                       'Program Information',
                       style: TextStyle(
                         fontSize: 16,
@@ -100,7 +101,7 @@ class SchemeProgramScreen extends StatelessWidget {
                           'assets/images/trust_tags.png', // You can use your PDF image here
                           width: 40,
                         ),
-                        title: const Text(
+                        title: const AutoTranslateText(
                           'About the Program',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,

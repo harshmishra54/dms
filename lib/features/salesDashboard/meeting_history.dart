@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/rout_meeting_list_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_meeting_provider.dart';
@@ -62,7 +63,7 @@ class MeetingHistory extends StatelessWidget {
                       ),
                       const Expanded(
                         child: Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             'Meeting History',
                             style: TextStyle(
                               fontSize: 18,
@@ -87,7 +88,7 @@ class MeetingHistory extends StatelessWidget {
 
                       if (provider.errorMessage != null) {
                         return Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             provider.errorMessage!,
                             style: const TextStyle(color: Colors.red),
                           ),
@@ -96,7 +97,7 @@ class MeetingHistory extends StatelessWidget {
 
                       if (provider.meetings.isEmpty) {
                         return const Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             'No meetings found',
                             style: TextStyle(fontSize: 16),
                           ),
@@ -118,7 +119,7 @@ class MeetingHistory extends StatelessWidget {
                             elevation: 6,
                             shadowColor: Colors.grey.shade100,
                             child: ListTile(
-                              title: Text(
+                              title: AutoTranslateText(
                                 meeting.meetingName,
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -129,7 +130,7 @@ class MeetingHistory extends StatelessWidget {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(formatDate(meeting.meetingTime),
+                                  AutoTranslateText(formatDate(meeting.meetingTime),
                                       style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey.shade600)),
@@ -140,7 +141,7 @@ class MeetingHistory extends StatelessWidget {
                                           size: 16, color: Colors.blueAccent),
                                       const SizedBox(width: 4),
                                       Expanded(
-                                        child: Text(
+                                        child: AutoTranslateText(
                                           meeting.routeName,
                                           style: TextStyle(
                                             fontSize: 13,
@@ -215,7 +216,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 ),
                 Expanded(
                   child: Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       meeting.meetingName,
                       style: const TextStyle(
                         fontSize: 18,
@@ -251,7 +252,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           const Icon(Icons.calendar_today,
                               size: 18, color: Colors.blueAccent),
                           const SizedBox(width: 8),
-                          Text(formatDate(meeting.meetingTime),
+                          AutoTranslateText(formatDate(meeting.meetingTime),
                               style: const TextStyle(fontSize: 14)),
                         ]),
                         const SizedBox(height: 8),
@@ -260,7 +261,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               size: 18, color: Colors.green),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: Text(meeting.routeName,
+                              child: AutoTranslateText(meeting.routeName,
                                   style: const TextStyle(fontSize: 14))),
                         ]),
                       ],
@@ -278,7 +279,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     elevation: 3,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text(meeting.notes,
+                      child: AutoTranslateText(meeting.notes,
                           style: const TextStyle(fontSize: 14)),
                     ),
                   ),
@@ -287,7 +288,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 // Slidable Photos
                 if (meeting.meetingPhotos.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  const Text("Photos",
+                  const AutoTranslateText("Photos",
                       style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 12),
@@ -352,7 +353,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 // Members list
                 if (meeting.meetingMembers.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  const Text("Members",
+                  const AutoTranslateText("Members",
                       style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
@@ -374,8 +375,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               backgroundColor: Colors.blueAccent,
                               child:
                               Icon(Icons.person, color: Colors.white)),
-                          title: Text(member.name),
-                          subtitle: Text(member.phone),
+                          title: AutoTranslateText(member.name),
+                          subtitle: AutoTranslateText(member.phone),
                         );
                       },
                     ),

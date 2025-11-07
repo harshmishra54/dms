@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/scan/models/product_level_check_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +56,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title,
+                AutoTranslateText(title,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -84,7 +85,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                       Navigator.of(context).pop();
                       _restartOuterScanner(); // restart scanning after closing dialog
                     },
-                    child: const Text(
+                    child: const AutoTranslateText(
                       'Okay',
                       style: TextStyle(
                           fontSize: 16,
@@ -105,7 +106,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        AutoTranslateText(label, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 5),
         TextField(
           enabled: false,
@@ -169,7 +170,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       // Show 1 second info message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Now scan the inner code...",style: TextStyle(color: Colors.red),),
+          content: AutoTranslateText("Now scan the inner code...",style: TextStyle(color: Colors.red),),
           duration: Duration(seconds: 2),
         ),
       );
@@ -261,7 +262,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       'Scan QR',
                       style: TextStyle(
                           color: Colors.black,
@@ -306,7 +307,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: AutoTranslateText(
               'SCAN DETAILS',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
@@ -322,7 +323,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
+            child: AutoTranslateText(
               scannedUID.isNotEmpty
                   ? 'Scanned UID: $scannedUID'
                   : 'No scan yet.',

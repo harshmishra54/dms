@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/order_product_list_data_response.dart';
 import 'package:TrustTags_DMS/data/models/tsi_update_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_update_order_provider.dart';
@@ -130,7 +131,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(msg)));
   }
 
   @override
@@ -153,7 +154,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Order Update',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -172,7 +173,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : orderDetails == null
-                ? const Center(child: Text("Failed to load order details"))
+                ? const Center(child: AutoTranslateText("Failed to load order details"))
                 : Column(
               children: [
                 // Dropdown to add products
@@ -217,7 +218,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                         color: Colors.grey.shade400),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     selectedItem?.productName ??
                                         "Select Product",
                                     style: const TextStyle(fontSize: 15),
@@ -276,7 +277,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                 }
                               },
                               icon: const Icon(Icons.add, size: 20,color: Colors.white,),
-                              label: const Text("Add",style: TextStyle(color: Colors.white),),
+                              label: const AutoTranslateText("Add",style: TextStyle(color: Colors.white),),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:AppColors.topBarColor,
                                 shape: RoundedRectangleBorder(
@@ -312,7 +313,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AutoTranslateText(
                                       item.product.name,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
@@ -320,7 +321,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
+                                    AutoTranslateText(
                                       "Price: ₹${item.price}",
                                       style: TextStyle(
                                         fontSize: 13,
@@ -390,7 +391,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                               color: Colors.white,
                             ),
                           )
-                              : const Text(
+                              : const AutoTranslateText(
                             "Update Order",
                             style: TextStyle(color: Colors.white),
                           ),

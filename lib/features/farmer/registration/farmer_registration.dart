@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/customer_details_response.dart';
 import 'package:TrustTags_DMS/data/models/profile_request.dart';
@@ -109,7 +110,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
     } catch (e) {
       print("Error fetching location: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: AutoTranslateText("Error: $e")),
       );
     }
   }
@@ -128,18 +129,31 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
 
   void _populateUserFields(CustomerData data) {
     setState(() {
-      isExistingUser = true; // lock fields if API data exists
+      // Phone should always be non-editable
+      phoneController.text = data.phone ?? widget.phoneNumber;
 
-      nameController.text = data.name;
+      // Only lock fields that already have valid values
+      nameController.text = data.name ?? '';
       firmController.text = data.firmName ?? '';
       address1Controller.text = data.address ?? '';
       pinController.text = data.pinCode?.toString() ?? '';
-      phoneController.text = data.phone??"";
+      panController.text = data.panNo ?? '';
+      uniqueNameController.text = data.uniqueName ?? '';
+
       stateId = data.stateId;
       cityId = data.cityId;
       districtId = data.cityDistrictId;
+
+
+      // Set isExistingUser only if **all critical fields are filled**
+      isExistingUser = (data.name != null &&
+          data.address != null &&
+          data.pinCode != null &&
+          data.stateId != null &&
+          data.cityDistrictId != null);
     });
 
+    // If PIN code exists but state/district are missing, fetch them
     if (data.pinCode != null &&
         data.pinCode.toString().length == 6 &&
         (stateId == null || districtId == null)) {
@@ -161,19 +175,19 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Registration Form',
                       style: TextStyle(fontSize: 20, color: Colors.black87),
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const Text(
+                  const AutoTranslateText(
                     'Welcome!',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Please enter correct details. Brand may use these to communicate with you and verify your account.',
+                  const AutoTranslateText(
+                    'Please enter correct details',
                     style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
 
@@ -217,7 +231,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                     items: states.map((s) {
                       return DropdownMenuItem<int>(
                         value: s['id'],
-                        child: Text(s['name'], overflow: TextOverflow.ellipsis),
+                        child: AutoTranslateText(s['name'], overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
                     onChanged: isExistingUser
@@ -246,7 +260,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                     items: districts.map((d) {
                       return DropdownMenuItem<int>(
                         value: d['id'],
-                        child: Text(d['name'], overflow: TextOverflow.ellipsis),
+                        child: AutoTranslateText(d['name'], overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
                     onChanged: isExistingUser
@@ -267,14 +281,14 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                         final token = await SharedPrefsHelper.getAccessToken();
                         if (token == null || token.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("User token not found")),
+                            const SnackBar(content: AutoTranslateText("User token not found")),
                           );
                           return;
                         }
 
                         if (stateId == null || districtId == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Enter a valid pincode to auto-fill state/district")),
+                            const SnackBar(content: AutoTranslateText("Enter a valid pincode to auto-fill state/district")),
                           );
                           return;
                         }
@@ -310,7 +324,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed to update profile: ${profileProvider.errorMessage}")),
+                            SnackBar(content: AutoTranslateText("Failed to update profile: ${profileProvider.errorMessage}")),
                           );
                         }
                       },
@@ -320,7 +334,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
+                      child: const AutoTranslateText(
                         'Next',
                         style: TextStyle(
                           fontSize: 16,
@@ -344,7 +358,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
   Widget buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, top: 16),
-      child: Text(
+      child: AutoTranslateText(
         text,
         style: const TextStyle(
           fontWeight: FontWeight.bold,

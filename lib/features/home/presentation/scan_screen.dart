@@ -1,3 +1,5 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import '../../../common/widgets/app_status_bar.dart';
 import '../../scan/providers/scan_provider.dart';
 import '../../scan/models/scan_post_data.dart';
 import '../../../core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/features/scan/models/scan_response.dart';
 
 class ScanQRScreen extends StatefulWidget {
   const ScanQRScreen({super.key});
@@ -60,7 +63,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title,
+                AutoTranslateText(title,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -86,7 +89,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                           borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
+                    child: const AutoTranslateText(
                       'Okay',
                       style: TextStyle(
                           fontSize: 16,
@@ -107,7 +110,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        AutoTranslateText(label, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 5),
         TextField(
           enabled: false,
@@ -151,21 +154,68 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
 
     setState(() => _isLoading = false); // ✅ hide loader
 
+    // ✅ Extract spinnerId safely (data is String)
+    String? spinnerId = validateRes.data is String
+        ? validateRes.data as String
+        : null;
+
+// ✅ If segments exist → Open Spinner
+    if (spinnerId != null && validateRes.segments != null &&
+        validateRes.segments!.isNotEmpty) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              SpinnerWidget(
+                spinnerId: spinnerId,
+                segments: validateRes.segments!,
+              ),
+        ),
+      );
+
+      (_scannerKey.currentState as dynamic).resetScanner();
+      return;
+    }
+
+
+// ✅ OLD behavior stays same
     if (validateRes.success == 1 && validateRes.data != null) {
+      String productName = "Unknown Product";
+      String productUID = uid;
+      String points = "0";
+      String message = validateRes.message.isNotEmpty
+          ? validateRes.message
+          : "Scan successful";
+
+      // ✅ If data is object (Map) then convert to SchemeData
+      if (validateRes.data is Map<String, dynamic>) {
+        final scheme = SchemeData.fromJson(validateRes.data);
+
+        productName = scheme.productName ?? "Unknown Product";
+        productUID = scheme.schemeUID ?? uid;
+        points = scheme.points?.toString() ?? "0";
+        message = scheme.message ?? validateRes.message;
+      }
+
       _showScanResultDialog(
         isValid: true,
-        productName: validateRes.data?.productName ?? "Unknown Product",
-        productUID: validateRes.data?.schemeUID ?? uid,
-        points: validateRes.data?.points?.toString() ?? "0",
-        message: validateRes.message.isNotEmpty
-            ? validateRes.message
-            : "Scan successful",
+        productName: productName,
+        productUID: productUID,
+        points: points,
+        message: message,
       );
     } else {
+      String productUID = "";
+
+      if (validateRes.data is Map<String, dynamic>) {
+        final scheme = SchemeData.fromJson(validateRes.data);
+        productUID = scheme.schemeUID ?? "";
+      }
+
       _showScanResultDialog(
         isValid: false,
         productName: "Not Valid",
-        productUID: validateRes.data?.schemeUID ?? '',
+        productUID: productUID,
         points: "0",
         message: validateRes.message.isNotEmpty
             ? validateRes.message
@@ -176,7 +226,8 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     (_scannerKey.currentState as dynamic).resetScanner();
   }
 
-  @override
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F1F1),
@@ -192,7 +243,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       'Scan QR',
                       style: TextStyle(
                           color: Colors.black,
@@ -284,7 +335,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: AutoTranslateText(
               'SCAN DETAILS',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
@@ -300,7 +351,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
+            child: AutoTranslateText(
               scannedUID.isNotEmpty
                   ? 'Scanned UID: $scannedUID'
                   : 'No scan yet.',

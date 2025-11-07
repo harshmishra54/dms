@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/network/dio_client.dart';
 import 'package:TrustTags_DMS/data/models/dist_stock_models.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_limit_provider.dart';
@@ -102,7 +103,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Distributors Orders',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -125,13 +126,13 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final distributors = provider.distributors;
 
                 if (distributors.isEmpty) {
-                  return const Center(child: Text('No distributors found.'));
+                  return const Center(child: AutoTranslateText('No distributors found.'));
                 }
 
                 return ListView.builder(
@@ -186,7 +187,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             dist.name ?? 'Unknown Distributor',
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
@@ -221,7 +222,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                     // Target Progress (still static for now)
                                     Row(
                                       children: [
-                                        const Text("Target Progress", style: TextStyle(fontSize: 12)),
+                                        const AutoTranslateText("Target Progress", style: TextStyle(fontSize: 12)),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           flex: 2,
@@ -233,7 +234,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 6),
-                                        const Text("70%"),
+                                        const AutoTranslateText("70%"),
                                       ],
                                     ),
 
@@ -242,7 +243,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                     // Credit Limit (dynamic)
                                     Row(
                                       children: [
-                                        const Text("Credit Limit", style: TextStyle(fontSize: 12)),
+                                        const AutoTranslateText("Credit Limit", style: TextStyle(fontSize: 12)),
                                         const SizedBox(width: 30),
                                         Expanded(
                                           flex: 2,
@@ -260,7 +261,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 6),
-                                        Text(
+                                        AutoTranslateText(
                                           isLoadingCredit ? "--" : "$percentage%",
                                         ),
                                       ],
@@ -274,7 +275,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
+                                        const AutoTranslateText(
                                           "Order:",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w400,
@@ -282,7 +283,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.black87,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "P: ${dist.pending ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -290,7 +291,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.orange,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "C: ${dist.accepted ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -298,7 +299,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.green,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "R: ${dist.rejected ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -352,7 +353,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    const AutoTranslateText(
                                       "Inventory",
                                       style: TextStyle(
                                         fontWeight: FontWeight.w400,
@@ -368,11 +369,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.inventory, color: Colors.brown, size: 20),
                                             SizedBox(width: 4),
-                                            Text("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            AutoTranslateText("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(isLoading ? "--" : "${stock?.F ?? 0}", style: const TextStyle(fontSize: 12)),
+                                        AutoTranslateText(isLoading ? "--" : "${stock?.F ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                     Column(
@@ -383,11 +384,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.local_florist, color: Colors.teal, size: 20),
                                             SizedBox(width: 4),
-                                            Text("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            AutoTranslateText("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(isLoading ? "--" : "${stock?.B ?? 0}", style: const TextStyle(fontSize: 12)),
+                                        AutoTranslateText(isLoading ? "--" : "${stock?.B ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                     Column(
@@ -398,11 +399,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.star, color: Colors.amber, size: 20),
                                             SizedBox(width: 4),
-                                            Text("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            AutoTranslateText("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(isLoading ? "--" : "${stock?.S ?? 0}", style: const TextStyle(fontSize: 12)),
+                                        AutoTranslateText(isLoading ? "--" : "${stock?.S ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                   ],

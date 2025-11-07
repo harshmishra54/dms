@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/add_return_claim_models.dart';
 import 'package:TrustTags_DMS/data/models/add_return_scan_code_models.dart';
@@ -53,7 +54,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
 
       if (alreadyExists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("⚠️ This QR has already been scanned.")),
+          const SnackBar(content: AutoTranslateText("⚠️ This QR has already been scanned.")),
         );
       } else {
         String? selectedReason = await showReasonDialog();
@@ -72,7 +73,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
     } else {
       final errorMessage = provider.scanResponse?.message ?? "Invalid QR code.";
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+        SnackBar(content: AutoTranslateText(errorMessage)),
       );
     }
 
@@ -95,14 +96,14 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Select Reason"),
+          title: const AutoTranslateText("Select Reason"),
           content: StatefulBuilder(
             builder: (context, setDialogState) {
               return DropdownButtonFormField<String>(
                 items: ["Damaged", "Expired", "Wrong Product", "Other"]
                     .map((reason) => DropdownMenuItem(
                   value: reason,
-                  child: Text(reason),
+                  child: AutoTranslateText(reason),
                 ))
                     .toList(),
                 onChanged: (value) {
@@ -122,7 +123,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
                   Navigator.pop(context, selectedReason);
                 }
               },
-              child: const Text("Confirm"),
+              child: const AutoTranslateText("Confirm"),
             ),
           ],
         );
@@ -153,7 +154,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
                     ),
                     const SizedBox(width: 16),
                     const Expanded(
-                      child: Text(
+                      child: AutoTranslateText(
                         'Add Return Order',
                         style: TextStyle(
                           fontSize: 18,
@@ -188,7 +189,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
                   ),
                 )
                     : const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     "Processing scan...",
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w500),
@@ -284,14 +285,14 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
 
                       if (claimProvider.errorMessage != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error: ${claimProvider.errorMessage}")),
+                          SnackBar(content: AutoTranslateText("Error: ${claimProvider.errorMessage}")),
                         );
                       } else if (claimProvider.response != null) {
                         debugPrint(
                             "👉 Created Return OrderId: ${claimProvider.response!.orderId}");
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
+                            content: AutoTranslateText(
                               "✅ Return Order Submitted. OrderId: ${claimProvider.response!.orderId}",
                             ),
                           ),
@@ -311,7 +312,7 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
                     ),
                     child: claimProvider.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
+                        : const AutoTranslateText(
                       "Complete",
                       style: TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
@@ -346,15 +347,15 @@ class _AddReturnOrderScreenState extends State<AddReturnOrderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AutoTranslateText(
             "Product: ${data?.product?.name ?? '-'}",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text(
+          AutoTranslateText(
             "Price: ${data?.productBatch?.mrp ?? '-'}",
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text("Reason: ${item.reason ?? '-'}"),
+          AutoTranslateText("Reason: ${item.reason ?? '-'}"),
         ],
       ),
     );

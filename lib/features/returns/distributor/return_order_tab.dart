@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/distributor_received_return_order.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/tsi_return_order.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class _ReturnOrderTabState extends State<ReturnOrderTab>
                   ),
                 ),
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Return Orders',
                     style: TextStyle(
                       color: Colors.black,

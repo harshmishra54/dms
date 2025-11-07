@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/order_details_model.dart';
 import 'package:TrustTags_DMS/data/models/partial_update_model.dart';
@@ -162,7 +163,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: AutoTranslateText(msg)));
   }
 
   @override
@@ -177,7 +178,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : orderDetails == null
-                ? const Center(child: Text("Failed to load order details"))
+                ? const Center(child: AutoTranslateText("Failed to load order details"))
                 : _buildOrderContent(orderDetails!),
           ),
           if (!isLoading && orderDetails != null && widget.isPartialFlow)
@@ -195,7 +196,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
                 child: _submitting
                     ? const SizedBox(
                     width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text("Confirm Partial Accept",style: TextStyle(color: Colors.white,fontSize: 15),),
+                    : const AutoTranslateText("Confirm Partial Accept",style: TextStyle(color: Colors.white,fontSize: 15),),
               ),
             ),
         ],
@@ -215,7 +216,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
-            child: Text(
+            child: AutoTranslateText(
               'Order Details',
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, color: Colors.black),
@@ -270,9 +271,9 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Order Details", style: TextStyle(fontWeight: FontWeight.bold)),
+                const AutoTranslateText("Order Details", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text("Order ID : ${data.data.orderNo ?? ""}"),
+                AutoTranslateText("Order ID : ${data.data.orderNo ?? ""}"),
                 const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -313,7 +314,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Bill Summary", style: TextStyle(fontWeight: FontWeight.bold)),
+                const AutoTranslateText("Bill Summary", style: TextStyle(fontWeight: FontWeight.bold)),
                 const Divider(),
                 _billRow(
                   widget.isPartialFlow ? "Estimated Item Price :" : "Discounted Price :",
@@ -326,11 +327,11 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       "Total :",
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.deepPurple),
                     ),
-                    Text(
+                    AutoTranslateText(
                       "₹${estimatedTotal.toStringAsFixed(2)}",
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple),
                     ),
@@ -362,7 +363,7 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+          AutoTranslateText(name, style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -381,9 +382,9 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
                   ),
                 )
               else
-                Text("Qty : $orderedQty"),
-              Text("Price : ₹${unitPrice.toStringAsFixed(2)}"),
-              Text(
+                AutoTranslateText("Qty : $orderedQty"),
+              AutoTranslateText("Price : ₹${unitPrice.toStringAsFixed(2)}"),
+              AutoTranslateText(
                 "₹${lineTotal.toStringAsFixed(2)}",
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
               ),
@@ -398,8 +399,8 @@ class _OrderBillDetailsScreenState extends State<OrderBillDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label),
-        Text(value),
+        AutoTranslateText(label),
+        AutoTranslateText(value),
       ]),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/today_rout_visit_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/today_rout_provider.dart';
 import 'package:flutter/material.dart';
@@ -191,7 +192,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                 const SizedBox(height: 12),
 
                 // Name
-                Text(
+                AutoTranslateText(
                   user.name ?? "Unknown",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -211,7 +212,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.deepPurple.withOpacity(0.3)),
                   ),
-                  child: Text(
+                  child: AutoTranslateText(
                     user.type?.toUpperCase() ?? "N/A",
                     style: const TextStyle(
                       color: Colors.deepPurple,
@@ -259,7 +260,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AutoTranslateText(
                 label,
                 style: TextStyle(
                   fontSize: 12,
@@ -268,7 +269,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              AutoTranslateText(
                 value,
                 style: const TextStyle(
                   fontSize: 14,
@@ -301,7 +302,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                         valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      AutoTranslateText(
                         "Loading route data...",
                         style: TextStyle(
                           color: Colors.grey[600],
@@ -328,7 +329,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                       children: [
                         Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                         const SizedBox(height: 16),
-                        Text(
+                        AutoTranslateText(
                           "Failed to load route data",
                           style: TextStyle(
                             fontSize: 18,
@@ -337,7 +338,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        AutoTranslateText(
                           provider.errorMessage!,
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.grey[600]),
@@ -345,7 +346,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                         const SizedBox(height: 24),
                         ElevatedButton.icon(
                           icon: const Icon(Icons.refresh),
-                          label: const Text("Retry"),
+                          label: const AutoTranslateText("Retry"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepPurple,
                             foregroundColor: Colors.white,
@@ -374,7 +375,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                     children: [
                       Icon(Icons.map_outlined, size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
-                      Text(
+                      AutoTranslateText(
                         "No route data available",
                         style: TextStyle(
                           fontSize: 18,
@@ -383,7 +384,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      AutoTranslateText(
                         "Complete some visits to see the route",
                         style: TextStyle(color: Colors.grey[500]),
                       ),
@@ -416,7 +417,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
 
           if (routePoints.isEmpty) {
             return const Center(
-              child: Text("Invalid location data in route"),
+              child: AutoTranslateText("Invalid location data in route"),
             );
           }
 
@@ -526,7 +527,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             '${i + 1}',
                                             style: const TextStyle(
                                               color: Colors.white,
@@ -565,7 +566,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                                         width: 1,
                                       ),
                                     ),
-                                    child: Text(
+                                    child: AutoTranslateText(
                                       completedUsers[i].name ?? "Unknown",
                                       style: const TextStyle(
                                         fontSize: 12,
@@ -605,7 +606,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                           onPressed: () => Navigator.pop(context),
                         ),
                         const Expanded(
-                          child: Text(
+                          child: AutoTranslateText(
                             "Today's Route",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -717,7 +718,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text(
+                          AutoTranslateText(
                             "${scheduleData?.complete} of ${scheduleData?.total} visits completed",
                             style: TextStyle(
                               fontSize: 12,
@@ -750,7 +751,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
           child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: 6),
-        Text(
+        AutoTranslateText(
           value,
           style: const TextStyle(
             fontSize: 18,
@@ -758,7 +759,7 @@ class _TsiMapviewState extends State<TsiMapview> with TickerProviderStateMixin {
             color: Colors.black87,
           ),
         ),
-        Text(
+        AutoTranslateText(
           label,
           style: TextStyle(
             fontSize: 12,

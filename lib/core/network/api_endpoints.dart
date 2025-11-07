@@ -118,6 +118,14 @@ class ApiEndpoints {
   static const String updateindividual="/pwa/updateBeatPlanDoctorIndividual";
   static const String updatedailyplan="/pwa/updateBeatPlanDoctor";
   static const String activitytimeline="/pwa/getActivityTimeline";
+  static const String producutCatalogue="/pwa/productCatalogue";
+  static const String getPointsbySpinning="/pwa/get-spinnereward";
+  static const String retargetfarmer="/pwa/retarget-farmer-new";
+  static const String retargetgapfarmer="/pwa/retarget-farmer-gap";
+  static const String notifyfarmer="/pwa/send-notification";
+  static const String givepointstofarmer="/pwa/add-farmer-points";
+  static const String inviteandearn="/pwa/invite-earn";
+
 
 
 

@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/stock_details_screen.dart';
@@ -48,7 +49,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
 
             if (provider.errorMessage != null) {
               return Center(
-                child: Text(
+                child: AutoTranslateText(
                   provider.errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
@@ -88,7 +89,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                           onPressed: () => Navigator.pop(context),
                         ),
                         const Expanded(
-                          child: Text(
+                          child: AutoTranslateText(
                             'Members',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -150,7 +151,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                             children: [
                               // Distributors Tab
                               distributors.isEmpty
-                                  ? const Center(child: Text("No distributors found"))
+                                  ? const Center(child: AutoTranslateText("No distributors found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
                                 itemCount: distributors.length,
@@ -185,7 +186,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                               ),
                               // Retailers Tab
                               retailers.isEmpty
-                                  ? const Center(child: Text("No retailers found"))
+                                  ? const Center(child: AutoTranslateText("No retailers found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
                                 itemCount: retailers.length,
@@ -263,10 +264,10 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name ?? "",
+          AutoTranslateText(name ?? "",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text(phone ?? "",
+          AutoTranslateText(phone ?? "",
               style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         ],
       ),

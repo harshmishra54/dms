@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/scheme_running_model.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/reward_claim_provider.dart';
 import 'package:TrustTags_DMS/features/schemes/provider/scheme_running_provider.dart';
@@ -42,7 +43,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-          Text("You need $needed more points to claim ${reward.name}."),
+          AutoTranslateText("You need $needed more points to claim ${reward.name}."),
           backgroundColor: Colors.red,
         ),
       );
@@ -58,14 +59,14 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
     if (rewardProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(rewardProvider.errorMessage!),
+          content: AutoTranslateText(rewardProvider.errorMessage!),
           backgroundColor: Colors.red,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Reward ${reward.name} claimed successfully!"),
+          content: AutoTranslateText("Reward ${reward.name} claimed successfully!"),
           backgroundColor: Colors.green,
         ),
       );
@@ -101,7 +102,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
               if (schemeError != null &&
                   schemeError.toLowerCase().contains("resource not found")) {
                 return const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     "No rewards found",
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
@@ -109,7 +110,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
               }
 
               return Center(
-                child: Text(
+                child: AutoTranslateText(
                   schemeError ?? channelError ?? "Something went wrong",
                   style: const TextStyle(color: Colors.red, fontSize: 16),
                 ),
@@ -118,7 +119,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
 
             if (schemeProvider.rewards.isEmpty) {
               return const Center(
-                child: Text(
+                child: AutoTranslateText(
                   "No rewards available",
                   style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
@@ -174,7 +175,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
                                 color: Colors.deepPurple,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Text(
+                              child: AutoTranslateText(
                                 "${reward.points} pts",
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -206,7 +207,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
-                            child: Text(
+                            child: AutoTranslateText(
                               reward.name,
                               maxLines: 2,
                               textAlign: TextAlign.center,
@@ -222,7 +223,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
                           // Stock Info
                           Padding(
                             padding: const EdgeInsets.only(bottom: 6),
-                            child: Text(
+                            child: AutoTranslateText(
                               "In Stock: $availableStock",
                               style: TextStyle(
                                 fontSize: 12,
@@ -246,7 +247,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
                                 bottom: Radius.circular(14),
                               ),
                             ),
-                            child: Text(
+                            child: AutoTranslateText(
                               isOutOfStock
                                   ? "Out of Stock"
                                   : (_isRedeeming

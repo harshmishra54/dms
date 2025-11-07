@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_meeting_provider.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Meeting History',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -106,7 +107,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                           color: AppColors.primaryPurple,
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        AutoTranslateText(
                           "Loading meetings...",
                           style: TextStyle(
                             color: Colors.grey[600],
@@ -125,7 +126,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                       children: [
                         Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                         const SizedBox(height: 16),
-                        Text(
+                        AutoTranslateText(
                           provider.errorMessage!,
                           style: TextStyle(color: Colors.red[700], fontSize: 16),
                           textAlign: TextAlign.center,
@@ -142,7 +143,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                       children: [
                         Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                         const SizedBox(height: 16),
-                        Text(
+                        AutoTranslateText(
                           "No meetings found",
                           style: TextStyle(
                             color: Colors.grey[600],
@@ -151,7 +152,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        AutoTranslateText(
                           "Pull down to refresh",
                           style: TextStyle(color: Colors.grey[500], fontSize: 14),
                         ),
@@ -248,7 +249,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         meeting.meetingName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -262,7 +263,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                           Icon(Icons.route, size: 14, color: AppColors.primaryPurple.withOpacity(0.7)),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(
+                            child: AutoTranslateText(
                               meeting.routeName,
                               style: TextStyle(
                                 fontSize: 14,
@@ -334,7 +335,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
+                          child: AutoTranslateText(
                             meeting.notes,
                             style: TextStyle(
                               fontSize: 14,
@@ -367,7 +368,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                         color: AppColors.primaryPurple,
                       ),
                       const SizedBox(width: 6),
-                      Text(
+                      AutoTranslateText(
                         "Meeting Photos (${meeting.meetingPhotos.length})",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -497,7 +498,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                         color: AppColors.primaryPurple,
                       ),
                       const SizedBox(width: 6),
-                      Text(
+                      AutoTranslateText(
                         "Attendees",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -538,7 +539,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: Text(
+                                child: AutoTranslateText(
                                   m.name[0].toUpperCase(),
                                   style: const TextStyle(
                                     color: Colors.white,
@@ -553,14 +554,14 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     m.name,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
                                     ),
                                   ),
-                                  Text(
+                                  AutoTranslateText(
                                     m.phone,
                                     style: TextStyle(
                                       color: Colors.grey[600],
@@ -612,7 +613,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
             Icon(icon, size: 16, color: color),
             const SizedBox(width: 6),
             Expanded(
-              child: Text(
+              child: AutoTranslateText(
                 text,
                 style: TextStyle(
                   fontSize: 13,
@@ -633,7 +634,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
       children: [
         Icon(icon, size: 18, color: AppColors.primaryPurple.withOpacity(0.7)),
         const SizedBox(width: 8),
-        Text(
+        AutoTranslateText(
           "$label: ",
           style: TextStyle(
             fontSize: 14,
@@ -641,7 +642,7 @@ class _CrystalMeetingHistoryScreenState extends State<CrystalMeetingHistoryScree
           ),
         ),
         Expanded(
-          child: Text(
+          child: AutoTranslateText(
             value,
             style: const TextStyle(
               fontSize: 14,
@@ -695,7 +696,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: AutoTranslateText(
           "${_currentIndex + 1} / ${widget.photos.length}",
           style: const TextStyle(fontSize: 16),
         ),

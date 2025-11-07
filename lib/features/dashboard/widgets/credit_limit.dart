@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_home_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +83,7 @@ class _CreditLimitState extends State<CreditLimit> {
                   ),
                 ),
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Credit Limit',
                     style: TextStyle(
                       fontSize: 18,
@@ -107,7 +108,7 @@ class _CreditLimitState extends State<CreditLimit> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (provider.creditList.isEmpty) {
-                      return const Center(child: Text('No credit data found.'));
+                      return const Center(child: AutoTranslateText('No credit data found.'));
                     }
 
                     final CreditListDataResponse data = provider.creditList.first;
@@ -141,7 +142,7 @@ class _CreditLimitState extends State<CreditLimit> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            const AutoTranslateText(
                               "Credit Request",
                               style: TextStyle(
                                 fontSize: 16,
@@ -149,28 +150,28 @@ class _CreditLimitState extends State<CreditLimit> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            AutoTranslateText(
                               "Current Limit: ${formatAmount(data.currentLimit)}",
                               style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            AutoTranslateText(
                               "Requested: ${formatAmount(data.requestedLimit)}",
                               style: const TextStyle(fontSize: 14),
                             ),
-                            Text(
+                            AutoTranslateText(
                               "Approved: ${formatAmount(data.approvedLimit)}",
                               style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                const Text(
+                                const AutoTranslateText(
                                   "Status: ",
                                   style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 Flexible(
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     data.status ?? "N/A",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -190,7 +191,7 @@ class _CreditLimitState extends State<CreditLimit> {
                 // History Heading (Static)
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  child: Text(
+                  child: AutoTranslateText(
                     "Credit Limit History",
                     style: TextStyle(
                       fontSize: 16,
@@ -208,14 +209,14 @@ class _CreditLimitState extends State<CreditLimit> {
                       }
                       if (provider.errorMessage != null) {
                         return Center(
-                          child: Text(
+                          child: AutoTranslateText(
                             provider.errorMessage!,
                             style: const TextStyle(color: Colors.red),
                           ),
                         );
                       }
                       if (provider.creditHistory.isEmpty) {
-                        return const Center(child: Text("No history found."));
+                        return const Center(child: AutoTranslateText("No history found."));
                       }
 
                       return ListView.separated(
@@ -235,14 +236,14 @@ class _CreditLimitState extends State<CreditLimit> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     "${item.changeType} - ${formatAmount(item.changeAmount)}",
                                     style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(item.description),
+                                  AutoTranslateText(item.description),
                                   const SizedBox(height: 4),
-                                  Text(
+                                  AutoTranslateText(
                                     DateFormat('dd MMM yyyy').format(item.createdAt),
                                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
@@ -278,7 +279,7 @@ class _CreditLimitState extends State<CreditLimit> {
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Credit limit request submitted successfully"),
+                  content: AutoTranslateText("Credit limit request submitted successfully"),
                 ),
               );
             }

@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/customer_details_response.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -164,18 +165,18 @@ class _DistributorRegistrationScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Distributor Registration',
                       style: TextStyle(fontSize: 20, color: Colors.black87),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  const AutoTranslateText(
                     'Welcome!',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  const AutoTranslateText(
                     'Please enter correct details. Brand may use these to communicate with you and verify your account.',
                     style: TextStyle(fontSize: 13, color: Colors.black54),
                   ),
@@ -224,7 +225,7 @@ class _DistributorRegistrationScreenState
                     isExpanded: true,
                     items: states.map((s) => DropdownMenuItem<int>(
                       value: s['id'],
-                      child: Text(s['name'], overflow: TextOverflow.ellipsis),
+                      child: AutoTranslateText(s['name'], overflow: TextOverflow.ellipsis),
                     )).toList(),
                     onChanged: isPincodeValid
                         ? null
@@ -249,7 +250,7 @@ class _DistributorRegistrationScreenState
                     isExpanded: true,
                     items: districts.map((d) => DropdownMenuItem<int>(
                       value: d['id'],
-                      child: Text(d['name'], overflow: TextOverflow.ellipsis),
+                      child: AutoTranslateText(d['name'], overflow: TextOverflow.ellipsis),
                     )).toList(),
                     onChanged: isPincodeValid ? null : (value) {
                       setState(() => districtId = value);
@@ -274,7 +275,7 @@ class _DistributorRegistrationScreenState
                         final token = await SharedPrefsHelper.getAccessToken();
                         if (token == null || stateId == null || districtId == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Fill all required details")),
+                            const SnackBar(content: AutoTranslateText("Fill all required details")),
                           );
                           return;
                         }
@@ -313,7 +314,7 @@ class _DistributorRegistrationScreenState
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed: ${provider.errorMessage}")),
+                            SnackBar(content: AutoTranslateText("Failed: ${provider.errorMessage}")),
                           );
                         }
                       },
@@ -323,7 +324,7 @@ class _DistributorRegistrationScreenState
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
+                      child: const AutoTranslateText(
                         'Next',
                         style: TextStyle(
                           fontSize: 16,
@@ -347,7 +348,7 @@ class _DistributorRegistrationScreenState
   Widget buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(top: 10, bottom: 4),
     child:
-    Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+    AutoTranslateText(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
   );
 
   Widget buildTextField(TextEditingController controller) => TextField(

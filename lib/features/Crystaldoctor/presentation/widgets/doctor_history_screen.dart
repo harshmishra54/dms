@@ -2,6 +2,7 @@
 
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/doctor_reco_history_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/recommended_history_provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -29,7 +30,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("User ID not found!"),
+            content: const AutoTranslateText("User ID not found!"),
             backgroundColor: Colors.red[400],
             behavior: SnackBarBehavior.floating,
           ),
@@ -59,7 +60,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Recommendation History',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -92,7 +93,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Text(
+                        AutoTranslateText(
                           "Loading history...",
                           style: TextStyle(
                             color: Colors.grey[700],
@@ -125,7 +126,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Text(
+                          AutoTranslateText(
                             "Oops! Something went wrong",
                             style: TextStyle(
                               color: Colors.grey[800],
@@ -136,7 +137,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                           const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(
+                            child: AutoTranslateText(
                               provider.error!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -156,7 +157,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                               }
                             },
                             icon: const Icon(Icons.refresh, size: 20),
-                            label: const Text(
+                            label: const AutoTranslateText(
                               "Try Again",
                               style: TextStyle(
                                 fontSize: 15,
@@ -200,7 +201,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Text(
+                        AutoTranslateText(
                           "No History Yet",
                           style: TextStyle(
                             fontSize: 22,
@@ -211,7 +212,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                         const SizedBox(height: 12),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 48),
-                          child: Text(
+                          child: AutoTranslateText(
                             "Your recommendation history\nwill appear here once you start\nmaking recommendations",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -313,7 +314,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        AutoTranslateText(
                           "Recommendation #${index + 1}",
                           style: TextStyle(
                             fontSize: 16,
@@ -327,7 +328,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                             Icon(Icons.access_time,
                                 size: 12, color: Colors.grey[500]),
                             const SizedBox(width: 4),
-                            // Text(
+                            // AutoTranslateText(
                             //   _formatDateTime(item.createdAt),
                             //   style: TextStyle(
                             //     fontSize: 11,
@@ -353,7 +354,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                         width: 1,
                       ),
                     ),
-                    // child: Text(
+                    // child: AutoTranslateText(
                     //   item.createdAt.toLocal().toString().split(' ')[0],
                     //   style: TextStyle(
                     //     fontSize: 11,
@@ -400,7 +401,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            AutoTranslateText(
                               "Farmer Name",
                               style: TextStyle(
                                 fontSize: 11,
@@ -410,7 +411,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            Text(
+                            AutoTranslateText(
                               item.farmerName,
                               style: TextStyle(
                                 fontSize: 15,
@@ -444,7 +445,7 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoTranslateText(
                         "${entry.key + 1}. ${rec.productName}",
                         style: TextStyle(
                           fontSize: 14,
@@ -453,21 +454,21 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      AutoTranslateText(
                         "Crop: ${rec.crop}",
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[700],
                         ),
                       ),
-                      Text(
+                      AutoTranslateText(
                         "Quantity: ${rec.quantity}",
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[700],
                         ),
                       ),
-                      Text(
+                      AutoTranslateText(
                         "Reason: ${rec.reason}",
                         style: TextStyle(
                           fontSize: 13,

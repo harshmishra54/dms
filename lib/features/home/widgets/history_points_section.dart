@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/points/providers/points_provider.dart';
 import '../../../../common/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _PointsSectionState extends State<PointsSection> {
         final history = pointsProvider.scanHistory;
 
         if (history.isEmpty) {
-          return const Center(child: Text("No history found"));
+          return const Center(child: AutoTranslateText("No history found"));
         }
 
         return ListView.builder(
@@ -79,7 +80,7 @@ class _PointsSectionState extends State<PointsSection> {
                 Padding(
                   padding: const EdgeInsets.only(
                       top: 8, bottom: 4, left: 8, right: 8),
-                  child: Text(
+                  child: AutoTranslateText(
                     formattedDate,
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14),
@@ -128,7 +129,7 @@ class _PointsSectionState extends State<PointsSection> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              AutoTranslateText(
                                 productName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -136,15 +137,15 @@ class _PointsSectionState extends State<PointsSection> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(level),
-                              Text(
+                              AutoTranslateText(level),
+                              AutoTranslateText(
                                 uniqueCode,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.green,
                                 ),
                               ),
-                              Text(schemeName),
+                              AutoTranslateText(schemeName),
                             ],
                           ),
                         ),
@@ -159,7 +160,7 @@ class _PointsSectionState extends State<PointsSection> {
                                 : AppColors.topBarColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
+                          child: AutoTranslateText(
                             adjusted > 0
                                 ? "-$adjusted Adjusted"
                                 : "$points Points",
@@ -177,7 +178,7 @@ class _PointsSectionState extends State<PointsSection> {
                 // Adjusted / Remaining section
                 Padding(
                   padding: const EdgeInsets.only(left: 12, bottom: 12),
-                  child: Text(
+                  child: AutoTranslateText(
                     "$adjusted Adjusted    $remaining Remaining",
                     style: const TextStyle(fontSize: 14),
                   ),

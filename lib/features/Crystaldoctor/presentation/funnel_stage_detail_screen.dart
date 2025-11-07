@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:flutter/material.dart';
@@ -87,7 +88,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       widget.stageIndex == 2
                           ? 'Purchase Details'
                           : 'Sale Details',
@@ -117,7 +118,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                   }
                   if (purchaseProvider.errorMessage != null) {
                     return Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         purchaseProvider.errorMessage!,
                         style: const TextStyle(color: Colors.red),
                       ),
@@ -131,7 +132,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
 
                   if (purchaseList.isEmpty) {
                     return const Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         'No purchase data found.',
                         style: TextStyle(color: Colors.black54),
                       ),
@@ -156,13 +157,13 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                             child: const Icon(Icons.shopping_bag,
                                 color: Colors.deepPurple),
                           ),
-                          title: Text(
+                          title: AutoTranslateText(
                             purchase.farmerName,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87),
                           ),
-                          subtitle: Text(
+                          subtitle: AutoTranslateText(
                             'Purchase Products: ${purchase.purchaseCount}',
                             style: const TextStyle(color: Colors.black54),
                           ),
@@ -178,7 +179,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
             Expanded(
               child: farmersForStage.isEmpty
                   ? const Center(
-                child: Text(
+                child: AutoTranslateText(
                   'No farmers found for this stage',
                   style: TextStyle(
                     color: Colors.black54,
@@ -212,13 +213,13 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                           child: const Icon(Icons.person,
                               color: Colors.deepPurple),
                         ),
-                        title: Text(
+                        title: AutoTranslateText(
                           farmer.farmerName ?? 'Unnamed Farmer',
                           style: const TextStyle(
                               color: Colors.black87,
                               fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
+                        subtitle: AutoTranslateText(
                           farmer.mobileNumber != null
                               ? 'Mobile: ${farmer.mobileNumber}'
                               : 'No mobile available',
@@ -233,7 +234,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                               CrossAxisAlignment.start,
                               children: [
                                 if (farmer.villageName != null)
-                                  Text('Village: ${farmer.villageName}',
+                                  AutoTranslateText('Village: ${farmer.villageName}',
                                       style: const TextStyle(
                                           color: Colors.black54)),
                                 const SizedBox(height: 8),
@@ -243,7 +244,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Crops & Products:',
+                                      const AutoTranslateText('Crops & Products:',
                                           style: TextStyle(
                                               color: Colors.black87,
                                               fontWeight:
@@ -257,7 +258,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                             crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                             children: [
-                                              Text(
+                                              AutoTranslateText(
                                                   '- Crop: ${crop.cropName ?? "N/A"}',
                                                   style: const TextStyle(
                                                       color:
@@ -272,7 +273,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                                         .only(
                                                         left: 8,
                                                         top: 2),
-                                                    child: Text(
+                                                    child: AutoTranslateText(
                                                         '• ${product.productName ?? "Unnamed"} (${product.expectedQuantity ?? "-"})',
                                                         style:
                                                         const TextStyle(
@@ -296,7 +297,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                     CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 12),
-                                      const Text('Queries:',
+                                      const AutoTranslateText('Queries:',
                                           style: TextStyle(
                                               color: Colors.black87,
                                               fontWeight:
@@ -319,7 +320,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                                         .only(
                                                         left: 8,
                                                         top: 2),
-                                                    child: Text(
+                                                    child: AutoTranslateText(
                                                         '• ${detail.productName ?? "N/A"} | Crop: ${detail.crop ?? "-"} | Quantity: ${detail.quantity ?? "-"} | Reason: ${detail.reason ?? "-"}',
                                                         style:
                                                         const TextStyle(

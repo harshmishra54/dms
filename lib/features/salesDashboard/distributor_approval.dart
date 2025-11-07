@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/approve_distributor_registration_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +73,7 @@ class _DistributorApprovalListScreenState
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const Text(
+                  const AutoTranslateText(
                     "Registered Distributor",
                     style: TextStyle(
                       fontSize: 20,
@@ -102,14 +103,14 @@ class _DistributorApprovalListScreenState
                         child: CircularProgressIndicator());
                   } else if (provider.errorMessage != null) {
                     return Center(
-                      child: Text(
+                      child: AutoTranslateText(
                         provider.errorMessage!,
                         style: const TextStyle(color: Colors.red),
                       ),
                     );
                   } else if (provider.distributors.isEmpty) {
                     return const Center(
-                        child: Text("No distributors found"));
+                        child: AutoTranslateText("No distributors found"));
                   }
 
                   return ListView.builder(
@@ -135,13 +136,13 @@ class _DistributorApprovalListScreenState
                                 contentPadding: EdgeInsets.zero,
                                 leading: CircleAvatar(
                                   backgroundColor: Colors.blue.shade100,
-                                  child: Text(
+                                  child: AutoTranslateText(
                                     distributor.name?.substring(0, 1) ?? "-",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
-                                title: Text(
+                                title: AutoTranslateText(
                                   distributor.name ?? "-",
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -149,7 +150,7 @@ class _DistributorApprovalListScreenState
                                   ),
                                 ),
                                 subtitle:
-                                Text(distributor.firmName ?? "-"),
+                                AutoTranslateText(distributor.firmName ?? "-"),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -179,7 +180,7 @@ class _DistributorApprovalListScreenState
                                               context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
+                                              content: AutoTranslateText(
                                                   updateProvider
                                                       .error!),
                                             ),
@@ -191,7 +192,7 @@ class _DistributorApprovalListScreenState
                                               context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
+                                              content: AutoTranslateText(
                                                   updateProvider
                                                       .response!
                                                       .message),
@@ -230,7 +231,7 @@ class _DistributorApprovalListScreenState
                                           strokeWidth: 2,
                                         ),
                                       )
-                                          : const Text(
+                                          : const AutoTranslateText(
                                         "Approve",
                                         style: TextStyle(
                                             color: Colors.purple,
@@ -265,7 +266,7 @@ class _DistributorApprovalListScreenState
                                               context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
+                                              content: AutoTranslateText(
                                                   updateProvider
                                                       .error!),
                                             ),
@@ -277,7 +278,7 @@ class _DistributorApprovalListScreenState
                                               context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content: Text(
+                                              content: AutoTranslateText(
                                                   updateProvider
                                                       .response!
                                                       .message),
@@ -316,7 +317,7 @@ class _DistributorApprovalListScreenState
                                           strokeWidth: 2,
                                         ),
                                       )
-                                          : const Text(
+                                          : const AutoTranslateText(
                                         "Reject",
                                         style: TextStyle(
                                             color: Colors.purple,

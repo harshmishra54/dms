@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final int? roleId;
 
   const CustomBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.roleId,
   });
 
   @override
@@ -49,8 +51,12 @@ class CustomBottomNavBar extends StatelessWidget {
           label: 'Dashboard',
         ),
         BottomNavigationBarItem(
-          icon: gradientIcon(Icons.add_shopping_cart, currentIndex == 1),
-          label: 'Place Order',
+          // 👇 Conditional icon + label based on roleId
+          icon: gradientIcon(
+            roleId == 0 ? Icons.history : Icons.add_shopping_cart,
+            currentIndex == 1,
+          ),
+          label: roleId == 0 ? 'History' : 'Place Order',
         ),
         BottomNavigationBarItem(
           icon: gradientIcon(Icons.qr_code_scanner, currentIndex == 2),

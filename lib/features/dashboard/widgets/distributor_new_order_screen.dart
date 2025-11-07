@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/add_order_request.dart';
 import 'package:TrustTags_DMS/data/models/line_item.dart';
@@ -204,7 +205,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                   ),
                 ),
                 const Center(
-                  child: Text(
+                  child: AutoTranslateText(
                     'Place New Order',
                     style: TextStyle(
                       fontSize: 18,
@@ -354,22 +355,22 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  AutoTranslateText(
                                     item.productName,
                                     style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
 
                                   // Always show base price
-                                  Text("Base Price: ₹${item.price}"),
+                                  AutoTranslateText("Base Price: ₹${item.price}"),
 
                                   // Show scheme or purchase price depending on role
                                   if (loggedInRoleId == 1 || dailyRoleId == 1)
-                                    Text(
+                                    AutoTranslateText(
                                       "Purchase Price: ₹${item.purchasePrice}",
                                       style: const TextStyle(color: Colors.black),
                                     )
                                   else if (loggedInRoleId == 3 || dailyRoleId == 3)
-                                    Text(
+                                    AutoTranslateText(
                                       "Scheme Price: ₹${item.schemePrice}",
                                       style: const TextStyle(color: Colors.black),
                                     ),
@@ -383,7 +384,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                                   onPressed: () => updateQuantity(item, -1),
                                   icon: const Icon(Icons.remove_circle_outline),
                                 ),
-                                Text(item.qty.toString()),
+                                AutoTranslateText(item.qty.toString()),
                                 IconButton(
                                   onPressed: () => updateQuantity(item, 1),
                                   icon: const Icon(Icons.add_circle_outline),
@@ -417,38 +418,38 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Bill Summary',
+                          const AutoTranslateText('Bill Summary',
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           const Divider(thickness: 1),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Item Price :'),
-                              Text("₹${totalPrice.toStringAsFixed(2)}"),
+                              const AutoTranslateText('Item Price :'),
+                              AutoTranslateText("₹${totalPrice.toStringAsFixed(2)}"),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('GST (18%) :'),
-                              Text("₹${gst.toStringAsFixed(2)}"),
+                              const AutoTranslateText('GST (18%) :'),
+                              AutoTranslateText("₹${gst.toStringAsFixed(2)}"),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Discount :'),
-                              Text("₹${discount.toStringAsFixed(2)}"),
+                              const AutoTranslateText('Discount :'),
+                              AutoTranslateText("₹${discount.toStringAsFixed(2)}"),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Total :',
+                              const AutoTranslateText('Total :',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text("₹${finalTotal.toStringAsFixed(2)}",
+                              AutoTranslateText("₹${finalTotal.toStringAsFixed(2)}",
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -475,7 +476,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
 
                 if (selectedDistributor == null || cartItems.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please select distributor and add at least one product")),
+                    const SnackBar(content: AutoTranslateText("Please select distributor and add at least one product")),
                   );
                   setState(() => _isSubmitting = false);
                   return;
@@ -483,7 +484,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
 
                 if (selectedDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please select an expected date")),
+                    const SnackBar(content: AutoTranslateText("Please select an expected date")),
                   );
                   setState(() => _isSubmitting = false);
                   return;
@@ -540,8 +541,8 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                     proceedWithOrder = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text("Credit Limit Exceeded"),
-                        content: Text(
+                        title: const AutoTranslateText("Credit Limit Exceeded"),
+                        content: AutoTranslateText(
                           "Your credit limit is ₹${currentLimit.toStringAsFixed(2)}.\n\n"
                               "Order total ₹${finalTotal.toStringAsFixed(2)} exceeds it by ₹${diff.toStringAsFixed(2)}.\n\n"
                               "Do you want to proceed with the order anyway?",
@@ -549,11 +550,11 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false), // Cancel
-                            child: const Text("Cancel"),
+                            child: const AutoTranslateText("Cancel"),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, true), // Proceed
-                            child: const Text("Proceed"),
+                            child: const AutoTranslateText("Proceed"),
                           ),
                         ],
                       ),
@@ -600,7 +601,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                       addOrderProvider.response!.success == 1) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Order placed successfully.")),
+                        const SnackBar(content: AutoTranslateText("Order placed successfully.")),
                       );
                       Future.delayed(const Duration(milliseconds: 300), () {
                         if (context.mounted) {
@@ -631,7 +632,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
               ),
               child: _isSubmitting
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
+                  : const AutoTranslateText(
                 'Submit Order',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),

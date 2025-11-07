@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +42,7 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
           children: const [
             AppStatusBar(),
             Spacer(),
-            Text(
+            AutoTranslateText(
               "No meeting QR available.\nPlease create a new meeting.",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -81,7 +82,7 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Meeting QR Code',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -106,7 +107,7 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    const AutoTranslateText(
                       "Scan this QR to Join WhatsApp Meeting Chat",
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -136,12 +137,12 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    Text(
+                    AutoTranslateText(
                       "Meeting ID: $meetingId",
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    const AutoTranslateText(
                       "WhatsApp Bot: +91 8085742922",
                       style: TextStyle(
                         fontSize: 15,

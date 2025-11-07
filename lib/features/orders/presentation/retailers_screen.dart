@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/tsi_retailer_registration.dart';
@@ -75,7 +76,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Retailers Orders',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -98,13 +99,13 @@ class _RetailersScreenState extends State<RetailersScreen> {
                 }
 
                 if (provider.errorMessage != null) {
-                  return Center(child: Text(provider.errorMessage!));
+                  return Center(child: AutoTranslateText(provider.errorMessage!));
                 }
 
                 final List<TerritoryData> data = provider.retailers;
 
                 if (data.isEmpty) {
-                  return const Center(child: Text("No retailers found."));
+                  return const Center(child: AutoTranslateText("No retailers found."));
                 }
 
                 return ListView.builder(
@@ -147,7 +148,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             item.name ?? 'Unknown Retailer',
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
@@ -183,7 +184,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
+                                        const AutoTranslateText(
                                           "Order:",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w400,
@@ -191,7 +192,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                             color: Colors.black87,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "P: ${item.pending ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                             color: Colors.orange,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "C: ${item.accepted ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -207,7 +208,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                             color: Colors.green,
                                           ),
                                         ),
-                                        Text(
+                                        AutoTranslateText(
                                           "R: ${item.rejected ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -239,7 +240,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
                               //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               //       crossAxisAlignment: CrossAxisAlignment.center,
                               //       children: [
-                              //         const Text(
+                              //         const AutoTranslateText(
                               //           "Inventory",
                               //           style: TextStyle(
                               //             fontWeight: FontWeight.w400,
@@ -256,11 +257,11 @@ class _RetailersScreenState extends State<RetailersScreen> {
                               //               children: [
                               //                 Icon(Icons.inventory, color: Colors.brown, size: 20),
                               //                 SizedBox(width: 4),
-                              //                 Text("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                              //                 AutoTranslateText("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                               //               ],
                               //             ),
                               //             SizedBox(height: 2),
-                              //             Text("120", style: TextStyle(fontSize: 12)),
+                              //             AutoTranslateText("120", style: TextStyle(fontSize: 12)),
                               //           ],
                               //         ),
                               //         // Seasonal
@@ -272,11 +273,11 @@ class _RetailersScreenState extends State<RetailersScreen> {
                               //               children: [
                               //                 Icon(Icons.local_florist, color: Colors.teal, size: 20),
                               //                 SizedBox(width: 4),
-                              //                 Text("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                              //                 AutoTranslateText("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                               //               ],
                               //             ),
                               //             SizedBox(height: 2),
-                              //             Text("80", style: TextStyle(fontSize: 12)),
+                              //             AutoTranslateText("80", style: TextStyle(fontSize: 12)),
                               //           ],
                               //         ),
                               //         // Scheme
@@ -288,11 +289,11 @@ class _RetailersScreenState extends State<RetailersScreen> {
                               //               children: [
                               //                 Icon(Icons.star, color: Colors.amber, size: 20),
                               //                 SizedBox(width: 4),
-                              //                 Text("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                              //                 AutoTranslateText("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                               //               ],
                               //             ),
                               //             SizedBox(height: 2),
-                              //             Text("50", style: TextStyle(fontSize: 12)),
+                              //             AutoTranslateText("50", style: TextStyle(fontSize: 12)),
                               //           ],
                               //         ),
                               //       ],

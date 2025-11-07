@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 
 class MultiSelectDropdownWithSearch extends StatefulWidget {
@@ -69,7 +70,7 @@ class _MultiSelectDropdownWithSearchState
 
                   // ✅ Select All
                   CheckboxListTile(
-                    title: const Text("Select All"),
+                    title: const AutoTranslateText("Select All"),
                     value: _selectAll,
                     controlAffinity: ListTileControlAffinity.leading,
                     onChanged: (val) {
@@ -94,7 +95,7 @@ class _MultiSelectDropdownWithSearchState
                       itemBuilder: (context, index) {
                         final item = filtered[index];
                         return CheckboxListTile(
-                          title: Text(item["name"]),
+                          title: AutoTranslateText(item["name"]),
                           value: item["selected"],
                           controlAffinity: ListTileControlAffinity.leading,
                           onChanged: (val) {
@@ -136,7 +137,7 @@ class _MultiSelectDropdownWithSearchState
           spacing: 6,
           children: selectedItems
               .map((d) => Chip(
-            label: Text(d["name"]),
+            label: AutoTranslateText(d["name"]),
             onDeleted: () {
               setState(() {
                 d["selected"] = false;
@@ -148,7 +149,7 @@ class _MultiSelectDropdownWithSearchState
           ))
               .toList(),
         )
-            : Text("Select ${widget.label}",
+            : AutoTranslateText("Select ${widget.label}",
             style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ),
     );

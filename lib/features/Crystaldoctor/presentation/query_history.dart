@@ -1,5 +1,6 @@
 // file: farmer_query_screen.dart
 
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_query_provider.dart';
@@ -77,7 +78,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Expanded(
-                      child: Text(
+                      child: AutoTranslateText(
                         'Queries History',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -107,7 +108,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                     strokeWidth: 3,
                   ),
                   const SizedBox(height: 16),
-                  Text(
+                  AutoTranslateText(
                     'Loading queries...',
                     style: TextStyle(
                       color: Colors.grey.shade600,
@@ -124,7 +125,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
                   const SizedBox(height: 16),
-                  Text(
+                  AutoTranslateText(
                     provider.error!,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
@@ -139,7 +140,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                 children: [
                   Icon(Icons.search_off, size: 80, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
-                  Text(
+                  AutoTranslateText(
                     'No queries found',
                     style: TextStyle(
                       color: Colors.grey.shade600,
@@ -148,7 +149,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  AutoTranslateText(
                     'Your query history will appear here',
                     style: TextStyle(
                       color: Colors.grey.shade500,
@@ -212,7 +213,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: Text(
+                                    child: AutoTranslateText(
                                       query.queries,
                                       style: TextStyle(
                                         fontSize: 16,
@@ -240,7 +241,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                   Icon(Icons.lightbulb_outline,
                                       size: 18, color: Colors.purple.shade600),
                                   const SizedBox(width: 6),
-                                  Text(
+                                  AutoTranslateText(
                                     "Suggested Products",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -279,7 +280,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                             size: 14,
                                             color: Colors.purple.shade700),
                                         const SizedBox(width: 6),
-                                        Text(
+                                        AutoTranslateText(
                                           product.name,
                                           style: TextStyle(
                                             color: Colors.purple.shade900,
@@ -309,7 +310,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                             size: 16, color: Colors.grey.shade600),
                                         const SizedBox(width: 6),
                                         Flexible(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             _formatDate(query.createdAt.toLocal()),
                                             style: TextStyle(
                                               fontSize: 12,
@@ -342,7 +343,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        Text(
+                                        AutoTranslateText(
                                           "Loading location...",
                                           style: TextStyle(
                                             fontSize: 12,
@@ -357,7 +358,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                         Icon(Icons.location_off,
                                             size: 16, color: Colors.grey.shade400),
                                         const SizedBox(width: 6),
-                                        Text(
+                                        AutoTranslateText(
                                           "Location unavailable",
                                           style: TextStyle(
                                             fontSize: 12,
@@ -374,7 +375,7 @@ class _FarmerQueryScreenState extends State<FarmerQueryScreen> {
                                             color: Colors.purple.shade600),
                                         const SizedBox(width: 6),
                                         Flexible(
-                                          child: Text(
+                                          child: AutoTranslateText(
                                             snapshot.data ?? "",
                                             style: TextStyle(
                                               fontSize: 12,

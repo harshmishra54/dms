@@ -60,10 +60,10 @@ class RecommendedProduct {
   });
 
   factory RecommendedProduct.fromJson(Map<String, dynamic>? json) {
-    final List<dynamic>? recList = json?['recommendations'] as List<dynamic>?;
+    final List<dynamic>? recList = json?['details'] as List<dynamic>?; // ✅ changed key from 'recommendations' → 'details'
     return RecommendedProduct(
       id: json?['id'] ?? '',
-      farmerId: json?['farmerId'] ?? '',
+      farmerId: json?['farmer_id'] ?? '', // ✅ changed key from 'farmerId' → 'farmer_id'
       createdBy: json?['created_by'] ?? '',
       recommendations: recList != null
           ? recList.map((e) => Recommendation.fromJson(e)).toList()
@@ -74,9 +74,9 @@ class RecommendedProduct {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'farmerId': farmerId,
+      'farmer_id': farmerId, // ✅ maintain correct key for API
       'created_by': createdBy,
-      'recommendations': recommendations.map((e) => e.toJson()).toList(),
+      'details': recommendations.map((e) => e.toJson()).toList(), // ✅ match response key
     };
   }
 }

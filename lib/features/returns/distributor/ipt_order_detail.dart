@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/ipt_order_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +56,7 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
 
                 if (provider.errorMessage != null) {
                   return Center(
-                    child: Text(
+                    child: AutoTranslateText(
                       provider.errorMessage!,
                       style: const TextStyle(color: Colors.red),
                     ),
@@ -66,7 +67,7 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
                 final lineItems = provider.orderDetails?.data?.lineItems ?? [];
 
                 if (order == null) {
-                  return const Center(child: Text("No order details found"));
+                  return const Center(child: AutoTranslateText("No order details found"));
                 }
 
                 double totalItemPrice = 0;
@@ -114,7 +115,7 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const Expanded(
-            child: Text(
+            child: AutoTranslateText(
               'IPT Order Details',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -135,16 +136,16 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text("Order Details", style: TextStyle(fontWeight: FontWeight.bold)),
+          const AutoTranslateText("Order Details", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text("Order ID: ${order.name ?? '-'}"),
+          AutoTranslateText("Order ID: ${order.name ?? '-'}"),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              AutoTranslateText(
                   "Date: ${order.orderDate != null ? order.orderDate!.toLocal().toString().split(' ')[0] : '-'}"),
-              Text(
+              AutoTranslateText(
                 "Order ${order.status ?? '-'}",
                 style: TextStyle(
                   color: _getStatusColor(order.status ?? ''),
@@ -172,14 +173,14 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(item.IptProductName ?? '-', style: const TextStyle(fontWeight: FontWeight.w600)),
+            AutoTranslateText(item.IptProductName ?? '-', style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Qty: $qty"),
-                Text("Price: ₹${price.toStringAsFixed(2)}"),
-                Text(
+                AutoTranslateText("Qty: $qty"),
+                AutoTranslateText("Price: ₹${price.toStringAsFixed(2)}"),
+                AutoTranslateText(
                   "₹${lineTotal.toStringAsFixed(2)}",
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.deepPurple),
@@ -201,7 +202,7 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text("Bill Summary", style: TextStyle(fontWeight: FontWeight.bold)),
+          const AutoTranslateText("Bill Summary", style: TextStyle(fontWeight: FontWeight.bold)),
           const Divider(),
           _billRow("Item Price:", "₹${subtotal.toStringAsFixed(2)}"),
           _billRow("GST:", "₹${gst.toStringAsFixed(2)}"),
@@ -210,12 +211,12 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              const AutoTranslateText(
                 "Total:",
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 16, color: Colors.deepPurple),
               ),
-              Text(
+              AutoTranslateText(
                 "₹${total.toStringAsFixed(2)}",
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple),
@@ -231,8 +232,8 @@ class _IPTOrderDetailsScreenState extends State<IPTOrderDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label),
-        Text(value),
+        AutoTranslateText(label),
+        AutoTranslateText(value),
       ]),
     );
   }

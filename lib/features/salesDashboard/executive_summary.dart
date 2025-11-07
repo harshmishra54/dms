@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -88,7 +89,7 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
-                    child: Text(
+                    child: AutoTranslateText(
                       'Executive Summary',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -133,15 +134,15 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(kpi["title"],
+                                  AutoTranslateText(kpi["title"],
                                       style: const TextStyle(fontSize: 10)),
-                                  Text(kpi["value"],
+                                  AutoTranslateText(kpi["value"],
                                       style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.deepPurple)),
                                   const SizedBox(height: 4),
-                                  Text(kpi["period"],
+                                  AutoTranslateText(kpi["period"],
                                       style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[600])),
@@ -155,7 +156,7 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                   ),
 
                   const SizedBox(height: 12),
-                  Text("Top 5 Distributors (Quarterly)", style: sectionTitleStyle()),
+                  AutoTranslateText("Top 5 Distributors (Quarterly)", style: sectionTitleStyle()),
                   SizedBox(
                       height: 250,
                       child: MultiSeriesChart(
@@ -164,7 +165,7 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                           quarters: quarters)),
 
                   const SizedBox(height: 20), // 🔹 Extra spacing
-                  Text("Regional Sales (Quarterly)", style: sectionTitleStyle()),
+                  AutoTranslateText("Regional Sales (Quarterly)", style: sectionTitleStyle()),
                   SizedBox(
                       height: 250,
                       child: MultiSeriesChart(
@@ -173,7 +174,7 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                           quarters: quarters)),
 
                   const SizedBox(height: 20),
-                  Text("Top 5 ASM (Quarterly)", style: sectionTitleStyle()),
+                  AutoTranslateText("Top 5 ASM (Quarterly)", style: sectionTitleStyle()),
                   SizedBox(
                       height: 250,
                       child: MultiSeriesChart(
@@ -182,7 +183,7 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                           quarters: quarters)),
 
                   const SizedBox(height: 20),
-                  Text("Top 5 Products (Quarterly)", style: sectionTitleStyle()),
+                  AutoTranslateText("Top 5 Products (Quarterly)", style: sectionTitleStyle()),
                   SizedBox(
                       height: 250,
                       child: MultiSeriesChart(
@@ -191,8 +192,8 @@ class _ExecutiveSummaryState extends State<ExecutiveSummary> {
                           quarters: quarters)),
 
                   const SizedBox(height: 20),
-                  Text("Alerts", style: sectionTitleStyle()),
-                  ...alerts.map((a) => Text(a,
+                  AutoTranslateText("Alerts", style: sectionTitleStyle()),
+                  ...alerts.map((a) => AutoTranslateText(a,
                       style: const TextStyle(
                           color: Colors.red, fontSize: 14)))
                 ],
