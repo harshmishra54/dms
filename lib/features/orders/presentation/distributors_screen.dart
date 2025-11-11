@@ -283,7 +283,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.black87,
                                           ),
                                         ),
-                                        AutoTranslateText(
+                                        Text(
                                           "P: ${dist.pending ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -291,7 +291,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.orange,
                                           ),
                                         ),
-                                        AutoTranslateText(
+                                        Text(
                                           "C: ${dist.accepted ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -299,7 +299,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             color: Colors.green,
                                           ),
                                         ),
-                                        AutoTranslateText(
+                                        Text(
                                           "R: ${dist.rejected ?? 0}",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -369,11 +369,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.inventory, color: Colors.brown, size: 20),
                                             SizedBox(width: 4),
-                                            AutoTranslateText("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            Text("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        AutoTranslateText(isLoading ? "--" : "${stock?.F ?? 0}", style: const TextStyle(fontSize: 12)),
+                                       Text(isLoading ? "--" : "${stock?.F ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                     Column(
@@ -384,11 +384,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.local_florist, color: Colors.teal, size: 20),
                                             SizedBox(width: 4),
-                                            AutoTranslateText("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            Text("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        AutoTranslateText(isLoading ? "--" : "${stock?.B ?? 0}", style: const TextStyle(fontSize: 12)),
+                                        Text(isLoading ? "--" : "${stock?.B ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                     Column(
@@ -399,11 +399,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                           children: const [
                                             Icon(Icons.star, color: Colors.amber, size: 20),
                                             SizedBox(width: 4),
-                                            AutoTranslateText("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                            Text("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
-                                        AutoTranslateText(isLoading ? "--" : "${stock?.S ?? 0}", style: const TextStyle(fontSize: 12)),
+                                        Text(isLoading ? "--" : "${stock?.S ?? 0}", style: const TextStyle(fontSize: 12)),
                                       ],
                                     ),
                                   ],

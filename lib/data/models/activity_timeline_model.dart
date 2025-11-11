@@ -1,9 +1,5 @@
 import 'dart:convert';
 
-/// ===============================
-/// ✅ REQUEST MODEL
-/// ===============================
-
 GetActivityTimelineRequest getActivityTimelineRequestFromJson(String str) =>
     GetActivityTimelineRequest.fromJson(json.decode(str));
 
@@ -11,23 +7,18 @@ String getActivityTimelineRequestToJson(GetActivityTimelineRequest data) =>
     json.encode(data.toJson());
 
 class GetActivityTimelineRequest {
-  final String? id; // created_by user id
-
+  final String? id;
   GetActivityTimelineRequest({this.id});
 
   factory GetActivityTimelineRequest.fromJson(Map<String, dynamic> json) =>
-      GetActivityTimelineRequest(
-        id: json["id"],
-      );
+      GetActivityTimelineRequest(id: json["id"]?.toString());
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-  };
+  Map<String, dynamic> toJson() => {"id": id};
 }
 
-/// ===============================
-/// ✅ RESPONSE MODEL
-/// ===============================
+// ====================================================
+// ✅ RESPONSE MODEL (FIXED SAFE TYPES)
+// ====================================================
 
 ActivityTimelineResponse activityTimelineResponseFromJson(String str) =>
     ActivityTimelineResponse.fromJson(json.decode(str));
@@ -41,17 +32,12 @@ class ActivityTimelineResponse {
   final List<ActivityData>? data;
   final int? count;
 
-  ActivityTimelineResponse({
-    this.success,
-    this.message,
-    this.data,
-    this.count,
-  });
+  ActivityTimelineResponse({this.success, this.message, this.data, this.count});
 
   factory ActivityTimelineResponse.fromJson(Map<String, dynamic> json) =>
       ActivityTimelineResponse(
         success: json["success"],
-        message: json["message"],
+        message: json["message"]?.toString(),
         count: json["count"],
         data: json["data"] == null
             ? []
@@ -63,9 +49,7 @@ class ActivityTimelineResponse {
     "success": success,
     "message": message,
     "count": count,
-    "data": data == null
-        ? []
-        : List<dynamic>.from(data!.map((x) => x.toJson())),
+    "data": data?.map((x) => x.toJson()).toList() ?? [],
   };
 }
 
@@ -100,6 +84,8 @@ class ActivityData {
   final String? latitude;
   final String? longitude;
   final String? createdBy;
+  final String? referralCode;
+  final String? referredBy;
 
   ActivityData({
     this.id,
@@ -132,41 +118,43 @@ class ActivityData {
     this.latitude,
     this.longitude,
     this.createdBy,
+    this.referralCode,
+    this.referredBy,
   });
 
   factory ActivityData.fromJson(Map<String, dynamic> json) => ActivityData(
-    id: json["id"],
+    id: json["id"]?.toString(),
     roleId: json["role_id"],
-    name: json["name"],
-    countryCode: json["country_code"],
-    phone: json["phone"],
-    email: json["email"],
-    dob: json["dob"] == null ? null : DateTime.parse(json["dob"]),
-    gender: json["gender"],
-    pinCode: json["pin_code"],
+    name: json["name"]?.toString(),
+    countryCode: json["country_code"]?.toString(),
+    phone: json["phone"]?.toString(),
+    email: json["email"]?.toString(),
+    dob: json["dob"] == null ? null : DateTime.tryParse(json["dob"]),
+    gender: json["gender"]?.toString(),
+    pinCode: json["pin_code"]?.toString(), // ✅ FIX
     cityId: json["city_id"],
     stateId: json["state_id"],
-    address: json["address"],
-    jwtToken: json["jwt_token"],
-    fcmToken: json["fcm_token"],
-    createdAt:
-    json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
-    updatedAt:
-    json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+    address: json["address"]?.toString(),
+    jwtToken: json["jwt_token"]?.toString(),
+    fcmToken: json["fcm_token"]?.toString(),
+    createdAt: json["createdAt"] == null ? null : DateTime.tryParse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.tryParse(json["updatedAt"]),
     points: json["points"],
     availablePoints: json["available_points"],
     blockedPoints: json["blocked_points"],
     utilizePoints: json["utilize_points"],
     bonusPoints: json["bonus_points"],
-    recordUid: json["record_uid"],
+    recordUid: json["record_uid"]?.toString(),
     isDeleted: json["is_deleted"],
     isUpdatedProfile: json["is_updated_profile"],
     isBlocked: json["is_blocked"],
     isUpdatedVersion: json["is_updated_version"],
-    area: json["area"],
-    latitude: json["latitude"],
-    longitude: json["longitude"],
-    createdBy: json["created_by"],
+    area: json["area"]?.toString(),
+    latitude: json["latitude"]?.toString(), // ✅ FIX
+    longitude: json["longitude"]?.toString(), // ✅ FIX
+    createdBy: json["created_by"]?.toString(),
+    referralCode: json["refferal_code"]?.toString(),
+    referredBy: json["reffered_by"]?.toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -200,5 +188,7 @@ class ActivityData {
     "latitude": latitude,
     "longitude": longitude,
     "created_by": createdBy,
+    "refferal_code": referralCode,
+    "reffered_by": referredBy,
   };
 }

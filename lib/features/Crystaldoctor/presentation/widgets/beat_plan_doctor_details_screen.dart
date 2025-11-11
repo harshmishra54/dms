@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/visit_rout_crystal_screen.dart';
 import 'package:flutter/material.dart';
@@ -57,31 +58,33 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
 
   void _showReasonDialog(BuildContext context) {
     final TextEditingController reasonController = TextEditingController();
+    final provider = context.read<UpdateBeatPlanDoctorProvider>();
 
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          title: const AutoTranslateText(
-            "Enter Reason",
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          content: TextField(
-            controller: reasonController,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              hintText: "Enter reason for incomplete farmers...",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const AutoTranslateText("Cancel"),
-            ),
-            Consumer<UpdateBeatPlanDoctorProvider>(
-              builder: (context, provider, _) {
-                return ElevatedButton(
+        return StatefulBuilder(
+          builder: (dialogContext, setState) {
+            return AlertDialog(
+              title: const AutoTranslateText(
+                "Enter Reason",
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              content: TextField(
+                controller: reasonController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: "Enter reason for incomplete farmers...",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: provider.isLoading ? null : () => Navigator.pop(ctx),
+                  child: const AutoTranslateText("Cancel"),
+                ),
+                ElevatedButton(
                   onPressed: provider.isLoading
                       ? null
                       : () async {
@@ -89,13 +92,14 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                     if (reason.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: AutoTranslateText("Please enter a reason."),
+                          content: AutoTranslateText(
+                              "Reason is required to complete the route!"),
                         ),
                       );
                       return;
                     }
 
-                    Navigator.pop(ctx);
+                    setState(() {});
 
                     final success = await provider.updateBeatPlanDoctor(
                       id: routeId,
@@ -113,33 +117,35 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                             ),
                           ),
                         );
-                        Navigator.pop(context);
+
+                        Navigator.pop(ctx); // Close dialog
+                        Navigator.pop(context, true); // ✅ Pop Screen
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: AutoTranslateText(
-                              provider.errorMessage ??
-                                  "Failed to complete route.",
+                              provider.errorMessage ?? "Failed to complete route.",
                             ),
                           ),
                         );
                       }
                     }
                   },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.topBarColor),
                   child: provider.isLoading
                       ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                    height: 18,
+                    width: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
                     ),
                   )
-                      : const AutoTranslateText("OK"),
-                );
-              },
-            ),
-          ],
+                      : const AutoTranslateText("OK",style: TextStyle(color: Colors.white),),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -162,12 +168,13 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                 children: [
                   const AppStatusBar(),
 
-                  /// Custom Container AppBar
+                  /// AppBar
                   Material(
                     elevation: 3,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -175,7 +182,8 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: const Icon(Icons.arrow_back, color: Colors.black, size: 22),
+                              child: const Icon(Icons.arrow_back,
+                                  color: Colors.black, size: 22),
                             ),
                           ),
                           Center(
@@ -194,7 +202,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                     ),
                   ),
 
-                  /// Content
+                  /// Farmer List
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 12, right: 12, top: 10),
@@ -202,7 +210,8 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                           ? const Center(
                         child: AutoTranslateText(
                           "No farmers found for this date",
-                          style: TextStyle(fontSize: 14, color: Colors.black54),
+                          style:
+                          TextStyle(fontSize: 14, color: Colors.black54),
                         ),
                       )
                           : ListView.builder(
@@ -221,12 +230,12 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                             onTap: () {
                               if (id.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: AutoTranslateText("Farmer ID not found.")),
+                                  const SnackBar(
+                                      content: AutoTranslateText(
+                                          "Farmer ID not found.")),
                                 );
                                 return;
                               }
-
-                              // ✅ Navigate with farmer details
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -239,6 +248,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                               );
                             },
                             child: Card(
+                              color: Colors.white,
                               elevation: 3,
                               margin: const EdgeInsets.only(bottom: 16),
                               shape: RoundedRectangleBorder(
@@ -247,42 +257,48 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         const CircleAvatar(
                                           radius: 22,
-                                          backgroundColor: Colors.purple,
-                                          child: Icon(Icons.person, color: Colors.white),
+                                          backgroundColor: AppColors.topBarColor,
+                                          child: Icon(Icons.person,
+                                              color: Colors.white),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: AutoTranslateText(
-                                            name.isNotEmpty ? name : 'Unknown Farmer',
+                                            name.isNotEmpty
+                                                ? name
+                                                : 'Unknown Farmer',
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
                                             ),
                                           ),
                                         ),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 4),
+                                          padding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4),
                                           decoration: BoxDecoration(
                                             color: status == "Completed"
                                                 ? Colors.green.shade100
                                                 : Colors.orange.shade100,
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                            BorderRadius.circular(8),
                                           ),
                                           child: AutoTranslateText(
                                             status,
                                             style: TextStyle(
+                                              fontWeight: FontWeight.w500,
                                               color: status == "Completed"
                                                   ? Colors.green.shade800
                                                   : Colors.orange.shade800,
-                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
@@ -293,33 +309,31 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                                       Row(
                                         children: [
                                           const Icon(Icons.location_on,
-                                              size: 16, color: Colors.purple),
+                                              size: 16,
+                                              color: AppColors.topBarColor),
                                           const SizedBox(width: 6),
                                           AutoTranslateText(
                                             "Area In Acre: $area",
                                             style: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                                fontSize: 14,color: Colors.black),
                                           ),
                                         ],
                                       ),
                                     const SizedBox(height: 6),
                                     if (address.isNotEmpty)
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                         children: [
                                           const Icon(Icons.home,
-                                              size: 16, color: Colors.purple),
+                                              size: 16,
+                                              color: AppColors.topBarColor),
                                           const SizedBox(width: 6),
                                           Expanded(
                                             child: AutoTranslateText(
                                               address,
                                               style: const TextStyle(
-                                                color: Colors.black54,
-                                                fontSize: 13,
-                                              ),
+                                                  fontSize: 13),
                                             ),
                                           ),
                                         ],
@@ -334,7 +348,7 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                     ),
                   ),
 
-                  /// Complete Button (only if not already completed)
+                  /// Complete Button
                   if (!isRouteCompleted && isAnyPending)
                     SafeArea(
                       top: false,
@@ -344,15 +358,19 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                           onPressed:
                           provider.isLoading ? null : () => _showReasonDialog(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: AppColors.topBarColor,
                             minimumSize: const Size(double.infinity, 48),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: provider.isLoading
-                              ? const CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2)
+                              ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
                               : const AutoTranslateText(
                             "Complete Route",
                             style: TextStyle(
@@ -365,10 +383,8 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                       ),
                     ),
 
-                  /// Disabled Button if already completed
                   if (isRouteCompleted)
                     SafeArea(
-                      top: false,
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: ElevatedButton(
@@ -376,18 +392,8 @@ class BeatPlanDoctorDetailsScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey.shade400,
                             minimumSize: const Size(double.infinity, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
                           ),
-                          child: const AutoTranslateText(
-                            "Route Completed",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
+                          child: const AutoTranslateText("Route Completed"),
                         ),
                       ),
                     ),

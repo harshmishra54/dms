@@ -1,17 +1,18 @@
 
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_meeting_history_screen.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/add_beat_plan_doctor_screen.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_plan_doctor_screen.dart';
+// import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_meeting_history_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/doctor_history_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_details_and_location.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_list_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/new_activity_screen.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/route_by_pincode_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/targetfarmer.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/meeting_history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -203,10 +204,14 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                           _drawerItem(context, Icons.location_on, 'Farmer Location', const PhoneLocationScreen()),
                           _drawerItem(context, Icons.agriculture, 'Farmers Details', const FarmerListScreen()),
                           /// 👇 Show Approve Distributor only for roleId 1
-                          _drawerItem(context, Icons.card_travel, 'Meeting History', const CrystalMeetingHistoryScreen()),
+                          _drawerItem(context, Icons.card_travel, 'Meeting History', const MeetingHistory()),
                           _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
                           _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
-                          _drawerItem(context, Icons.recommend, 'Farmer Analytics', const RetargetFarmerScreen()),
+                          _drawerItem(context, Icons.analytics, 'Farmer Analytics', const RetargetFarmerScreen()),
+                          _drawerItem(context, Icons.timer_off, 'Punch Out', PunchOut()),
+                          _drawerItem(context, Icons.leave_bags_at_home, 'Leave Management', LeaveScreen()),
+                          _drawerItem(context, Icons.route, 'Nearest Route', RouteByPincodeScreen()),
+
 
 
 

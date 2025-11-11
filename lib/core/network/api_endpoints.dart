@@ -125,6 +125,9 @@ class ApiEndpoints {
   static const String notifyfarmer="/pwa/send-notification";
   static const String givepointstofarmer="/pwa/add-farmer-points";
   static const String inviteandearn="/pwa/invite-earn";
+  static const String spinnerhistory="/pwa/get-spinner-history";
+  static const String getAdvocacy="/pwa/get-advocasy";
+  static const String getRoutebyPincode="/pwa/get-route-by-pincode";
 
 
 

@@ -130,13 +130,13 @@ class _DistributorOrderCreatedState extends State<DistributorOrderCreated> with 
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: AutoTranslateText(
+                                      child: Text(
                                         order.orderNo,
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w600, fontSize: 15),
                                       ),
                                     ),
-                                    AutoTranslateText("Date: ${formatDate(order.orderDate)}",
+                                    Text("Date: ${formatDate(order.orderDate)}",
                                         style: const TextStyle(fontSize: 13)),
                                   ],
                                 ),

@@ -95,7 +95,7 @@ class _MultiSelectDropdownWithSearchState
                       itemBuilder: (context, index) {
                         final item = filtered[index];
                         return CheckboxListTile(
-                          title: AutoTranslateText(item["name"]),
+                          title: Text(item["name"]),
                           value: item["selected"],
                           controlAffinity: ListTileControlAffinity.leading,
                           onChanged: (val) {
@@ -137,7 +137,7 @@ class _MultiSelectDropdownWithSearchState
           spacing: 6,
           children: selectedItems
               .map((d) => Chip(
-            label: AutoTranslateText(d["name"]),
+            label: Text(d["name"]),
             onDeleted: () {
               setState(() {
                 d["selected"] = false;
@@ -149,7 +149,7 @@ class _MultiSelectDropdownWithSearchState
           ))
               .toList(),
         )
-            : AutoTranslateText("Select ${widget.label}",
+            : Text("Select ${widget.label}",
             style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ),
     );

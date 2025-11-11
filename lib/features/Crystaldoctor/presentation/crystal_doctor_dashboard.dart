@@ -11,6 +11,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_p
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/crystal_doctor_custom_drawer.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/funnelactivity_carausel.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:TrustTags_DMS/features/home/widgets/discover_carousel.dart';
@@ -20,6 +21,8 @@ import 'package:TrustTags_DMS/features/notifications/presentation/notification_s
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/dashboard_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Attendance/attendance_popup.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Attendance/provider/attendance_status_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +40,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     with RouteAware {
   final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
   int _expandedStage = -1;
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -48,12 +52,25 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     context.read<DashboardProvider>().fetchDashboardData();
     context.read<ChannelPerformanceProvider>().fetchChannelPerformance();
     context.read<FarmerFunnelProvider>().fetchFarmerFunnel();
+    context.read<AdvocacyProvider>().fetchAdvocacy(); // ✅ added
   }
+
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+
+    // Subscribe to route observer once
+    final ModalRoute? modal = ModalRoute.of(context);
+    if (modal is PageRoute) {
+      routeObserver.subscribe(this, modal);
+    }
+
+    // Run attendance check only on first load
+    if (_isFirstLoad) {
+      _checkAttendanceAndShowPopup();
+      _isFirstLoad = false;
+    }
   }
 
   @override
@@ -61,6 +78,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     routeObserver.unsubscribe(this);
     super.dispose();
   }
+
 
   @override
   void didPopNext() {
@@ -88,6 +106,25 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
       ),
     );
   }
+  void _checkAttendanceAndShowPopup() async {
+    final attendanceProvider = Provider.of<AttendanceProvider>(context, listen: false);
+    await attendanceProvider.checkAttendanceStatus();
+
+    if (attendanceProvider.attendanceStatus != null &&
+        attendanceProvider.attendanceStatus!.data == false) {
+      _showAttendancePopup();
+    }
+  }
+
+  void _showAttendancePopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AttendancePopup(),
+    );
+  }
+
+
 
 
 
@@ -138,20 +175,18 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     f.recommendedProducts != null && f.recommendedProducts!.isNotEmpty)
         .length;
 
-    final activeFarmers = farmers
-        .where((f) =>
-    f.status?.toLowerCase() == 'active' || f.meetingId != null)
-        .length;
-
-    // ✅ Get purchase data count from PurchaseDataProvider
     final purchaseCount = purchaseProvider.purchaseList.length;
+    final retentionCount=purchaseProvider.repeatPurchaseList.length;
+
+    // ✅ API based advocacy count
+    final advocacyCount = context.read<AdvocacyProvider>().advocacyCount;
 
     return FunnelMetrics(
       awareness: totalFarmers,
       consideration: farmersWithQueries,
-      purchase: purchaseCount, // ✅ replaced here
-      retention: farmersWithRecommendations,
-      advocacy: activeFarmers,
+      purchase: purchaseCount,
+      retention: retentionCount,
+      advocacy:advocacyCount, // ✅ Updated
     );
   }
 
@@ -429,7 +464,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
           runSpacing: 12,
           children: items.map((item) {
             return SizedBox(
-              width: (MediaQuery.of(context).size.width - 52) / 2,
+              width: (MediaQuery.of(context).size.width - 48) / 2,
               child: _buildGridCard(
                 item['title'] as String,
                 item['icon'] as IconData,

@@ -1,5 +1,7 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/data/models/farmer_advocacy_model.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:flutter/material.dart';
@@ -17,20 +19,26 @@ class FunnelStageDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<FunnelStageDetailScreen> createState() =>
-      _FunnelStageDetailScreenState();
+  State<FunnelStageDetailScreen> createState() => _FunnelStageDetailScreenState();
 }
 
 class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch Purchase Data only if Purchase stage is opened
-    if (widget.stageIndex == 2) {
+
+    // ✅ Purchase + Retention use same API
+    if (widget.stageIndex == 2 || widget.stageIndex == 3) {
       Future.microtask(() {
-        final provider =
-        Provider.of<PurchaseDataProvider>(context, listen: false);
-        provider.fetchPurchaseData(""); // Fetch purchase data (global)
+        Provider.of<PurchaseDataProvider>(context, listen: false)
+            .fetchPurchaseData();
+      });
+    }
+
+    // ✅ Advocacy API
+    if (widget.stageIndex == 4) {
+      Future.microtask(() {
+        Provider.of<AdvocacyProvider>(context, listen: false).fetchAdvocacy();
       });
     }
   }
@@ -45,18 +53,11 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
             .where((f) => f.queries != null && f.queries!.isNotEmpty)
             .toList();
       case 2:
-        return []; // handled separately by new API
+        return []; // Handled by purchase API
       case 3:
-        return allFarmers
-            .where((f) =>
-        f.recommendedProducts != null &&
-            f.recommendedProducts!.isNotEmpty)
-            .toList();
+        return []; // Handled by purchase API (Retention)
       case 4:
-        return allFarmers
-            .where((f) =>
-        f.status?.toLowerCase() == 'active' || f.meetingId != null)
-            .toList();
+        return []; // Advocacy handled separately
       default:
         return [];
     }
@@ -89,9 +90,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                   ),
                   Expanded(
                     child: AutoTranslateText(
-                      widget.stageIndex == 2
-                          ? 'Purchase Details'
-                          : 'Sale Details',
+                      widget.stageName,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.black,
@@ -105,10 +104,9 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
 
-          /// --- PURCHASE STAGE ---
+          /// ✅ --- PURCHASE STAGE (All purchases > 0) ---
           if (widget.stageIndex == 2)
             Expanded(
               child: Consumer<PurchaseDataProvider>(
@@ -125,7 +123,6 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                     );
                   }
 
-                  // ✅ Filter only farmers with purchaseCount > 0
                   final purchaseList = purchaseProvider.purchaseList
                       .where((p) => p.purchaseCount > 0)
                       .toList();
@@ -164,7 +161,7 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                                 color: Colors.black87),
                           ),
                           subtitle: AutoTranslateText(
-                            'Purchase Products: ${purchase.purchaseCount}',
+                            'Purchase Count: ${purchase.purchaseCount}',
                             style: const TextStyle(color: Colors.black54),
                           ),
                         ),
@@ -174,39 +171,182 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                 },
               ),
             )
-          else
-          /// --- OTHER STAGES ---
+
+          /// ✅ --- RETENTION STAGE (purchaseCount > 1) ---
+          else if (widget.stageIndex == 3)
             Expanded(
-              child: farmersForStage.isEmpty
-                  ? const Center(
-                child: AutoTranslateText(
-                  'No farmers found for this stage',
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+              child: Consumer<PurchaseDataProvider>(
+                builder: (context, purchaseProvider, _) {
+                  if (purchaseProvider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (purchaseProvider.errorMessage != null) {
+                    return Center(
+                      child: AutoTranslateText(
+                        purchaseProvider.errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  final retentionList = purchaseProvider.purchaseList
+                      .where((p) => p.purchaseCount > 1)
+                      .toList();
+
+                  if (retentionList.isEmpty) {
+                    return const Center(
+                      child: AutoTranslateText(
+                        'No retention farmers found.',
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: retentionList.length,
+                    itemBuilder: (context, index) {
+                      final purchase = retentionList[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                            Colors.green.withOpacity(0.2),
+                            child: const Icon(Icons.repeat,
+                                color: Colors.green),
+                          ),
+                          title: AutoTranslateText(
+                            purchase.farmerName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87),
+                          ),
+                          subtitle: AutoTranslateText(
+                            'Repeat Purchases: ${purchase.purchaseCount}',
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            )
+
+          /// ✅ --- ADVOCACY STAGE ---
+
+          else if (widget.stageIndex == 4)
+              Expanded(
+                child: Consumer<AdvocacyProvider>(
+                  builder: (context, advocacyProvider, _) {
+                    if (advocacyProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (advocacyProvider.errorMessage != null) {
+                      return Center(
+                        child: AutoTranslateText(
+                          advocacyProvider.errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    final referredList = advocacyProvider.advocacyResponse?.data ?? [];
+
+                    if (referredList.isEmpty) {
+                      return const Center(
+                        child: AutoTranslateText(
+                          'No referred farmers found.',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      );
+                    }
+
+                    // ✅ Group farmers by referred_by_name
+                    Map<String, List<ReferredFarmer>> grouped = {};
+                    for (var farmer in referredList) {
+                      grouped.putIfAbsent(farmer.refferedByName, () => []);
+                      grouped[farmer.refferedByName]!.add(farmer);
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: grouped.keys.length,
+                      itemBuilder: (context, index) {
+                        final referredByName = grouped.keys.elementAt(index);
+                        final farmers = grouped[referredByName]!;
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ExpansionTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.deepPurple.withOpacity(0.2),
+                              child: const Icon(Icons.person, color: Colors.deepPurple),
+                            ),
+                            title: AutoTranslateText(
+                              referredByName,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, color: Colors.black87),
+                            ),
+                            subtitle: AutoTranslateText(
+                              "Total Referred: ${farmers.length}",
+                              style: const TextStyle(color: Colors.black54),
+                            ),
+                            children: farmers.map((farmer) {
+                              return ListTile(
+                                contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                                leading: const Icon(Icons.arrow_right, color: Colors.grey),
+                                title: AutoTranslateText(
+                                  farmer.name,
+                                  style: const TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               )
-                  : ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                itemCount: farmersForStage.length,
-                itemBuilder: (context, index) {
-                  final farmer = farmersForStage[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+
+            /// ✅ --- OTHER STAGES ---
+            else
+              Expanded(
+                child: farmersForStage.isEmpty
+                    ? const Center(
+                  child: AutoTranslateText(
+                    'No farmers found for this stage',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        dividerColor: Colors.transparent,
-                        unselectedWidgetColor: Colors.black87,
+                  ),
+                )
+                    : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: farmersForStage.length,
+                  itemBuilder: (context, index) {
+                    final farmer = farmersForStage[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: ExpansionTile(
-                        tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
+                      child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor:
                           Colors.deepPurple.withOpacity(0.2),
@@ -216,134 +356,18 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
                         title: AutoTranslateText(
                           farmer.farmerName ?? 'Unnamed Farmer',
                           style: const TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
                         ),
                         subtitle: AutoTranslateText(
-                          farmer.mobileNumber != null
-                              ? 'Mobile: ${farmer.mobileNumber}'
-                              : 'No mobile available',
+                          farmer.mobileNumber ?? "No Mobile",
                           style: const TextStyle(color: Colors.black54),
                         ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                              children: [
-                                if (farmer.villageName != null)
-                                  AutoTranslateText('Village: ${farmer.villageName}',
-                                      style: const TextStyle(
-                                          color: Colors.black54)),
-                                const SizedBox(height: 8),
-                                if (farmer.crops != null &&
-                                    farmer.crops!.isNotEmpty)
-                                  Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      const AutoTranslateText('Crops & Products:',
-                                          style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight:
-                                              FontWeight.bold)),
-                                      ...farmer.crops!.map((crop) {
-                                        return Padding(
-                                          padding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 4),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              AutoTranslateText(
-                                                  '- Crop: ${crop.cropName ?? "N/A"}',
-                                                  style: const TextStyle(
-                                                      color:
-                                                      Colors.black54)),
-                                              if (crop.products != null &&
-                                                  crop.products!
-                                                      .isNotEmpty)
-                                                ...crop.products!.map(
-                                                      (product) => Padding(
-                                                    padding:
-                                                    const EdgeInsets
-                                                        .only(
-                                                        left: 8,
-                                                        top: 2),
-                                                    child: AutoTranslateText(
-                                                        '• ${product.productName ?? "Unnamed"} (${product.expectedQuantity ?? "-"})',
-                                                        style:
-                                                        const TextStyle(
-                                                            color: Colors
-                                                                .black54)),
-                                                  ),
-                                                )
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-
-                                /// --- QUERIES (for Consideration stage) ---
-                                if (widget.stageIndex == 1 &&
-                                    farmer.queries != null &&
-                                    farmer.queries!.isNotEmpty)
-                                  Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 12),
-                                      const AutoTranslateText('Queries:',
-                                          style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight:
-                                              FontWeight.bold)),
-                                      ...farmer.queries!.map((query) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 8),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              if (query.details != null &&
-                                                  query.details!
-                                                      .isNotEmpty)
-                                                ...query.details!.map(
-                                                      (detail) => Padding(
-                                                    padding:
-                                                    const EdgeInsets
-                                                        .only(
-                                                        left: 8,
-                                                        top: 2),
-                                                    child: AutoTranslateText(
-                                                        '• ${detail.productName ?? "N/A"} | Crop: ${detail.crop ?? "-"} | Quantity: ${detail.quantity ?? "-"} | Reason: ${detail.reason ?? "-"}',
-                                                        style:
-                                                        const TextStyle(
-                                                            color: Colors
-                                                                .black54)),
-                                                  ),
-                                                )
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
         ],
       ),
     );

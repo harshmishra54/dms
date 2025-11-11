@@ -45,7 +45,7 @@ class DatePickerField extends StatelessWidget {
         builder: (context) {
           String? tempValue = halfDay ?? 'Morning';
           return AlertDialog(
-            title: const AutoTranslateText('Select Half Day'),
+            title: const Text('Select Half Day'),
             content: SizedBox(
               width: 150,
               child: Column(
@@ -72,7 +72,7 @@ class DatePickerField extends StatelessWidget {
                         return Container(
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          child: AutoTranslateText(
+                          child: Text(
                             item,
                             style: TextStyle(
                               fontSize: 14,
@@ -139,12 +139,12 @@ class DatePickerField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AutoTranslateText(
+              Text(
                 label,
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 2),
-              AutoTranslateText(
+              Text(
                 dateText,
                 style: const TextStyle(fontSize: 15, color: Colors.black87),
               ),

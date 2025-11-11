@@ -129,7 +129,7 @@ class _InviteEarnScreenState extends State<InviteEarnScreen> {
                               ),
                               SizedBox(height: 12),
                               Text(
-                                "Share your referral code and get 100 points for each friend who joins.",
+                                "Share your referral code and get 20 points for each friend who joins.",
                                 style: TextStyle(
                                     color: Colors.white70, fontSize: 16),
                                 textAlign: TextAlign.center,

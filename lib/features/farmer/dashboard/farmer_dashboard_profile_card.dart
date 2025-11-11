@@ -112,7 +112,7 @@ class _FarmerDashboardProfileCardState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AutoTranslateText(
+                      Text(
                         "Hi, $userName",
                         style: const TextStyle(
                           fontSize: 18,

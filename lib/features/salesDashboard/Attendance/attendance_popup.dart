@@ -34,7 +34,7 @@ class AttendancePopup extends StatelessWidget {
               children: const [
                 Icon(Icons.access_time, color: Colors.blue, size: 30),
                 SizedBox(width: 10),
-                AutoTranslateText(
+                Text(
                   "Mark Attendance",
                   style: TextStyle(
                     fontSize: 20,

@@ -2,6 +2,7 @@ import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/invite_earn_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/recommended_product_by_advisor.dart';
+import 'package:TrustTags_DMS/features/spinner/presentation/spinner_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
@@ -209,6 +210,11 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                           Icons.production_quantity_limits,
                           'Product Recommendation',
                           const RecommendedProductsScreen()),
+                      _drawerItem(
+                          context,
+                          Icons.card_giftcard_sharp,
+                          'Spinner History',
+                          const SpinnerHistoryScreen()),
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),

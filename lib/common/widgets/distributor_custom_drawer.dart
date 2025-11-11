@@ -10,6 +10,7 @@ import 'package:TrustTags_DMS/features/returns/distributor/return_order_tab.dart
 import 'package:TrustTags_DMS/features/rewards/reward_claim_history.dart';
 import 'package:TrustTags_DMS/features/schemes/presentation/scheme_program_screen.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
+import 'package:TrustTags_DMS/features/spinner/presentation/spinner_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/credit_limit.dart';
@@ -257,6 +258,12 @@ class _DistributorCustomDrawerModalState
                                 Icons.card_giftcard_sharp,
                                 'Reward Claim History',
                                 const RewardClaimHistoryScreen()),
+                            _drawerItem(
+                                context,
+                                Icons.card_giftcard_sharp,
+                                'Spinner History',
+                                const SpinnerHistoryScreen()),
+
                             _drawerItem(context, Icons.history, 'History',
                                 const HistoryScreen()),
                             const Divider(height: 32,),

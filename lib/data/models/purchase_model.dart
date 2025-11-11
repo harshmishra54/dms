@@ -2,7 +2,7 @@
 class PurchaseDataResponse {
   final int success;
   final String message;
-  final List<FarmerPurchase> data;
+  final PurchaseData data;
 
   PurchaseDataResponse({
     required this.success,
@@ -14,10 +14,7 @@ class PurchaseDataResponse {
     return PurchaseDataResponse(
       success: json['success'],
       message: json['message'],
-      data: json['data'] != null
-          ? List<FarmerPurchase>.from(
-          json['data'].map((x) => FarmerPurchase.fromJson(x)))
-          : [],
+      data: PurchaseData.fromJson(json['data']),
     );
   }
 
@@ -25,7 +22,39 @@ class PurchaseDataResponse {
     return {
       'success': success,
       'message': message,
-      'data': data.map((x) => x.toJson()).toList(),
+      'data': data.toJson(),
+    };
+  }
+}
+
+class PurchaseData {
+  final List<FarmerPurchase> allFarmersWithPurchases;
+  final List<FarmerPurchase> repeatPurchaseFarmers;
+
+  PurchaseData({
+    required this.allFarmersWithPurchases,
+    required this.repeatPurchaseFarmers,
+  });
+
+  factory PurchaseData.fromJson(Map<String, dynamic> json) {
+    return PurchaseData(
+      allFarmersWithPurchases: json['allFarmersWithPurchases'] != null
+          ? List<FarmerPurchase>.from(json['allFarmersWithPurchases']
+          .map((x) => FarmerPurchase.fromJson(x)))
+          : [],
+      repeatPurchaseFarmers: json['repeatPurchaseFarmers'] != null
+          ? List<FarmerPurchase>.from(json['repeatPurchaseFarmers']
+          .map((x) => FarmerPurchase.fromJson(x)))
+          : [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'allFarmersWithPurchases':
+      allFarmersWithPurchases.map((x) => x.toJson()).toList(),
+      'repeatPurchaseFarmers':
+      repeatPurchaseFarmers.map((x) => x.toJson()).toList(),
     };
   }
 }
@@ -57,22 +86,3 @@ class FarmerPurchase {
     };
   }
 }
-
-// models/purchase_request_model.dart
-class PurchaseRequest {
-  final String id;
-
-  PurchaseRequest({required this.id});
-
-  factory PurchaseRequest.fromJson(Map<String, dynamic> json) {
-    return PurchaseRequest(id: json['id']);
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-    };
-  }
-}
-
-

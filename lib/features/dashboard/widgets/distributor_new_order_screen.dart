@@ -355,22 +355,22 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AutoTranslateText(
+                                  Text(
                                     item.productName,
                                     style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
 
                                   // Always show base price
-                                  AutoTranslateText("Base Price: ₹${item.price}"),
+                                  Text("Base Price: ₹${item.price}"),
 
                                   // Show scheme or purchase price depending on role
                                   if (loggedInRoleId == 1 || dailyRoleId == 1)
-                                    AutoTranslateText(
+                                    Text(
                                       "Purchase Price: ₹${item.purchasePrice}",
                                       style: const TextStyle(color: Colors.black),
                                     )
                                   else if (loggedInRoleId == 3 || dailyRoleId == 3)
-                                    AutoTranslateText(
+                                    Text(
                                       "Scheme Price: ₹${item.schemePrice}",
                                       style: const TextStyle(color: Colors.black),
                                     ),
@@ -384,7 +384,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                                   onPressed: () => updateQuantity(item, -1),
                                   icon: const Icon(Icons.remove_circle_outline),
                                 ),
-                                AutoTranslateText(item.qty.toString()),
+                                Text(item.qty.toString()),
                                 IconButton(
                                   onPressed: () => updateQuantity(item, 1),
                                   icon: const Icon(Icons.add_circle_outline),
@@ -425,21 +425,21 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const AutoTranslateText('Item Price :'),
-                              AutoTranslateText("₹${totalPrice.toStringAsFixed(2)}"),
+                              Text("₹${totalPrice.toStringAsFixed(2)}"),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const AutoTranslateText('GST (18%) :'),
-                              AutoTranslateText("₹${gst.toStringAsFixed(2)}"),
+                              Text("₹${gst.toStringAsFixed(2)}"),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const AutoTranslateText('Discount :'),
-                              AutoTranslateText("₹${discount.toStringAsFixed(2)}"),
+                              Text("₹${discount.toStringAsFixed(2)}"),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -449,7 +449,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                               const AutoTranslateText('Total :',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold, fontSize: 16)),
-                              AutoTranslateText("₹${finalTotal.toStringAsFixed(2)}",
+                              Text("₹${finalTotal.toStringAsFixed(2)}",
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,

@@ -18,6 +18,7 @@ class ProfileRequest {
   final String? gst;
   final String? licenseexpiry;
   final String? licenseNo;
+  final String? refferalNo;
 
   ProfileRequest({
     required this.phone,
@@ -39,6 +40,7 @@ class ProfileRequest {
     this.gst,
     this.licenseexpiry,
     this.licenseNo,
+    this.refferalNo,
 
   });
 
@@ -62,5 +64,6 @@ class ProfileRequest {
     'gst_no':gst,
     'licence_expiry':licenseexpiry,
     'license_no': licenseNo,
+    'refferal_no':refferalNo,
   };
 }

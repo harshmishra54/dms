@@ -104,11 +104,15 @@ class MeetingHistory extends StatelessWidget {
                         );
                       }
 
+                      // Sort meetings by date - latest first
+                      final sortedMeetings = List<RouteMeetingData>.from(provider.meetings)
+                        ..sort((a, b) => b.meetingTime.compareTo(a.meetingTime));
+
                       return ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: provider.meetings.length,
+                        itemCount: sortedMeetings.length,
                         itemBuilder: (context, index) {
-                          RouteMeetingData meeting = provider.meetings[index];
+                          RouteMeetingData meeting = sortedMeetings[index];
 
                           return Card(
                             color: Colors.white,

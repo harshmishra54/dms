@@ -40,6 +40,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
   final TextEditingController _gstController = TextEditingController();
   final TextEditingController _panController = TextEditingController();
   final TextEditingController _retailerCodeController = TextEditingController();
+  final TextEditingController _licenceExpiryController= TextEditingController();
 
   double? _latitude;
   double? _longitude;
@@ -228,6 +229,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
       dob: _dobController.text.trim(),
       phone: int.tryParse(_phoneController.text.trim()) ?? 0,
       address: _addressController.text.trim(),
+      Pincode: _pincodeController.text.trim(),
       zoneId: zoneId,
       regionId: regionId,
       territoryId: territoryId,
@@ -248,6 +250,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
       estDate: _dateController.text.trim(),
       isZrtBased: true,
       licenseNo: _retailerCodeController.text,
+      licenceEpiry: _licenceExpiryController.text,
     );
 
     final retailerProvider =
@@ -463,6 +466,37 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                     buildTextField(_panController),
                     buildLabel("Licence No"),
                     buildTextField(_retailerCodeController),
+                    buildLabel("Licence Expiry"),
+                    TextFormField(
+                      controller: _licenceExpiryController,
+                      readOnly: true,
+                      decoration: _inputDecoration().copyWith(
+                        hintText: "Enter Licence Expiry",
+                        suffixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(), // default DOB
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2200),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _licenceExpiryController.text =
+                            "${pickedDate.day.toString().padLeft(2, '0')}/"
+                                "${pickedDate.month.toString().padLeft(2, '0')}/"
+                                "${pickedDate.year}";
+                          });
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Licence Expiry";
+                        }
+                        return null;
+                      },
+                    ),
                     buildLabel("Taluka"),
                     Consumer<TalukaProvider>(
                       builder: (context, talukaProvider, child) {
@@ -484,7 +518,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                           items: talukas.map((t) {
                             return DropdownMenuItem<TalukaData>(
                               value: t,
-                              child: AutoTranslateText(t.name),
+                              child: Text(t.name),
                             );
                           }).toList(),
                           onChanged: (t) {
@@ -508,7 +542,7 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                         }
 
                         if (distributorProvider.errorMessage != null) {
-                          return AutoTranslateText(
+                          return Text(
                               "❌ Error: ${distributorProvider.errorMessage}");
                         }
 

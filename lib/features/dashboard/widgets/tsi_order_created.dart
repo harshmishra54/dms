@@ -196,7 +196,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: AutoTranslateText(
+                    child: Text(
                       order.orderNo,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),

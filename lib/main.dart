@@ -12,6 +12,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_beat_plan_doct
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_points_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_form_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_query_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
@@ -26,6 +27,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/recommended_history_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_farmer_new_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_gap_farmer_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/route_by_pincode_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/update_beat_plan_doctor_individual_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/update_beat_plan_doctor_provider.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/RouteUpdateStatusProvider.dart';
@@ -128,6 +130,7 @@ import 'package:TrustTags_DMS/features/scan/providers/inward_scan_details_provid
 import 'package:TrustTags_DMS/features/scan/providers/product_level_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/scan_provider.dart';
 import 'package:TrustTags_DMS/features/schemes/provider/scheme_running_provider.dart';
+import 'package:TrustTags_DMS/features/spinner/provider/spinner_history_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/provider/spinner_reward_provider.dart';
 import 'package:TrustTags_DMS/features/themes/theme_provider.dart';
 import 'package:TrustTags_DMS/firebase_options.dart';
@@ -406,6 +409,9 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> NotifyFarmer()),
         ChangeNotifierProvider(create: (_)=> AddFarmerPointsProvider()),
         ChangeNotifierProvider(create: (_)=> InviteEarnProvider()),
+        ChangeNotifierProvider(create: (_)=> SpinnerHistoryProvider()),
+        ChangeNotifierProvider(create: (_)=> AdvocacyProvider()),
+        ChangeNotifierProvider(create: (_)=> RouteByPincodeProvider()),
 
 
       ],

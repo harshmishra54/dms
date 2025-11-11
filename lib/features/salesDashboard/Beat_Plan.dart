@@ -200,8 +200,8 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    AutoTranslateText("Retailer visit: ${beat.totalRetailers}"),
-                                    AutoTranslateText("Distributor visit: ${beat.totalDistributors}"),
+                                    Text("Retailer visit: ${beat.totalRetailers}"),
+                                    Text("Distributor visit: ${beat.totalDistributors}"),
                                   ],
                                 ),
 

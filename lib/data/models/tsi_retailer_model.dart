@@ -26,6 +26,7 @@ class RetailerRequest {
   String? licenseNo;
   String? Pincode;
   String? requestId;
+  String? licenceEpiry;
 
   RetailerRequest({
     this.type,
@@ -55,6 +56,7 @@ class RetailerRequest {
     this.licenseNo,
     this.Pincode,
     this.requestId,
+    this.licenceEpiry,
 
   });
 
@@ -86,6 +88,7 @@ class RetailerRequest {
       "license_no": licenseNo,
       "pin_code": Pincode,
       "request_id": requestId,
+      "license_expiry":licenceEpiry,
     };
   }
 }

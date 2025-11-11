@@ -18,20 +18,22 @@ class PurchaseDataProvider extends ChangeNotifier {
   List<FarmerPurchase> _purchaseList = [];
   List<FarmerPurchase> get purchaseList => _purchaseList;
 
-  /// Fetch purchase data using farmer id
-  Future<void> fetchPurchaseData(String farmerId) async {
+  List<FarmerPurchase> _repeatPurchaseList = [];
+  List<FarmerPurchase> get repeatPurchaseList => _repeatPurchaseList;
+
+  /// ✅ Fetch purchase data using userId from SharedPrefs
+  Future<void> fetchPurchaseData() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      // Get token from SharedPreferences
       final token = await SharedPrefsHelper.getAccessToken();
-      final requestId=await SharedPrefsHelper.getUserId();
+      final userId = await SharedPrefsHelper.getUserId();
 
       final response = await _dioClient.post(
         ApiEndpoints.getpurchaseData,
-        data: {'id': requestId},
+        data: {'id': userId},
         options: Options(
           headers: {
             'x-access-token': token ?? '',
@@ -41,8 +43,11 @@ class PurchaseDataProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final purchaseResponse = PurchaseDataResponse.fromJson(response.data);
+
         if (purchaseResponse.success == 1) {
-          _purchaseList = purchaseResponse.data;
+          // ✅ Correctly assign both lists
+          _purchaseList = purchaseResponse.data.allFarmersWithPurchases;
+          _repeatPurchaseList = purchaseResponse.data.repeatPurchaseFarmers;
         } else {
           _errorMessage = purchaseResponse.message;
         }
@@ -60,6 +65,7 @@ class PurchaseDataProvider extends ChangeNotifier {
   /// Clear the data
   void clearData() {
     _purchaseList = [];
+    _repeatPurchaseList = [];
     _errorMessage = null;
     notifyListeners();
   }

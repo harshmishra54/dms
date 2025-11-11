@@ -113,7 +113,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey),
                           ),
-                          child: AutoTranslateText(
+                          child: Text(
                             _currentLimitController.text,
                             style: const TextStyle(fontSize: 16),
                           ),

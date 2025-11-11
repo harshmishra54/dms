@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/scan/models/product_level_check_model.dart';
+import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -213,6 +214,27 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     );
 
     final validateRes = await scanProvider.validateUID(token, postData);
+    String? spinnerId = validateRes.data is String
+        ? validateRes.data as String
+        : null;
+
+// ✅ If segments exist → Open Spinner
+    if (spinnerId != null && validateRes.segments != null &&
+        validateRes.segments!.isNotEmpty) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              SpinnerWidget(
+                spinnerId: spinnerId,
+                segments: validateRes.segments!,
+              ),
+        ),
+      );
+
+      (_scannerKey.currentState as dynamic).resetScanner();
+      return;
+    }
 
     if (validateRes.success == 1 && validateRes.data != null) {
       _showScanResultDialog(

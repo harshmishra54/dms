@@ -35,6 +35,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController stateController = TextEditingController();
   final TextEditingController districtController = TextEditingController();
+  final TextEditingController refferalController = TextEditingController();
 
   // Auto fetched values
   int? stateId;
@@ -206,6 +207,8 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
 
                   buildLabel('Address'),
                   buildTextField(address1Controller),
+                  buildLabel('Have Refferal Code (Optional)'),
+                  buildTextField(refferalController),
 
                   buildLabel('PIN Code'),
                   TextField(
@@ -310,6 +313,7 @@ class _RegistrationScreenState extends State<FarmerRegistration> {
                           profileImage: "",
                           email: emailController.text,
                           uniqueName: uniqueNameController.text,
+                          refferalNo: refferalController.text,
                         );
 
                         await Provider.of<ProfileProvider>(context, listen: false)
