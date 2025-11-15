@@ -1,18 +1,19 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/data/models/dist_stock_models.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/cfa_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/stock_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/dist_retailer_rout_model.dart';
 import '../../../core/network/dio_client.dart';
-import '../../../data/models/dist_stock_models.dart';
 import '../../../core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 
 class DistributorRetailerScreen extends StatefulWidget {
-  final String? tsiId; // optional tsiId passed from bottom bar
+  final String? tsiId;
 
   const DistributorRetailerScreen({Key? key, this.tsiId}) : super(key: key);
 
@@ -33,30 +34,36 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) {
-        final provider = TerritoryProvider();
-        _initProvider(provider, widget.tsiId);
-        return provider;
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<TerritoryProvider>(
+          create: (_) {
+            final provider = TerritoryProvider();
+            _initProvider(provider, widget.tsiId);
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider<CfaStockProvider>(
+          create: (_) => CfaStockProvider()..fetchCfaStock(),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Colors.grey[100],
-        body: Consumer<TerritoryProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading) {
+        body: Consumer2<TerritoryProvider, CfaStockProvider>(
+          builder: (context, territoryProvider, cfaProvider, child) {
+            if (territoryProvider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (provider.errorMessage != null) {
+            if (territoryProvider.errorMessage != null) {
               return Center(
                 child: AutoTranslateText(
-                  provider.errorMessage!,
+                  territoryProvider.errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
               );
             }
 
-            // Filter function
             List<TerritoryData> filterList(List<TerritoryData> list) {
               if (_searchText.isEmpty) return list;
               return list
@@ -68,8 +75,8 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                   .toList();
             }
 
-            final distributors = filterList(provider.distributors);
-            final retailers = filterList(provider.retailers);
+            final distributors = filterList(territoryProvider.distributors);
+            final retailers = filterList(territoryProvider.retailers);
 
             return Column(
               children: [
@@ -131,7 +138,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                 // TabBar
                 Expanded(
                   child: DefaultTabController(
-                    length: 2,
+                    length: 3,
                     child: Column(
                       children: [
                         Container(
@@ -143,6 +150,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                             tabs: [
                               Tab(text: 'Distributors'),
                               Tab(text: 'Retailers'),
+                              Tab(text: 'CNF Stocks'),
                             ],
                           ),
                         ),
@@ -151,7 +159,9 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                             children: [
                               // Distributors Tab
                               distributors.isEmpty
-                                  ? const Center(child: AutoTranslateText("No distributors found"))
+                                  ? const Center(
+                                  child: AutoTranslateText(
+                                      "No distributors found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
                                 itemCount: distributors.length,
@@ -162,31 +172,40 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => ChangeNotifierProvider(
-                                            create: (_) =>
-                                            DistStockProvider(dioClient: DioClient())
-                                              ..fetchDistStock(
-                                                request: DistStockRequest(
-                                                  exportType: "1",
-                                                  locationId: distributor.id,
+                                          builder: (_) =>
+                                              ChangeNotifierProvider(
+                                                create: (_) => DistStockProvider(
+                                                    dioClient:
+                                                    DioClient())
+                                                  ..fetchDistStock(
+                                                    request:
+                                                    DistStockRequest(
+                                                      exportType: "1",
+                                                      locationId:
+                                                      distributor.id,
+                                                    ),
+                                                  ),
+                                                child: StockDetailsScreen(
+                                                  title: distributor.name ??
+                                                      "Stock Details",
                                                 ),
                                               ),
-                                            child: StockDetailsScreen(
-                                              title: distributor.name ?? "Stock Details",
-                                            ),
-                                          ),
                                         ),
                                       );
                                     },
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius:
+                                    BorderRadius.circular(12),
                                     child: _buildCard(
-                                        distributor.name, distributor.phone),
+                                        distributor.name,
+                                        distributor.phone),
                                   );
                                 },
                               ),
                               // Retailers Tab
                               retailers.isEmpty
-                                  ? const Center(child: AutoTranslateText("No retailers found"))
+                                  ? const Center(
+                                  child: AutoTranslateText(
+                                      "No retailers found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
                                 itemCount: retailers.length,
@@ -197,25 +216,199 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => ChangeNotifierProvider(
-                                            create: (_) =>
-                                            DistStockProvider(dioClient: DioClient())
-                                              ..fetchDistStock(
-                                                request: DistStockRequest(
-                                                  exportType: "3",
-                                                  locationId: retailer.id,
+                                          builder: (_) =>
+                                              ChangeNotifierProvider(
+                                                create: (_) => DistStockProvider(
+                                                    dioClient:
+                                                    DioClient())
+                                                  ..fetchDistStock(
+                                                    request:
+                                                    DistStockRequest(
+                                                      exportType: "3",
+                                                      locationId:
+                                                      retailer.id,
+                                                    ),
+                                                  ),
+                                                child: StockDetailsScreen(
+                                                  title: retailer.name ??
+                                                      "Stock Details",
                                                 ),
                                               ),
-                                            child: StockDetailsScreen(
-                                              title: retailer.name ?? "Stock Details",
-                                            ),
-                                          ),
                                         ),
                                       );
                                     },
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius:
+                                    BorderRadius.circular(12),
                                     child: _buildCard(
                                         retailer.name, retailer.phone),
+                                  );
+                                },
+                              ),
+                              // CNF/VFS Stocks Tab
+                              cfaProvider.loading
+                                  ? const Center(
+                                  child: CircularProgressIndicator())
+                                  : cfaProvider.error != null
+                                  ? Center(
+                                child: AutoTranslateText(
+                                  cfaProvider.error!,
+                                  style: const TextStyle(
+                                      color: Colors.red),
+                                ),
+                              )
+                                  : cfaProvider.stockData.isEmpty
+                                  ? const Center(
+                                  child: AutoTranslateText(
+                                      "No CNF stocks found"))
+                                  : ListView.builder(
+                                padding: const EdgeInsets.all(12),
+                                itemCount:
+                                cfaProvider.stockData.length,
+                                itemBuilder: (context, index) {
+                                  final vfsStock =
+                                  cfaProvider.stockData[index];
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 6),
+                                    child: Padding(
+                                      padding:
+                                      const EdgeInsets.all(12.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          // Location Name Heading
+                                          Text(
+                                            "Location Name: ${vfsStock.locationName}",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 8),
+                                          // Column Headers
+                                          Container(
+                                            padding: const EdgeInsets
+                                                .symmetric(
+                                                vertical: 8,
+                                                horizontal: 8),
+                                            decoration: BoxDecoration(
+                                              color: Colors
+                                                  .blueGrey.shade100,
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                  12),
+                                            ),
+                                            child: Row(
+                                              children: const [
+                                                Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                        "Product",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight
+                                                                .bold))),
+                                                Expanded(
+                                                    flex: 1,
+                                                    child: Text("Pack",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight.bold))),
+                                                Expanded(
+                                                    flex: 1,
+                                                    child: Text("Bin",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight.bold))),
+                                                Expanded(
+                                                    flex: 1,
+                                                    child: Text("Qty",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                            FontWeight.bold))),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          // Stocks List
+                                          ...vfsStock.stocks.map((stock) {
+                                            return Container(
+                                              margin:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 2),
+                                              padding:
+                                              const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                Colors.blueGrey.shade50,
+                                                borderRadius:
+                                                BorderRadius.circular(
+                                                    12),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                      flex: 2,
+                                                      child: Text(stock
+                                                          .product
+                                                          ?.name ??
+                                                          "")),
+                                                  Expanded(
+                                                      flex: 1,
+                                                      child: Text(
+                                                          stock.packagingLevel)),
+                                                  Expanded(
+                                                      flex: 1,
+                                                      child: Text(stock
+                                                          .bin
+                                                          ?.name ??
+                                                          "")),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 4,
+                                                          horizontal: 6),
+                                                      decoration: BoxDecoration(
+                                                        color: (stock.qty ??
+                                                            0) >
+                                                            4
+                                                            ? Colors.green
+                                                            .withOpacity(0.2)
+                                                            : Colors.red
+                                                            .withOpacity(0.2),
+                                                        borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                      ),
+                                                      child: Text(
+                                                        (stock.qty ?? 0)
+                                                            .toString(),
+                                                        textAlign:
+                                                        TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                          color: (stock.qty ??
+                                                              0) >
+                                                              4
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      ),
+                                    ),
                                   );
                                 },
                               ),
@@ -234,7 +427,6 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
     );
   }
 
-  /// Initialize provider with correct userId or tsiId
   Future<void> _initProvider(TerritoryProvider provider, String? tsiId) async {
     final roleId = await SharedPrefsHelper.getRoleId();
     final userId = await SharedPrefsHelper.getUserId();

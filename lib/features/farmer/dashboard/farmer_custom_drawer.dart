@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/invite_earn_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/recommended_product_by_advisor.dart';
@@ -28,17 +29,15 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileProvider>(context, listen: false)
+          .fetchCustomerDetails(""); // pass token if required
+    });
   }
 
-  Future<void> _loadUserName() async {
-    final name = await SharedPrefsHelper.getUserName();
-    if (mounted) {
-      setState(() {
-        _userName = name?.isNotEmpty == true ? name! : "Guest User";
-      });
-    }
-  }
+
+
 
   /// ✅ Logout Confirmation + API call
   Future<void> _confirmLogout(BuildContext context) async {
@@ -51,22 +50,22 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const AutoTranslateText("Confirm Logout"),
+              title: const Text("Confirm Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  AutoTranslateText("Logging out..."),
+                  Text("Logging out..."),
                 ],
               )
-                  : const AutoTranslateText("Are you sure you want to log out?"),
+                  : const Text("Are you sure you want to log out?"),
               actions: [
                 TextButton(
                   onPressed: provider.isLoading
                       ? null
                       : () => Navigator.of(ctx).pop(false),
-                  child: const AutoTranslateText("Cancel"),
+                  child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
@@ -89,7 +88,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       );
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
+                        SnackBar(content: Text(provider.errorMessage!)),
                       );
                     }
                   },
@@ -99,7 +98,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const AutoTranslateText("Yes, Logout"),
+                      : const Text("Yes, Logout"),
                 ),
               ],
             );
@@ -167,15 +166,22 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                               SizedBox(
                                 width:
                                 MediaQuery.of(context).size.width * 0.4,
-                                child: Text(
-                                  _userName,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                                child: Consumer<ProfileProvider>(
+                                  builder: (context, profile, _) {
+                                    final name = profile.decryptedCustomerData?.name ?? "Guest User";
+
+                                    return Text(
+                                      name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    );
+                                  },
                                 ),
+
                               ),
                             ],
                           ),
@@ -189,7 +195,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: AutoTranslateText('Menu', style: TextStyle(fontSize: 16)),
+                        child: Text('Menu', style: TextStyle(fontSize: 16)),
                       ),
                       _drawerItem(context, Icons.history, 'History',
                           const HistoryScreen()),
@@ -210,15 +216,15 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                           Icons.production_quantity_limits,
                           'Product Recommendation',
                           const RecommendedProductsScreen()),
-                      _drawerItem(
-                          context,
-                          Icons.card_giftcard_sharp,
-                          'Spinner History',
-                          const SpinnerHistoryScreen()),
-                      const Divider(height: 32),
+                      // _drawerItem(
+                      //     context,
+                      //     Icons.card_giftcard_sharp,
+                      //     'Spinner History',
+                      //     const SpinnerHistoryScreen()),
+
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: AutoTranslateText('Account', style: TextStyle(fontSize: 16)),
+                        child: Text('Account', style: TextStyle(fontSize: 16)),
                       ),
                       _drawerItem(context, Icons.person_outline, 'Profile',
                           const ProfileScreen()),
@@ -228,22 +234,22 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4),
-                        child: AutoTranslateText('About', style: TextStyle(fontSize: 16)),
+                        child: Text('About', style: TextStyle(fontSize: 16)),
                       ),
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.black),
-                        title: const AutoTranslateText('LogOut'),
+                        title: const Text('LogOut'),
                         onTap: () => _confirmLogout(context),
                       ),
                       const Divider(height: 32),
                       const Padding(
                         padding: EdgeInsets.only(left: 4.0),
-                        child: AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
+                        child: Text('v 1.0.4', style: TextStyle(fontSize: 14)),
                       ),
                       const SizedBox(height: 20),
                       const Padding(
                         padding: EdgeInsets.only(left: 4.0),
-                        child: AutoTranslateText('© 2020 - 2025', style: TextStyle(fontSize: 14)),
+                        child: Text('© 2020 - 2025', style: TextStyle(fontSize: 14)),
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -261,7 +267,7 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
       BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
+      title: Text(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

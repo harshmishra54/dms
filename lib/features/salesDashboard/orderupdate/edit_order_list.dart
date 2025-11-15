@@ -218,7 +218,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                         color: Colors.grey.shade400),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: AutoTranslateText(
+                                  child: Text(
                                     selectedItem?.productName ??
                                         "Select Product",
                                     style: const TextStyle(fontSize: 15),

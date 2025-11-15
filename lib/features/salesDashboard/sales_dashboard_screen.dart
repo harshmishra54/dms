@@ -65,7 +65,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
   }
 
   void _startAutoSlide() {
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) { // wait 15 sec between slides
       if (!_pageController.hasClients) return;
 
       final currentPage = _pageController.page?.round() ?? 0;
@@ -73,10 +73,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
 
       _pageController.animateToPage(
         nextPage,
-        duration: const Duration(milliseconds: 1000),
+        duration: const Duration(seconds: 1), // 1-second smooth animation
         curve: Curves.easeInOut,
       );
     });
+
   }
 
   @override
@@ -305,7 +306,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                                     child: const VisitSection(),
                                   ),
 
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 8),
 
                                   // 🔹 Stories Section
                                   const StoriesSection(),
@@ -327,22 +328,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
 
                                   const SizedBox(height: 10),
 
-                                  // 🔹 Schemes Banner
-                                  if (channelData?.schemeBanners != null &&
-                                      channelData!.schemeBanners!.isNotEmpty)
-                                    const SchemesBanner()
-                                  else
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      alignment: Alignment.center,
-                                      child: const AutoTranslateText(
-                                        "No active schemes",
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    ),
-
-                                  // ✅ Extra bottom padding to avoid bottom bar overlap
-                                  SizedBox(height: kBottomNavigationBarHeight + 30),
                                 ],
                               ),
                             ),

@@ -13,6 +13,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_details
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/add_farmer_points_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_consideration_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_form_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_query_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
@@ -25,6 +26,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/notify_farmer_prov
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/product_recommendation_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/recommended_history_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/repeat_plan_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_farmer_new_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/retarget_gap_farmer_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/route_by_pincode_provider.dart';
@@ -69,6 +71,7 @@ import 'package:TrustTags_DMS/features/dashboard/provider/tsi_order_provider.dar
 import 'package:TrustTags_DMS/features/dashboard/widgets/distributor_new_order_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/provider/invite_earn_provider.dart';
 import 'package:TrustTags_DMS/features/farmer/provider/recommended_products_provider.dart';
+import 'package:TrustTags_DMS/features/farmer/provider/update_product_recommendation_provider.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/notifications/provider/notification_provider.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/retailers_screen.dart';
@@ -105,6 +108,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/my_leave_li
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/update_leave_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/all_focus_new_product_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/approve_distributor_registration_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/cfa_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/complete_all_route_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_by_Id_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
@@ -412,6 +416,10 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> SpinnerHistoryProvider()),
         ChangeNotifierProvider(create: (_)=> AdvocacyProvider()),
         ChangeNotifierProvider(create: (_)=> RouteByPincodeProvider()),
+        ChangeNotifierProvider(create: (_)=> RepeatPlanProvider()),
+        ChangeNotifierProvider(create: (_)=> UpdateRecommendationProvider()),
+        ChangeNotifierProvider(create: (_)=> FarmerConsiderationProvider()),
+        ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
 
 
       ],

@@ -22,18 +22,22 @@ class StoriesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: AutoTranslateText(
             "Top Stories",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        // const SizedBox(height: 8),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 80,
+          height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             itemCount: stories.length,
             itemBuilder: (context, index) {
               final story = stories[index];
@@ -45,35 +49,87 @@ class StoriesSection extends StatelessWidget {
                   if (mainImage.isNotEmpty) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => StoryFullScreen(
-                          imageUrl: mainImage,
-                        ),
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(milliseconds: 350),
+                        pageBuilder: (_, __, ___) =>
+                            StoryFullScreen(imageUrl: mainImage),
+                        transitionsBuilder: (_, anim, __, child) {
+                          return FadeTransition(opacity: anim, child: child);
+                        },
                       ),
                     );
                   }
                 },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.green, width: 2),
-                    image: thumbUrl.isNotEmpty
-                        ? DecorationImage(
-                      image: NetworkImage(thumbUrl),
-                      fit: BoxFit.cover,
-                    )
-                        : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Column(
+                    children: [
+                      // Story Bubble with Gradient Border
+                      Container(
+                        width: 82,
+                        height: 82,
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFFF58529),
+                              Color(0xFFDD2A7B),
+                              Color(0xFF8134AF),
+                              Color(0xFF515BD4),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 5,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                            image: thumbUrl.isNotEmpty
+                                ? DecorationImage(
+                              image: NetworkImage(thumbUrl),
+                              fit: BoxFit.cover,
+                            )
+                                : null,
+                          ),
+                          child: thumbUrl.isEmpty
+                              ? const Icon(Icons.image_not_supported,
+                              color: Colors.grey, size: 26)
+                              : null,
+                        ),
+                      ),
+
+                      const SizedBox(height: 2),
+
+                      // Optional Story Label (Shortened Title)
+                      SizedBox(
+                        width: 80,
+                        child: Text(
+                          story.caption ?? "Story",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: thumbUrl.isEmpty
-                      ? const Icon(Icons.image_not_supported, color: Colors.grey)
-                      : null,
                 ),
               );
             },
           ),
-        )
+        ),
       ],
     );
   }

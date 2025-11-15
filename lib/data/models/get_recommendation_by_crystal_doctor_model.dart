@@ -51,32 +51,38 @@ class RecommendedProduct {
   final String farmerId;
   final String createdBy;
   final List<Recommendation> recommendations;
+  bool? interested; // <--- must be mutable for UI
 
   RecommendedProduct({
     required this.id,
     required this.farmerId,
     required this.createdBy,
     required this.recommendations,
+    this.interested,
   });
 
   factory RecommendedProduct.fromJson(Map<String, dynamic>? json) {
-    final List<dynamic>? recList = json?['details'] as List<dynamic>?; // ✅ changed key from 'recommendations' → 'details'
+    final List<dynamic>? recList = json?['details'] as List<dynamic>?;
+
     return RecommendedProduct(
       id: json?['id'] ?? '',
-      farmerId: json?['farmer_id'] ?? '', // ✅ changed key from 'farmerId' → 'farmer_id'
+      farmerId: json?['farmer_id'] ?? '',
       createdBy: json?['created_by'] ?? '',
       recommendations: recList != null
           ? recList.map((e) => Recommendation.fromJson(e)).toList()
           : [],
+      interested: json?['interested_in'],
+      // <--- FIXED (backend spelling)
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'farmer_id': farmerId, // ✅ maintain correct key for API
+      'farmer_id': farmerId,
       'created_by': createdBy,
-      'details': recommendations.map((e) => e.toJson()).toList(), // ✅ match response key
+      'details': recommendations.map((e) => e.toJson()).toList(),
+      'intrested_in': interested, // <--- return same key to backend
     };
   }
 }

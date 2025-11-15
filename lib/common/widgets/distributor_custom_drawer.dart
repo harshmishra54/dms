@@ -106,49 +106,55 @@ class _DistributorCustomDrawerModalState
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const AutoTranslateText("Confirm Logout"),
+              title: const Text("Confirm Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  AutoTranslateText("Logging out..."),
+                  Text("Logging out..."),
                 ],
               )
-                  : const AutoTranslateText("Are you sure you want to log out?"),
+                  : const Text("Are you sure you want to log out?"),
               actions: [
                 TextButton(
                   onPressed:
                   provider.isLoading ? null : () => Navigator.pop(ctx, false),
-                  child: const AutoTranslateText("Cancel"),
+                  child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
                       ? null
                       : () async {
                     await provider.logout();
+
                     if (provider.logoutResponse != null) {
                       await SharedPrefsHelper.clearAll();
                       if (!mounted) return;
+
+                      // ✅ Close the dialog first
+                      Navigator.of(context, rootNavigator: true).pop();
+
+                      // ✅ Then navigate
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const LandingScreen()),
+                        MaterialPageRoute(builder: (_) => const LandingScreen()),
                             (route) => false,
                       );
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
+                        SnackBar(content: Text(provider.errorMessage!)),
                       );
                     }
                   },
+
                   child: provider.isLoading
                       ? const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      :  AutoTranslateText("Yes, Logout"),
+                      :  Text("Yes, Logout"),
                 ),
               ],
             );
@@ -245,7 +251,7 @@ class _DistributorCustomDrawerModalState
                             const Divider(height: 32),
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('Menu',
+                              child: Text('Menu',
                                   style: TextStyle(fontSize: 16)),
                             ),
                             _drawerItem(context, Icons.shopping_cart, 'My Orders', const DistributorHistoryScreen()),
@@ -258,18 +264,18 @@ class _DistributorCustomDrawerModalState
                                 Icons.card_giftcard_sharp,
                                 'Reward Claim History',
                                 const RewardClaimHistoryScreen()),
-                            _drawerItem(
-                                context,
-                                Icons.card_giftcard_sharp,
-                                'Spinner History',
-                                const SpinnerHistoryScreen()),
+                            // _drawerItem(
+                            //     context,
+                            //     Icons.card_giftcard_sharp,
+                            //     'Spinner History',
+                            //     const SpinnerHistoryScreen()),
 
                             _drawerItem(context, Icons.history, 'History',
                                 const HistoryScreen()),
                             const Divider(height: 32,),
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('Retailer Orders',
+                              child: Text('Retailer Orders',
                                   style: TextStyle(fontSize: 16)),
                             ),
                             _drawerItem(context, Icons.shopping_cart, 'Set Product Price',
@@ -308,7 +314,7 @@ class _DistributorCustomDrawerModalState
                             const Divider(height: 32),
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('Account',
+                              child: Text('Account',
                                   style: TextStyle(fontSize: 16)),
                             ),
                             _drawerItem(context, Icons.person_outline, 'Profile',
@@ -317,14 +323,14 @@ class _DistributorCustomDrawerModalState
                             const Divider(height: 32),
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('About',
+                              child: Text('About',
                                   style: TextStyle(fontSize: 16)),
                             ),
 
                             ListTile(
                               leading:
                               const Icon(Icons.logout, color: Colors.black),
-                              title:  AutoTranslateText('Logout'),
+                              title:  Text('Logout'),
                               onTap: () => _confirmLogout(context),
                             ),
 
@@ -332,12 +338,12 @@ class _DistributorCustomDrawerModalState
                             const Padding(
                               padding: EdgeInsets.only(left: 4.0),
                               child:
-                              AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
+                              Text('v 1.0.4', style: TextStyle(fontSize: 14)),
                             ),
                             const SizedBox(height: 20),
                             const Padding(
                               padding: EdgeInsets.only(left: 4.0),
-                              child: AutoTranslateText('© 2020 - 2025',
+                              child: Text('© 2020 - 2025',
                                   style: TextStyle(fontSize: 14)),
                             ),
                             const SizedBox(height: 20),
@@ -359,7 +365,7 @@ class _DistributorCustomDrawerModalState
       BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
+      title: Text(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

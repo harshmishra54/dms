@@ -26,6 +26,8 @@ class ScanHistoryItem {
   final String? schemeName;
   final String? createdAt;
   final Product? product;
+  final bool? isspinwheel;
+  final bool? isspin;
 
   ScanHistoryItem({
     this.id,
@@ -36,6 +38,8 @@ class ScanHistoryItem {
     this.schemeName,
     this.createdAt,
     this.product,
+    this.isspinwheel,
+    this.isspin,
   });
 
   factory ScanHistoryItem.fromJson(Map<String, dynamic> json) {
@@ -50,6 +54,8 @@ class ScanHistoryItem {
       product: json['product'] != null
           ? Product.fromJson(json['product'])
           : null,
+      isspinwheel: json['is_spin_wheel'],
+      isspin: json['is_spinned'],
     );
   }
 }

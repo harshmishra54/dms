@@ -1,6 +1,7 @@
 class ApiEndpoints {
   static const String baseUrl = 'http://192.168.1.9:3001';
-//parijat-api-dev.trusttags.in
+//https://seeds-dev-api.trusttags.in
+  //http://192.168.1.9:3001
   // Auth
   static const String sendOtp = '/send-otp-channel';
   static const String verifyOtp = '/verify-otp-channel';
@@ -128,9 +129,10 @@ class ApiEndpoints {
   static const String spinnerhistory="/pwa/get-spinner-history";
   static const String getAdvocacy="/pwa/get-advocasy";
   static const String getRoutebyPincode="/pwa/get-route-by-pincode";
-
-
-
+  static const String repeatBeatplan="/pwa/repeat-plan";
+  static const String updateproductrecommendation="/pwa/update-recom";
+  static const String consideration="/pwa/get-consideration";
+  static const String cnfstock="/pwa/get-cfa-stock";
 
 
 }

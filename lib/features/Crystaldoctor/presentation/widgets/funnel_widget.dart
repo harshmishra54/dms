@@ -43,10 +43,17 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
             return const Center(child: AutoTranslateText("No farmers found."));
           }
 
-          // Group farmers by status for funnel
+          // ---- Group Farmers by Latest Entry Status ----
           final Map<String, List<FarmerFunnelData>> funnelMap = {};
+
           for (var farmer in funnelData) {
-            final status = farmer.status ?? "Unknown";
+            String status = "Unknown";
+
+            // Pick latest entry's status if exists
+            if (farmer.entries != null && farmer.entries!.isNotEmpty) {
+              status = farmer.entries!.last.status ?? "Unknown";
+            }
+
             if (!funnelMap.containsKey(status)) {
               funnelMap[status] = [];
             }
@@ -59,7 +66,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Funnel Summary at the top
+                /// ---- Funnel Summary ----
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
@@ -89,7 +96,7 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
 
                 const SizedBox(height: 12),
 
-                // Detailed List per Stage
+                /// ---- Detailed farmer list per stage ----
                 ...stages.map((stage) {
                   final farmers = funnelMap[stage]!;
                   return ExpansionTile(
@@ -101,108 +108,111 @@ class _FarmerFunnelDashboardState extends State<FarmerFunnelDashboard> {
                     ),
                     children: farmers.map((farmer) {
                       return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                        margin:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              /// --- Farmer Basic Info ---
                               AutoTranslateText(
                                 farmer.farmerName ?? "",
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                              AutoTranslateText('Mobile: ${farmer.mobileNumber ?? ""}'),
-                              if (farmer.villageName != null)
-                                AutoTranslateText('Village: ${farmer.villageName}'),
-                              const SizedBox(height: 6),
+                              AutoTranslateText(
+                                  'Mobile: ${farmer.mobileNumber ?? ""}'),
 
-                              // Crops & Products
-                              if (farmer.crops != null &&
-                                  farmer.crops!.isNotEmpty)
+                              const SizedBox(height: 10),
+
+                              /// --- Loop Entries → Crops → Products ---
+                              if (farmer.entries != null &&
+                                  farmer.entries!.isNotEmpty)
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const AutoTranslateText('Crops & Products:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 4),
-                                    ...farmer.crops!.map((crop) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 2.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            AutoTranslateText('Crop: ${crop.cropName ?? ""}'),
-                                            if (crop.products != null &&
-                                                crop.products!.isNotEmpty)
-                                              Padding(
-                                                padding:
-                                                const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                                  children: crop.products!
-                                                      .map((product) => AutoTranslateText(
-                                                      '- ${product.productName ?? ""}'))
-                                                      .toList(),
+                                    const AutoTranslateText(
+                                      'Entries:',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 6),
+
+                                    ...farmer.entries!.map((entry) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          AutoTranslateText(
+                                              "Status: ${entry.status ?? 'N/A'}"),
+                                          AutoTranslateText(
+                                              "Date: ${entry.createdAt ?? ''}"),
+
+                                          const SizedBox(height: 6),
+
+                                          /// Crops inside entry
+                                          if (entry.crops != null &&
+                                              entry.crops!.isNotEmpty)
+                                            Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                                const AutoTranslateText(
+                                                  "Crops:",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold),
                                                 ),
-                                              ),
-                                          ],
-                                        ),
+                                                const SizedBox(height: 4),
+
+                                                ...entry.crops!.map((crop) {
+                                                  return Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 4.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        AutoTranslateText(
+                                                            "• Crop: ${crop.cropName ?? ''}"),
+
+                                                        /// Products inside crop
+                                                        if (crop.products !=
+                                                            null &&
+                                                            crop.products!
+                                                                .isNotEmpty)
+                                                          Padding(
+                                                            padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                left: 12.0),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: crop
+                                                                  .products!
+                                                                  .map((p) =>
+                                                                  AutoTranslateText(
+                                                                      "- ${p.productName ?? ''}"))
+                                                                  .toList(),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ],
+                                            ),
+
+                                          const Divider(),
+                                        ],
                                       );
                                     }).toList(),
-                                  ],
-                                ),
-
-                              const SizedBox(height: 6),
-
-                              // Queries
-                              if (farmer.queries != null &&
-                                  farmer.queries!.isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const AutoTranslateText('Queries:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 4),
-                                    ...farmer.queries!.map((query) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: query.details!
-                                              .map((detail) => AutoTranslateText(
-                                              '- ${detail.productName ?? ""} | Crop: ${detail.crop ?? ""} | Qty: ${detail.quantity ?? ""}'))
-                                              .toList(),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ],
-                                ),
-
-                              const SizedBox(height: 6),
-
-                              // Recommended Products
-                              if (farmer.recommendedProducts != null &&
-                                  farmer.recommendedProducts!.isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const AutoTranslateText('Recommended Products:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 4),
-                                    ...farmer.recommendedProducts!
-                                        .map((p) => AutoTranslateText('- $p'))
-                                        .toList(),
                                   ],
                                 ),
                             ],

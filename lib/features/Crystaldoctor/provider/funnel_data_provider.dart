@@ -28,42 +28,61 @@ class FarmerFunnelProvider with ChangeNotifier {
 
       if (token == null || userId == null) {
         _errorMessage = "User not logged in.";
+        _farmerFunnel = null; // ✅ clear stale data
         _isLoading = false;
         notifyListeners();
         return;
       }
 
-      // Prepare headers
       final headers = {
         'x-access-token': token,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
       };
 
-      // Prepare request body
       final requestBody = {
         "created_by": userId,
       };
 
-      // Make API call
       final response = await _dioClient.post(
         ApiEndpoints.getfunneldata,
         data: requestBody,
-        options: Options(
-          headers: headers,
-        ),
+        options: Options(headers: headers),
       );
 
       if (response.statusCode == 200 && response.data['success'] == 1) {
-        _farmerFunnel = FarmerFunnelResponse.fromJson(response.data);
+        final data = FarmerFunnelResponse.fromJson(response.data);
+
+        // ✅ Safely check if data is null or empty
+        final funnelData = data.data;
+        if (funnelData == null ||
+            (funnelData is List && funnelData.isEmpty)) {
+          _farmerFunnel = null;
+          _errorMessage = "No funnel data found.";
+        } else {
+          _farmerFunnel = data;
+        }
       } else {
         _errorMessage = response.data['message'] ?? "Something went wrong.";
+        _farmerFunnel = null; // ✅ clear on failure
       }
+    } on DioException catch (e) {
+      _errorMessage = e.response?.data?['message'] ?? "Network error.";
+      _farmerFunnel = null;
     } catch (e) {
       _errorMessage = e.toString();
+      _farmerFunnel = null;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// ✅ Manually clear data (for logout, etc.)
+  void clear() {
+    _farmerFunnel = null;
+    _errorMessage = null;
+    notifyListeners();
   }
 }

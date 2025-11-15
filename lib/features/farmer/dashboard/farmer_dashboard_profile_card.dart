@@ -66,7 +66,7 @@ class _FarmerDashboardProfileCardState
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     final rewards = channelProvider.data?.data?.rewards;
-    final String points = rewards?.points?.toString() ?? '0';
+    final String points = rewards?.availablePoints?.toString() ?? '0';
     final String tier = 'GOLD';
     final String userName =
         profileProvider.decryptedCustomerData?.name ?? "User";

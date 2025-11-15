@@ -90,21 +90,21 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
         return Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
-              title: const AutoTranslateText("Confirm Logout"),
+              title: const Text("Confirm Logout"),
               content: provider.isLoading
                   ? Row(
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(width: 20),
-                  AutoTranslateText("Logging out..."),
+                  Text("Logging out..."),
                 ],
               )
-                  : const AutoTranslateText("Are you sure you want to log out?"),
+                  : const Text("Are you sure you want to log out?"),
               actions: [
                 TextButton(
                   onPressed:
                   provider.isLoading ? null : () => Navigator.pop(context),
-                  child: const AutoTranslateText("Cancel"),
+                  child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: provider.isLoading
@@ -125,7 +125,7 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
                       }
                     } else if (provider.errorMessage != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
+                        SnackBar(content: Text(provider.errorMessage!)),
                       );
                     }
                   },
@@ -135,7 +135,7 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const AutoTranslateText("Yes"),
+                      : const Text("Yes"),
                 ),
               ],
             );
@@ -235,7 +235,7 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
 
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('Menu',
+                              child: Text('Menu',
                                   style: TextStyle(fontSize: 16)),
                             ),
                             _drawerItem(context, Icons.shopping_cart, 'My Orders', const DistributorHistoryScreen()),
@@ -260,7 +260,7 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
 
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: AutoTranslateText('Account',
+                              child: Text('Account',
                                   style: TextStyle(fontSize: 16)),
                             ),
                             _drawerItem(context, Icons.person_outline,
@@ -271,12 +271,12 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
                               child:
-                              AutoTranslateText('About', style: TextStyle(fontSize: 16)),
+                              Text('About', style: TextStyle(fontSize: 16)),
                             ),
                             ListTile(
                               leading: const Icon(Icons.logout,
                                   color: Colors.black),
-                              title: const AutoTranslateText('Log Out'),
+                              title: const Text('Log Out'),
                               onTap: _confirmLogout,
                             ),
 
@@ -285,12 +285,12 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
                             const Padding(
                               padding: EdgeInsets.only(left: 4.0),
                               child:
-                              AutoTranslateText('v 1.0.4', style: TextStyle(fontSize: 14)),
+                              Text('v 1.0.4', style: TextStyle(fontSize: 14)),
                             ),
                             const SizedBox(height: 20),
                             const Padding(
                               padding: EdgeInsets.only(left: 4.0),
-                              child: AutoTranslateText('© 2020 - 2025',
+                              child: Text('© 2020 - 2025',
                                   style: TextStyle(fontSize: 14)),
                             ),
                             const SizedBox(height: 20),
@@ -312,7 +312,7 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
       BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: AutoTranslateText(title, style: const TextStyle(fontSize: 15)),
+      title: Text(title, style: const TextStyle(fontSize: 15)),
       onTap: () {
         Navigator.pop(context);
         if (destination != null) {

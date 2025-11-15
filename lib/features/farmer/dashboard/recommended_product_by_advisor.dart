@@ -3,8 +3,10 @@ import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/get_recommendation_by_crystal_doctor_model.dart';
+import 'package:TrustTags_DMS/features/farmer/provider/update_product_recommendation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../provider/recommended_products_provider.dart';
 
 class RecommendedProductsScreen extends StatefulWidget {
@@ -15,7 +17,8 @@ class RecommendedProductsScreen extends StatefulWidget {
       _RecommendedProductsScreenState();
 }
 
-class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
+class _RecommendedProductsScreenState
+    extends State<RecommendedProductsScreen> {
   bool _isInit = true;
 
   @override
@@ -86,7 +89,8 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
         child: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.black87, size: 20),
               onPressed: () => Navigator.pop(context),
             ),
             const Expanded(
@@ -97,7 +101,6 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                   color: Colors.black87,
                   fontWeight: FontWeight.w600,
                   fontSize: 18,
-                  letterSpacing: 0.3,
                 ),
               ),
             ),
@@ -144,11 +147,8 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                 color: Colors.red[50],
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.error_outline_rounded,
-                size: 56,
-                color: Colors.red[400],
-              ),
+              child: Icon(Icons.error_outline_rounded,
+                  size: 56, color: Colors.red[400]),
             ),
             const SizedBox(height: 24),
             AutoTranslateText(
@@ -177,14 +177,11 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.topBarColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0,
               ),
             ),
           ],
@@ -202,15 +199,12 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
+              decoration: const BoxDecoration(
+                color: Color(0xFFF5F5F5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.inventory_2_outlined,
-                size: 64,
-                color: Colors.grey[400],
-              ),
+              child: Icon(Icons.inventory_2_outlined,
+                  size: 64, color: Colors.grey[400]),
             ),
             const SizedBox(height: 24),
             AutoTranslateText(
@@ -224,12 +218,12 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             const SizedBox(height: 12),
             AutoTranslateText(
               'Check back later for personalized\nproduct recommendations',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
                 height: 1.5,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -246,14 +240,17 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
         itemCount: products.length,
         separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
-          final product = products[index];
-          return _buildProductCard(product, index);
+          return _buildProductCard(products[index], index);
         },
       ),
     );
   }
 
   Widget _buildProductCard(RecommendedProduct product, int index) {
+    final List<Recommendation> details = product.recommendations;
+
+    debugPrint("INTERESTED = ${product.interested}");
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -269,22 +266,18 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with gradient
+          // header
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.topBarColor!.withOpacity(0.1),
+                  AppColors.topBarColor!.withOpacity(0.10),
                   AppColors.topBarColor!.withOpacity(0.05),
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
+              borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Row(
               children: [
@@ -293,19 +286,9 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.topBarColor,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.topBarColor!.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
-                  child: const Icon(
-                    Icons.recommend_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.recommend_rounded,
+                      color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -320,9 +303,8 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                           color: Colors.grey[800],
                         ),
                       ),
-                      const SizedBox(height: 4),
                       AutoTranslateText(
-                        '${product.recommendations.length} product${product.recommendations.length != 1 ? 's' : ''} suggested',
+                        '${details.length} product(s) suggested',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[600],
@@ -335,40 +317,114 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             ),
           ),
 
-          // Products list
+          // product details
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (product.recommendations.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: AutoTranslateText(
-                        'No products available',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[500],
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  ...product.recommendations.asMap().entries.map((entry) {
-                    final rec = entry.value;
-                    final isLast = entry.key == product.recommendations.length - 1;
-                    return Column(
-                      children: [
-                        _buildProductItem(rec),
-                        if (!isLast) const SizedBox(height: 12),
-                      ],
-                    );
-                  }).toList(),
-              ],
+              children: details
+                  .map((rec) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildProductItem(rec),
+              ))
+                  .toList(),
             ),
           ),
+
+          // YES/NO only if null
+          if (product.interested == null)
+            Padding(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Consumer<UpdateRecommendationProvider>(
+                builder: (context, upd, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoTranslateText(
+                        "Are you interested in this recommendation?",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: upd.isLoading
+                                  ? null
+                                  : () async {
+                                bool ok =
+                                await upd.updateRecommendation(
+                                  queryId: product.id,
+                                  interestedIn: true,
+                                );
+                                if (ok) _loadRecommendations();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: upd.isLoading
+                                  ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                                  : const Text("Yes"),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: upd.isLoading
+                                  ? null
+                                  : () async {
+                                bool ok =
+                                await upd.updateRecommendation(
+                                  queryId: product.id,
+                                  interestedIn: false,
+                                );
+                                if (ok) _loadRecommendations();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: upd.isLoading
+                                  ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                                  : const Text("No"),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -393,11 +449,8 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
                   color: AppColors.topBarColor!.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.grass_outlined,
-                  size: 20,
-                  color: AppColors.topBarColor,
-                ),
+                child: Icon(Icons.grass_outlined,
+                    size: 20, color: AppColors.topBarColor),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -413,17 +466,19 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.eco_outlined, 'Crop', rec.crop),
+          _buildInfoRow(Icons.eco_outlined, "Crop", rec.crop),
           const SizedBox(height: 8),
-          _buildInfoRow(Icons.inventory_2_outlined, 'Quantity', rec.quantity),
+          _buildInfoRow(Icons.inventory_2_outlined, "Quantity", rec.quantity),
           const SizedBox(height: 8),
-          _buildInfoRow(Icons.info_outline, 'Reason', rec.reason, isReason: true),
+          _buildInfoRow(Icons.info_outline, "Reason", rec.reason,
+              isReason: true),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {bool isReason = false}) {
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      {bool isReason = false}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -434,7 +489,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: '$label: ',
+                  text: "$label: ",
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

@@ -10,6 +10,7 @@ import '../../scan/providers/scan_provider.dart';
 import '../../scan/models/scan_post_data.dart';
 import '../../../core/utils/shared_prefs_helper.dart';
 import '../../scan/providers/product_level_provider.dart';
+import 'package:TrustTags_DMS/features/scan/models/scan_response.dart';
 
 class RetailerScanQRScreen extends StatefulWidget {
   const RetailerScanQRScreen({super.key});
@@ -214,35 +215,41 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     );
 
     final validateRes = await scanProvider.validateUID(token, postData);
-    String? spinnerId = validateRes.data is String
-        ? validateRes.data as String
-        : null;
 
-// ✅ If segments exist → Open Spinner
-    if (spinnerId != null && validateRes.segments != null &&
+    // Handle Spinner response case
+    if (validateRes.data is String &&
+        validateRes.segments != null &&
         validateRes.segments!.isNotEmpty) {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              SpinnerWidget(
-                spinnerId: spinnerId,
-                segments: validateRes.segments!,
-              ),
+          builder: (_) => SpinnerWidget(
+            spinnerId: validateRes.data as String,
+            segments: validateRes.segments!,
+          ),
         ),
       );
 
-      (_scannerKey.currentState as dynamic).resetScanner();
+      _restartOuterScanner();
       return;
     }
 
-    if (validateRes.success == 1 && validateRes.data != null) {
+    // ✅ Convert to SchemeData safely if data is Map
+    SchemeData? schemeData;
+    if (validateRes.data is Map<String, dynamic>) {
+      schemeData = SchemeData.fromJson(validateRes.data);
+    }
+
+    // ✅ Now handle success & failure properly
+    if (validateRes.success == 1 && schemeData != null) {
       _showScanResultDialog(
         isValid: true,
-        productName: validateRes.data?.productName ?? "Unknown Product",
-        productUID: validateRes.data?.schemeUID ?? outerCode,
-        points: validateRes.data?.points?.toString() ?? "0",
-        message: validateRes.message.isNotEmpty
+        productName: schemeData.productName ?? "Unknown Product",
+        productUID: schemeData.schemeUID ?? outerCode,
+        points: (schemeData.points ?? 0).toString(),
+        message: schemeData.message?.isNotEmpty == true
+            ? schemeData.message!
+            : validateRes.message.isNotEmpty
             ? validateRes.message
             : "Scan successful",
       );
@@ -250,7 +257,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       _showScanResultDialog(
         isValid: false,
         productName: "Not Valid",
-        productUID: validateRes.data?.schemeUID ?? outerCode,
+        productUID: outerCode,
         points: "0",
         message: validateRes.message.isNotEmpty
             ? validateRes.message

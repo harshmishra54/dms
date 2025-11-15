@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/farmer_funnel_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_meeting.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/fill_details_form.dart';
@@ -12,6 +13,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_b
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/crystal_doctor_custom_drawer.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/funnelactivity_carausel.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_consideration_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:TrustTags_DMS/features/home/widgets/discover_carousel.dart';
@@ -42,17 +44,28 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
   int _expandedStage = -1;
   bool _isFirstLoad = true;
 
+
+
   @override
   void initState() {
     super.initState();
     _fetchData();
   }
 
-  void _fetchData() {
+  void _fetchData() async {
+    final createdBy = await SharedPrefsHelper.getUserId(); // ✅ await the future
+
     context.read<DashboardProvider>().fetchDashboardData();
     context.read<ChannelPerformanceProvider>().fetchChannelPerformance();
     context.read<FarmerFunnelProvider>().fetchFarmerFunnel();
-    context.read<AdvocacyProvider>().fetchAdvocacy(); // ✅ added
+    context.read<AdvocacyProvider>().fetchAdvocacy();
+    context.read<PurchaseDataProvider>().fetchPurchaseData();
+
+    if (createdBy != null) {
+      context.read<FarmerConsiderationProvider>().fetchConsideration(
+        createdBy: createdBy,
+      );
+    }
   }
 
 
@@ -164,29 +177,29 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
     }
 
     final farmers = funnelData.data!;
-    final totalFarmers = farmers.length;
 
-    final farmersWithQueries = farmers
-        .where((f) => f.queries != null && f.queries!.isNotEmpty)
-        .length;
+    // Awareness = total unique farmers
+    final awareness = farmers.length;
 
-    final farmersWithRecommendations = farmers
-        .where((f) =>
-    f.recommendedProducts != null && f.recommendedProducts!.isNotEmpty)
-        .length;
+    // Consideration = farmers in FarmerConsiderationProvider
+    final considerationProvider = context.read<FarmerConsiderationProvider>();
+    final consideration = considerationProvider.farmers.length;
 
-    final purchaseCount = purchaseProvider.purchaseList.length;
-    final retentionCount=purchaseProvider.repeatPurchaseList.length;
+    // Purchase = total purchase farmers
+    final purchase = purchaseProvider.purchaseList.length;
 
-    // ✅ API based advocacy count
-    final advocacyCount = context.read<AdvocacyProvider>().advocacyCount;
+    // Retention = repeat purchase farmers
+    final retention = purchaseProvider.repeatPurchaseList.length;
+
+    // Advocacy = API count from provider
+    final advocacy = context.read<AdvocacyProvider>().advocacyCount;
 
     return FunnelMetrics(
-      awareness: totalFarmers,
-      consideration: farmersWithQueries,
-      purchase: purchaseCount,
-      retention: retentionCount,
-      advocacy:advocacyCount, // ✅ Updated
+      awareness: awareness,
+      consideration: consideration,
+      purchase: purchase,
+      retention: retention,
+      advocacy: advocacy,
     );
   }
 

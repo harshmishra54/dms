@@ -252,7 +252,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         items: ["Date → Users", "User → Dates"].map((mode) {
                           return DropdownMenuItem(
                             value: mode,
-                            child: AutoTranslateText(mode, style: const TextStyle(fontSize: 14)),
+                            child: Text(mode, style: const TextStyle(fontSize: 14)),
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => selectedMode = val!),
@@ -275,7 +275,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         items: ["Distributor", "Retailer"].map((type) {
                           return DropdownMenuItem(
                             value: type,
-                            child: AutoTranslateText(type, style: const TextStyle(fontSize: 14)),
+                            child: Text(type, style: const TextStyle(fontSize: 14)),
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => selectedUserType = val!),
@@ -459,11 +459,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: CheckboxListTile(
             value: selectedUsers.contains(user["id"]),
-            title: AutoTranslateText(
+            title: Text(
               user["name"]!,
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
-            subtitle: user["phone"]!.isNotEmpty ? AutoTranslateText(user["phone"]!) : null,
+            subtitle: user["phone"]!.isNotEmpty ? Text(user["phone"]!) : null,
             secondary: const Icon(Icons.person, color: Colors.blueGrey),
             activeColor: Colors.green,
             onChanged: (_) => _toggleUser(user["id"]!, selectedUsers),
@@ -500,11 +500,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AutoTranslateText(name,
+                          Text(name,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w600, fontSize: 15)),
                           if (phone.isNotEmpty)
-                            AutoTranslateText(phone,
+                            Text(phone,
                                 style: const TextStyle(color: Colors.grey)),
                         ],
                       ),
@@ -523,7 +523,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                   runSpacing: -6,
                   children: userDates
                       .map((d) => Chip(
-                    label: AutoTranslateText("${d.toLocal()}".split(' ')[0]),
+                    label: Text("${d.toLocal()}".split(' ')[0]),
                     avatar: const Icon(Icons.date_range,
                         size: 16, color: Colors.green),
                     deleteIcon: const Icon(Icons.close,

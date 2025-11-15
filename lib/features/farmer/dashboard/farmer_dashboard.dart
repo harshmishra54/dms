@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
 import 'package:flutter/services.dart'; // for SystemNavigator.pop
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +49,12 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // ✅ FORCE CALL CHANNEL PERFORMANCE API ON EVERY DASHBOARD OPEN
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ChannelPerformanceProvider>(context, listen: false)
+          .fetchChannelPerformance();
+    });
   }
 
   void _openRecommendationScreen() {

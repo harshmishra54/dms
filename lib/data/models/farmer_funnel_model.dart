@@ -5,16 +5,6 @@ FarmerFunnelResponse farmerFunnelResponseFromJson(String str) =>
 
 String farmerFunnelResponseToJson(FarmerFunnelResponse data) =>
     json.encode(data.toJson());
-class FarmerFunnelRequest {
-  final String createdBy;
-
-  FarmerFunnelRequest({required this.createdBy});
-
-  Map<String, dynamic> toJson() => {
-    "created_by": createdBy,
-  };
-}
-
 
 class FarmerFunnelResponse {
   final int? success;
@@ -47,77 +37,81 @@ class FarmerFunnelResponse {
 }
 
 class FarmerFunnelData {
-  final String? id;
   final String? farmerName;
   final String? mobileNumber;
-  final String? villageName;
-  final String? createdBy;
+  final List<FunnelEntry>? entries;
+
+  FarmerFunnelData({
+    this.farmerName,
+    this.mobileNumber,
+    this.entries,
+  });
+
+  factory FarmerFunnelData.fromJson(Map<String, dynamic> json) =>
+      FarmerFunnelData(
+        farmerName: json["farmer_name"],
+        mobileNumber: json["mobile_number"],
+        entries: json["entries"] == null
+            ? []
+            : List<FunnelEntry>.from(
+            json["entries"].map((x) => FunnelEntry.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "farmer_name": farmerName,
+    "mobile_number": mobileNumber,
+    "entries": entries == null
+        ? []
+        : List<dynamic>.from(entries!.map((x) => x.toJson())),
+  };
+}
+
+/// EACH ENTRY
+class FunnelEntry {
+  final String? id;
   final List<Crop>? crops;
   final String? status;
   final String? latitude;
   final String? longitude;
   final String? meetingId;
   final String? createdAt;
-  final List<Query>? queries;
-  final List<dynamic>? recommendedProducts;
 
-  FarmerFunnelData({
+  FunnelEntry({
     this.id,
-    this.farmerName,
-    this.mobileNumber,
-    this.villageName,
-    this.createdBy,
     this.crops,
     this.status,
     this.latitude,
     this.longitude,
     this.meetingId,
     this.createdAt,
-    this.queries,
-    this.recommendedProducts,
   });
 
-  factory FarmerFunnelData.fromJson(Map<String, dynamic> json) =>
-      FarmerFunnelData(
-        id: json["id"],
-        farmerName: json["farmer_name"],
-        mobileNumber: json["mobile_number"],
-        villageName: json["village_name"],
-        createdBy: json["created_by"],
-        crops: json["crops"] == null
-            ? []
-            : List<Crop>.from(json["crops"].map((x) => Crop.fromJson(x))),
-        status: json["status"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
-        meetingId: json["meeting_id"],
-        createdAt: json["created_at"],
-        queries: json["queries"] == null
-            ? []
-            : List<Query>.from(json["queries"].map((x) => Query.fromJson(x))),
-        recommendedProducts: json["recommended_products"] ?? [],
-      );
+  factory FunnelEntry.fromJson(Map<String, dynamic> json) => FunnelEntry(
+    id: json["id"],
+    crops: json["crops"] == null
+        ? []
+        : List<Crop>.from(json["crops"].map((x) => Crop.fromJson(x))),
+    status: json["status"],
+    latitude: json["latitude"],
+    longitude: json["longitude"],
+    meetingId: json["meeting_id"],
+    createdAt: json["created_at"],
+  );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "farmer_name": farmerName,
-    "mobile_number": mobileNumber,
-    "village_name": villageName,
-    "created_by": createdBy,
-    "crops":
-    crops == null ? [] : List<dynamic>.from(crops!.map((x) => x.toJson())),
+    "crops": crops == null
+        ? []
+        : List<dynamic>.from(crops!.map((x) => x.toJson())),
     "status": status,
     "latitude": latitude,
     "longitude": longitude,
     "meeting_id": meetingId,
     "created_at": createdAt,
-    "queries": queries == null
-        ? []
-        : List<dynamic>.from(queries!.map((x) => x.toJson())),
-    "recommended_products": recommendedProducts ?? [],
   };
 }
 
+/// CROPS MODEL
 class Crop {
   final List<Product>? products;
   final String? cropName;
@@ -151,6 +145,7 @@ class Crop {
   };
 }
 
+/// PRODUCT MODEL
 class Product {
   final String? remarks;
   final String? productName;
@@ -188,66 +183,5 @@ class Product {
     "currently_using": currentlyUsing,
     "expected_dealer": expectedDealer,
     "expected_quantity": expectedQuantity,
-  };
-}
-
-class Query {
-  final String? id;
-  final String? createdBy;
-  final String? farmerId;
-  final List<QueryDetail>? details;
-
-  Query({
-    this.id,
-    this.createdBy,
-    this.farmerId,
-    this.details,
-  });
-
-  factory Query.fromJson(Map<String, dynamic> json) => Query(
-    id: json["id"],
-    createdBy: json["created_by"],
-    farmerId: json["farmer_id"],
-    details: json["details"] == null
-        ? []
-        : List<QueryDetail>.from(
-        json["details"].map((x) => QueryDetail.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "created_by": createdBy,
-    "farmer_id": farmerId,
-    "details": details == null
-        ? []
-        : List<dynamic>.from(details!.map((x) => x.toJson())),
-  };
-}
-
-class QueryDetail {
-  final String? productName;
-  final String? crop;
-  final String? quantity;
-  final String? reason;
-
-  QueryDetail({
-    this.productName,
-    this.crop,
-    this.quantity,
-    this.reason,
-  });
-
-  factory QueryDetail.fromJson(Map<String, dynamic> json) => QueryDetail(
-    productName: json["product_name"],
-    crop: json["crop"],
-    quantity: json["quantity"],
-    reason: json["reason"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "product_name": productName,
-    "crop": crop,
-    "quantity": quantity,
-    "reason": reason,
   };
 }

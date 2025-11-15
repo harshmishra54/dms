@@ -412,7 +412,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data == 23) {
                 return IconButton(
-                  icon: const Icon(Icons.settings_suggest, color: Color(0xFF8E2DE2)),
+                  icon: const Icon(Icons.recommend, color: Color(0xFF8E2DE2)),
                   tooltip: "View Recommended Products",
                   onPressed: () {
                     Navigator.push(

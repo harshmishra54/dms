@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:TrustTags_DMS/core/network/api_endpoints.dart';
 import 'package:TrustTags_DMS/data/models/general_query_request.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_request.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class SmartProductRecommendationProvider extends ChangeNotifier {
   // -------------------------
   // Node server base URL
   // -------------------------
-  final String baseUrl = "http://192.168.1.210:3000"; // Update if hosted elsewhere
+  final String baseUrl = ApiEndpoints.baseUrl; // Update if hosted elsewhere
 
   // -------------------------
   // Fetch Product Recommendations
@@ -34,7 +35,7 @@ class SmartProductRecommendationProvider extends ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/recommend"),
+        Uri.parse("$baseUrl/ai/recommend"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(request.toJson()),
       );
@@ -64,7 +65,7 @@ class SmartProductRecommendationProvider extends ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/agri_query"),
+        Uri.parse("$baseUrl/ai/agri_query"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(request.toJson()),
       );

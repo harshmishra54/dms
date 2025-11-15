@@ -17,15 +17,15 @@ class LogoutProvider extends ChangeNotifier {
 
   final DioClient _dioClient = DioClient();
 
-  /// ✅ Method to manually control loading state
+  /// ✅ Manually control loading state
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  /// Logout API call
+  /// ✅ Logout API call
   Future<void> logout() async {
-    setLoading(true); // start loading
+    setLoading(true);
     _errorMessage = null;
 
     try {
@@ -58,8 +58,16 @@ class LogoutProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         _logoutResponse = LogoutResponse.fromJson(response.data);
-        // Clear shared preferences after logout
+
+        // ✅ Clear all stored preferences on logout
         await SharedPrefsHelper.clearAll();
+
+        // ✅ (Extra safety) Clear cached provider data if any
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+          notifyListeners(); // force refresh any UI still referencing old data
+        });
+
       } else {
         _errorMessage = "Failed to logout. Please try again.";
       }
@@ -68,7 +76,7 @@ class LogoutProvider extends ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false);
     }
   }
 }

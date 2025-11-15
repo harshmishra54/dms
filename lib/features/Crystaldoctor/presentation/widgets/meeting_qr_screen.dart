@@ -33,7 +33,7 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final whatsappNumber = "918085742922";
+    final whatsappNumber = "918810508467";
 
     if (meetingId == null) {
       return Scaffold(
@@ -143,7 +143,7 @@ class _MeetingQrScreenState extends State<MeetingQrScreen> {
                     ),
                     const SizedBox(height: 12),
                     const AutoTranslateText(
-                      "WhatsApp Bot: +91 8085742922",
+                      "WhatsApp Bot: +91 8810508467",
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
