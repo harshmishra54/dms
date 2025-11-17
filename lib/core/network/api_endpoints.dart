@@ -1,5 +1,5 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://192.168.1.9:3001';
+  static const String baseUrl = 'https://seeds-dev-api.trusttags.in';
 //https://seeds-dev-api.trusttags.in
   //http://192.168.1.9:3001
   // Auth
@@ -133,6 +133,7 @@ class ApiEndpoints {
   static const String updateproductrecommendation="/pwa/update-recom";
   static const String consideration="/pwa/get-consideration";
   static const String cnfstock="/pwa/get-cfa-stock";
+  static const String addpurchaseprod="/pwa/add-purchase-prod";
 
 
 }

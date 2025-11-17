@@ -1078,12 +1078,12 @@ class _RecommendationScreenState extends State<RecommendationScreen>
           ),
           const SizedBox(height: 12),
           _buildInfoRow(Icons.eco, "Crop", rec.crop),
-          if (rec.disease.isNotEmpty)
-            _buildInfoRow(Icons.bug_report, "Disease", rec.disease),
-          if (rec.dosage != null && rec.dosage!.isNotEmpty)
-            _buildInfoRow(Icons.medication, "Dosage", rec.dosage!),
-          if (rec.waterVolume != null && rec.waterVolume!.isNotEmpty)
-            _buildInfoRow(Icons.water_drop, "Water Volume", rec.waterVolume!),
+          // if (rec.disease.isNotEmpty)
+          //   _buildInfoRow(Icons.bug_report, "Disease", rec.disease),
+          // if (rec.dosage != null && rec.dosage!.isNotEmpty)
+          //   _buildInfoRow(Icons.medication, "Dosage", rec.dosage!),
+          // if (rec.waterVolume != null && rec.waterVolume!.isNotEmpty)
+          //   _buildInfoRow(Icons.water_drop, "Water Volume", rec.waterVolume!),
           if (rec.features.isNotEmpty) ...[
             const SizedBox(height: 8),
             const AutoTranslateText(

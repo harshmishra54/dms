@@ -30,7 +30,7 @@ class SchemesTabCardGrid extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: Image.asset(
-                  'assets/images/trust_tags.png',
+                  'assets/images/VNR_logo.jpeg',
                   height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,

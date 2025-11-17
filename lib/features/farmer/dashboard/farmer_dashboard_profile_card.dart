@@ -154,7 +154,7 @@ class _FarmerDashboardProfileCardState
                     const CircleAvatar(
                       radius: 28,
                       backgroundImage: AssetImage(
-                          "assets/images/trust_tags.png"),
+                          "assets/images/VNR_logo.jpeg"),
                     ),
                     const SizedBox(height: 6),
                     AutoTranslateText(

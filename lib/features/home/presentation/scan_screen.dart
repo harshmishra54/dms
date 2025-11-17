@@ -21,6 +21,8 @@ class ScanQRScreen extends StatefulWidget {
 class _ScanQRScreenState extends State<ScanQRScreen> {
   String scannedUID = '';
   bool _isLoading = false; // ✅ loader flag
+  bool _isDialogOpen = false;
+
   final TextEditingController _manualController = TextEditingController();
 
   final GlobalKey<State<ReusableQRScanner>> _scannerKey =
@@ -88,7 +90,12 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _isDialogOpen = false; // ▶️ allow scanning again
+                      (_scannerKey.currentState as dynamic).resetScanner();
+                    },
+
                     child: const AutoTranslateText(
                       'Okay',
                       style: TextStyle(
@@ -129,6 +136,9 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
   }
 
   Future<void> _handleScan(BuildContext context, String uid) async {
+    if (_isDialogOpen) return; // ⛔ BLOCK repeated scans
+
+    _isDialogOpen = true;
     setState(() {
       scannedUID = uid;
       _isLoading = true; // ✅ show loader

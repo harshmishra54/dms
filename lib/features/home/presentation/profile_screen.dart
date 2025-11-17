@@ -251,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     borderRadius:
                                     BorderRadius.circular(30),
                                     child: Image.asset(
-                                      'assets/images/trust_tags.png',
+                                      'assets/images/VNR_logo.jpeg',
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.cover,

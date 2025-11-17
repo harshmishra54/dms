@@ -167,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           child: const Icon(Icons.menu, color: Colors.black, size: 40),
                         ),
                         const GradientText(
-                          'TrustTags Sales',
+                          'VNR Seeds',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -193,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                         ),
                         Image.asset(
-                          'assets/images/trust_tags.png',
+                          'assets/images/VNR_logo.jpeg',
                           height: 35,
                           fit: BoxFit.contain,
                         ),

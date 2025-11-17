@@ -86,7 +86,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ),
                     Image.asset(
-                      'assets/images/trust_tags.png',
+                      'assets/images/VNR_logo.jpeg',
                       height: 40,
                       width: 45,
                       fit: BoxFit.contain,

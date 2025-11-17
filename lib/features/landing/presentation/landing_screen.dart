@@ -18,10 +18,10 @@ class _LandingScreenState extends State<LandingScreen> {
   String selectedLangCode = 'en'; // default
 
   final roles = [
-    {'title': 'Retailer', 'id': 3, 'image': 'assets/images/trust_tags.png'},
-    {'title': 'Sales / Advisor', 'id': 18, 'image': 'assets/images/trust_tags.png'},
-    {'title': 'Distributor', 'id': 1, 'image': 'assets/images/trust_tags.png'},
-    {'title': 'Farmer', 'id': 0, 'image': 'assets/images/trust_tags.png'},
+    {'title': 'Retailer', 'id': 3, 'image': 'assets/images/VNR_logo.jpeg'},
+    {'title': 'Sales / Advisor', 'id': 18, 'image': 'assets/images/VNR_logo.jpeg'},
+    {'title': 'Distributor', 'id': 1, 'image': 'assets/images/VNR_logo.jpeg'},
+    {'title': 'Farmer', 'id': 0, 'image': 'assets/images/VNR_logo.jpeg'},
   ];
 
   final languages = [
@@ -76,7 +76,7 @@ class _LandingScreenState extends State<LandingScreen> {
           // App logo
           Center(
             child: Image.asset(
-              'assets/images/trust_tags.png',
+              'assets/images/VNR_logo.jpeg',
               height: 80,
             ),
           ),

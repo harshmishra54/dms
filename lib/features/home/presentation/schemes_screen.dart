@@ -42,7 +42,7 @@ class SchemesScreen extends StatelessWidget {
                           ),
                         ),
                         Image.asset(
-                          'assets/images/trust_tags.png',
+                          'assets/images/VNR_logo.jpeg',
                           height: 40,
                           width: 45,
                         ),

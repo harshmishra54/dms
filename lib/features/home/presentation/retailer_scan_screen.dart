@@ -22,6 +22,7 @@ class RetailerScanQRScreen extends StatefulWidget {
 class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
   String scannedUID = '';
   bool _isLoading = false;
+  bool _isDialogOpen = false;
 
   /// GlobalKey for scanner
   final GlobalKey<ReusableQRScannerState> _scannerKey =

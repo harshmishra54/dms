@@ -43,14 +43,15 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
             return provider;
           },
         ),
-        ChangeNotifierProvider<CfaStockProvider>(
-          create: (_) => CfaStockProvider()..fetchCfaStock(),
-        ),
+        // CfaStockProvider commented out as third tab is disabled
+        // ChangeNotifierProvider<CfaStockProvider>(
+        //   create: (_) => CfaStockProvider()..fetchCfaStock(),
+        // ),
       ],
       child: Scaffold(
         backgroundColor: Colors.grey[100],
-        body: Consumer2<TerritoryProvider, CfaStockProvider>(
-          builder: (context, territoryProvider, cfaProvider, child) {
+        body: Consumer<TerritoryProvider>(
+          builder: (context, territoryProvider, child) {
             if (territoryProvider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -135,10 +136,10 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                     ),
                   ),
                 ),
-                // TabBar
+                // TabBar - Changed length from 3 to 2
                 Expanded(
                   child: DefaultTabController(
-                    length: 3,
+                    length: 2, // Changed from 3 to 2
                     child: Column(
                       children: [
                         Container(
@@ -150,7 +151,8 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                             tabs: [
                               Tab(text: 'Distributors'),
                               Tab(text: 'Retailers'),
-                              Tab(text: 'CNF Stocks'),
+                              // Third tab (CNF Stocks) commented out
+                              // Tab(text: 'CNF Stocks'),
                             ],
                           ),
                         ),
@@ -244,174 +246,174 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                                   );
                                 },
                               ),
-                              // CNF/VFS Stocks Tab
-                              cfaProvider.loading
-                                  ? const Center(
-                                  child: CircularProgressIndicator())
-                                  : cfaProvider.error != null
-                                  ? Center(
-                                child: AutoTranslateText(
-                                  cfaProvider.error!,
-                                  style: const TextStyle(
-                                      color: Colors.red),
-                                ),
-                              )
-                                  : cfaProvider.stockData.isEmpty
-                                  ? const Center(
-                                  child: AutoTranslateText(
-                                      "No CNF stocks found"))
-                                  : ListView.builder(
-                                padding: const EdgeInsets.all(12),
-                                itemCount:
-                                cfaProvider.stockData.length,
-                                itemBuilder: (context, index) {
-                                  final vfsStock =
-                                  cfaProvider.stockData[index];
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 6),
-                                    child: Padding(
-                                      padding:
-                                      const EdgeInsets.all(12.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          // Location Name Heading
-                                          Text(
-                                            "Location Name: ${vfsStock.locationName}",
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-
-                                          const SizedBox(height: 8),
-                                          // Column Headers
-                                          Container(
-                                            padding: const EdgeInsets
-                                                .symmetric(
-                                                vertical: 8,
-                                                horizontal: 8),
-                                            decoration: BoxDecoration(
-                                              color: Colors
-                                                  .blueGrey.shade100,
-                                              borderRadius:
-                                              BorderRadius.circular(
-                                                  12),
-                                            ),
-                                            child: Row(
-                                              children: const [
-                                                Expanded(
-                                                    flex: 2,
-                                                    child: Text(
-                                                        "Product",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .bold))),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Text("Pack",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                            FontWeight.bold))),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Text("Bin",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                            FontWeight.bold))),
-                                                Expanded(
-                                                    flex: 1,
-                                                    child: Text("Qty",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                            FontWeight.bold))),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          // Stocks List
-                                          ...vfsStock.stocks.map((stock) {
-                                            return Container(
-                                              margin:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 2),
-                                              padding:
-                                              const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                Colors.blueGrey.shade50,
-                                                borderRadius:
-                                                BorderRadius.circular(
-                                                    12),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 2,
-                                                      child: Text(stock
-                                                          .product
-                                                          ?.name ??
-                                                          "")),
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Text(
-                                                          stock.packagingLevel)),
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: Text(stock
-                                                          .bin
-                                                          ?.name ??
-                                                          "")),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Container(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 4,
-                                                          horizontal: 6),
-                                                      decoration: BoxDecoration(
-                                                        color: (stock.qty ??
-                                                            0) >
-                                                            4
-                                                            ? Colors.green
-                                                            .withOpacity(0.2)
-                                                            : Colors.red
-                                                            .withOpacity(0.2),
-                                                        borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                      ),
-                                                      child: Text(
-                                                        (stock.qty ?? 0)
-                                                            .toString(),
-                                                        textAlign:
-                                                        TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                          FontWeight.bold,
-                                                          color: (stock.qty ??
-                                                              0) >
-                                                              4
-                                                              ? Colors.green
-                                                              : Colors.red,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                              // Third tab (CNF/VFS Stocks) completely commented out
+                              // cfaProvider.loading
+                              //     ? const Center(
+                              //         child: CircularProgressIndicator())
+                              //     : cfaProvider.error != null
+                              //         ? Center(
+                              //             child: AutoTranslateText(
+                              //               cfaProvider.error!,
+                              //               style: const TextStyle(
+                              //                   color: Colors.red),
+                              //             ),
+                              //           )
+                              //         : cfaProvider.stockData.isEmpty
+                              //             ? const Center(
+                              //                 child: AutoTranslateText(
+                              //                     "No CNF stocks found"))
+                              //             : ListView.builder(
+                              //                 padding: const EdgeInsets.all(12),
+                              //                 itemCount:
+                              //                     cfaProvider.stockData.length,
+                              //                 itemBuilder: (context, index) {
+                              //                   final vfsStock =
+                              //                       cfaProvider.stockData[index];
+                              //                   return Card(
+                              //                     margin: const EdgeInsets.symmetric(
+                              //                         vertical: 6),
+                              //                     child: Padding(
+                              //                       padding:
+                              //                           const EdgeInsets.all(12.0),
+                              //                       child: Column(
+                              //                         crossAxisAlignment:
+                              //                             CrossAxisAlignment.start,
+                              //                         children: [
+                              //                           // Location Name Heading
+                              //                           Text(
+                              //                             "Location Name: ${vfsStock.locationName}",
+                              //                             style: const TextStyle(
+                              //                               fontWeight: FontWeight.bold,
+                              //                               fontSize: 16,
+                              //                             ),
+                              //                           ),
+                              //
+                              //                           const SizedBox(height: 8),
+                              //                           // Column Headers
+                              //                           Container(
+                              //                             padding: const EdgeInsets
+                              //                                 .symmetric(
+                              //                                 vertical: 8,
+                              //                                 horizontal: 8),
+                              //                             decoration: BoxDecoration(
+                              //                               color: Colors
+                              //                                   .blueGrey.shade100,
+                              //                               borderRadius:
+                              //                                   BorderRadius.circular(
+                              //                                       12),
+                              //                             ),
+                              //                             child: Row(
+                              //                               children: const [
+                              //                                 Expanded(
+                              //                                     flex: 2,
+                              //                                     child: Text(
+                              //                                         "Product",
+                              //                                         style: TextStyle(
+                              //                                             fontWeight:
+                              //                                                 FontWeight
+                              //                                                     .bold))),
+                              //                                 Expanded(
+                              //                                     flex: 1,
+                              //                                     child: Text("Pack",
+                              //                                         style: TextStyle(
+                              //                                             fontWeight:
+                              //                                                 FontWeight.bold))),
+                              //                                 Expanded(
+                              //                                     flex: 1,
+                              //                                     child: Text("Bin",
+                              //                                         style: TextStyle(
+                              //                                             fontWeight:
+                              //                                                 FontWeight.bold))),
+                              //                                 Expanded(
+                              //                                     flex: 1,
+                              //                                     child: Text("Qty",
+                              //                                         style: TextStyle(
+                              //                                             fontWeight:
+                              //                                                 FontWeight.bold))),
+                              //                               ],
+                              //                             ),
+                              //                           ),
+                              //                           const SizedBox(height: 4),
+                              //                           // Stocks List
+                              //                           ...vfsStock.stocks.map((stock) {
+                              //                             return Container(
+                              //                               margin:
+                              //                                   const EdgeInsets.symmetric(
+                              //                                       vertical: 2),
+                              //                               padding:
+                              //                                   const EdgeInsets.all(8),
+                              //                               decoration: BoxDecoration(
+                              //                                 color:
+                              //                                     Colors.blueGrey.shade50,
+                              //                                 borderRadius:
+                              //                                     BorderRadius.circular(
+                              //                                         12),
+                              //                               ),
+                              //                               child: Row(
+                              //                                 children: [
+                              //                                   Expanded(
+                              //                                       flex: 2,
+                              //                                       child: Text(stock
+                              //                                           .product
+                              //                                           ?.name ??
+                              //                                           "")),
+                              //                                   Expanded(
+                              //                                       flex: 1,
+                              //                                       child: Text(
+                              //                                           stock.packagingLevel)),
+                              //                                   Expanded(
+                              //                                       flex: 1,
+                              //                                       child: Text(stock
+                              //                                           .bin
+                              //                                           ?.name ??
+                              //                                           "")),
+                              //                                   Expanded(
+                              //                                     flex: 1,
+                              //                                     child: Container(
+                              //                                       padding: const EdgeInsets
+                              //                                           .symmetric(
+                              //                                           vertical: 4,
+                              //                                           horizontal: 6),
+                              //                                       decoration: BoxDecoration(
+                              //                                         color: (stock.qty ??
+                              //                                             0) >
+                              //                                             4
+                              //                                             ? Colors.green
+                              //                                                 .withOpacity(0.2)
+                              //                                             : Colors.red
+                              //                                                 .withOpacity(0.2),
+                              //                                         borderRadius:
+                              //                                             BorderRadius.circular(
+                              //                                                 8),
+                              //                                       ),
+                              //                                       child: Text(
+                              //                                         (stock.qty ?? 0)
+                              //                                             .toString(),
+                              //                                         textAlign:
+                              //                                             TextAlign.center,
+                              //                                         style: TextStyle(
+                              //                                           fontSize: 14,
+                              //                                           fontWeight:
+                              //                                               FontWeight.bold,
+                              //                                           color: (stock.qty ??
+                              //                                               0) >
+                              //                                               4
+                              //                                               ? Colors.green
+                              //                                               : Colors.red,
+                              //                                         ),
+                              //                                       ),
+                              //                                     ),
+                              //                                   ),
+                              //                                 ],
+                              //                               ),
+                              //                             );
+                              //                           }).toList(),
+                              //                         ],
+                              //                       ),
+                              //                     ),
+                              //                   );
+                              //                 },
+                              //               ),
                             ],
                           ),
                         ),

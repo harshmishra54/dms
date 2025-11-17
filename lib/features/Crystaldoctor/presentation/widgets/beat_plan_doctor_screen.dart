@@ -357,19 +357,19 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                                                 mainAxisSize:
                                                 MainAxisSize.min,
                                                 children: const [
-                                                  Icon(Icons.refresh,
-                                                      size: 14,
-                                                      color: Colors.black),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    "Re-Plan",
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                      FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  // Icon(Icons.refresh,
+                                                  //     size: 14,
+                                                  //     color: Colors.black),
+                                                  // SizedBox(width: 4),
+                                                  // Text(
+                                                  //   "Re-Plan",
+                                                  //   style: TextStyle(
+                                                  //     fontSize: 12,
+                                                  //     color: Colors.black,
+                                                  //     fontWeight:
+                                                  //     FontWeight.w600,
+                                                  //   ),
+                                                  // ),
                                                 ],
                                               ),
                                             ),

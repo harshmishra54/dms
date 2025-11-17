@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
               right: 0,
               child: const Center(
                 child: AutoTranslateText(
-                  'TrustTags-DMS',
+                  'VNR-DMS',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: ScaleTransition(
                   scale: _scaleAnimation,
                   child: Image.asset(
-                    'assets/images/trust_tags.png',
+                    'assets/images/VNR_logo.jpeg',
                     width: 130,
                     height: 130,
                   ),

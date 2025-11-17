@@ -177,7 +177,7 @@ class _PointsSection extends State<PointsSection>
                           const SizedBox(width: 8), // spacing between text and avatar
                           const CircleAvatar(
                             radius: 28,
-                            backgroundImage: AssetImage("assets/images/trust_tags.png"),
+                            backgroundImage: AssetImage("assets/images/VNR_logo.jpeg"),
                           ),
                         ],
                       ),
