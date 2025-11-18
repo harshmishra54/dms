@@ -127,6 +127,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_update_order_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/update_retailer_registration_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/zrt_provider.dart';
+import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/child_code_delete_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/child_code_scan_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/inward_complete_provider.dart';
@@ -420,6 +421,7 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> UpdateRecommendationProvider()),
         ChangeNotifierProvider(create: (_)=> FarmerConsiderationProvider()),
         ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
+        ChangeNotifierProvider(create: (_)=> AddPurchaseProvider()),
 
 
       ],

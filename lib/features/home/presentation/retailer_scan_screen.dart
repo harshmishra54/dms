@@ -1,5 +1,7 @@
+import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/scan/models/product_level_check_model.dart';
+import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -188,6 +190,81 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       await _validateUid(token, outerCode: uid);
     }
   }
+  Future<String?> _showCropNameDialog() async {
+    final TextEditingController _cropController = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom, // important
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          "Enter Crop Name",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 15),
+                        TextField(
+                          controller: _cropController,
+                          decoration: InputDecoration(
+                            hintText: "Crop Name",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          autofocus: true,
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 45,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.topBarColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              if (_cropController.text.trim().isEmpty) return;
+                              Navigator.of(context)
+                                  .pop(_cropController.text.trim());
+                            },
+                            child: const Text(
+                              "OK",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+
 
   // ----------------------- Inner Scan -----------------------
   Future<void> _handleInnerScan(
@@ -220,6 +297,27 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     if (validateRes.data is String &&
         validateRes.segments != null &&
         validateRes.segments!.isNotEmpty) {
+
+      // ✅ Show crop dialog + API call only for roleId 3
+      final roleId = await SharedPrefsHelper.getRoleId();
+      final userId = await SharedPrefsHelper.getUserId();
+
+      if (roleId == 3 && userId != null) {
+        final cropName = await _showCropNameDialog();
+        if (cropName != null && cropName.isNotEmpty) {
+          final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
+              .addPurchaseProduct(userId: userId, cropName: cropName, roleId: roleId??0);
+
+          if (!added) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}"),
+              ),
+            );
+          }
+        }
+      }
+
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -238,6 +336,26 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     SchemeData? schemeData;
     if (validateRes.data is Map<String, dynamic>) {
       schemeData = SchemeData.fromJson(validateRes.data);
+    }
+
+    // ✅ Show crop dialog + API only for roleId 3 before showing direct reward
+    final roleId2 = await SharedPrefsHelper.getRoleId();
+    final userId2 = await SharedPrefsHelper.getUserId();
+
+    if (roleId2 == 3 && userId2 != null) {
+      final cropName = await _showCropNameDialog();
+      if (cropName != null && cropName.isNotEmpty) {
+        final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
+            .addPurchaseProduct(userId: userId2, cropName: cropName, roleId: roleId2?? 0);
+
+        if (!added) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}"),
+            ),
+          );
+        }
+      }
     }
 
     // ✅ Now handle success & failure properly
@@ -278,44 +396,41 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // allows resizing when keyboard appears
       backgroundColor: const Color(0xFFF1F1F1),
       body: Stack(
         children: [
-          Column(
-            children: [
-              const AppStatusBar(),
-              Container(
-                color: Colors.white,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const AutoTranslateText(
-                      'Scan QR',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Image.asset('assets/images/trust_tags.png', height: 40),
-                  ],
+          SingleChildScrollView(   // <-- Added
+            child: Column(
+              children: [
+                const AppStatusBar(),
+                Container(
+                  color: Colors.white,
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const AutoTranslateText(
+                        'Scan QR',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Image.asset('assets/images/trust_tags.png', height: 40),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    ReusableQRScanner(
-                      key: _scannerKey,
-                      onScanned: (uid) => _handleOuterScan(uid),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildScanDetails(),
-                    const SizedBox(height: 30),
-                  ],
+                ReusableQRScanner(
+                  key: _scannerKey,
+                  onScanned: (uid) => _handleOuterScan(uid),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _buildScanDetails(),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
           if (_isLoading)
             Container(
@@ -328,6 +443,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       ),
     );
   }
+
 
   Widget _buildScanDetails() {
     return Column(

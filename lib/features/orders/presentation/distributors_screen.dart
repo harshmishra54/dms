@@ -2,6 +2,7 @@ import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/network/dio_client.dart';
 import 'package:TrustTags_DMS/data/models/dist_stock_models.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_limit_provider.dart';
+import 'package:TrustTags_DMS/features/dashboard/widgets/credit_limit_update.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/all_focus_new_product_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/stock_details_screen.dart';
@@ -206,6 +207,22 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                               icon: const Icon(Icons.call, color: Colors.deepPurple),
                                               onPressed: () => _makeCall(phone),
                                             ),
+
+                                            // ⭐ NEW ICON – Request Credit Limit
+                                            IconButton(
+                                              icon: const Icon(Icons.account_balance_wallet, color: Colors.orange),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) => CreditLimitUpdateScreen(
+                                                      distributorId: dist.id ?? "",   // passing selected distributor ID
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+
                                             IconButton(
                                               onPressed: () {
                                                 setState(() {
@@ -216,6 +233,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                             ),
                                           ],
                                         ),
+
                                       ],
                                     ),
 

@@ -312,7 +312,7 @@ class _MyScreenState extends State<MyScreen>
                         ),
                       ),
                       if (tsmroleId == "18") ...[
-                        const AutoTranslateText("RSM Approval:",
+                        const AutoTranslateText("Approval:",
                             style: TextStyle(fontWeight: FontWeight.w500)),
 
                         _buildStatusBadge(
@@ -443,7 +443,12 @@ class _MyScreenState extends State<MyScreen>
                                         orderId: orderId,
                                       ),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    // Refresh on return
+                                    Provider.of<TsiDisRetailerProvider>(context, listen: false)
+                                        .fetchTsiDisRetailerOrders(tsiId: widget.tsiId);
+                                  });
+
                                 },
                                 child: const AutoTranslateText("Edit"),
                               ),

@@ -36,9 +36,11 @@ class _CreditLimitState extends State<CreditLimit> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    Future.microtask(() async{
+      final userId = await SharedPrefsHelper.getUserId();
+
       Provider.of<CreditLimitProvider>(context, listen: false)
-          .fetchCreditLimitList(roleId: _roleId);
+          .fetchCreditLimitList(roleId: _roleId,requestId: userId??"");
       _fetchCreditHistory();
     });
   }
@@ -272,9 +274,11 @@ class _CreditLimitState extends State<CreditLimit> {
             );
 
             if (result == true) {
+              final userId = await SharedPrefsHelper.getUserId();
+
               // Refresh both request and history
               Provider.of<CreditLimitProvider>(context, listen: false)
-                  .fetchCreditLimitList(roleId: _roleId);
+                  .fetchCreditLimitList(roleId: _roleId,requestId: userId??"");
               _fetchCreditHistory();
 
               ScaffoldMessenger.of(context).showSnackBar(

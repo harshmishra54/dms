@@ -5,10 +5,12 @@ import 'package:TrustTags_DMS/data/models/product_recommendation_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/product_recommendation_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_request.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 
 class RecommendedProductsFarmerScreen extends StatefulWidget {
   final List<Recomm>? recommendations;
@@ -24,6 +26,7 @@ class RecommendedProductsFarmerScreen extends StatefulWidget {
 class _RecommendedProductsFarmerScreenState
     extends State<RecommendedProductsFarmerScreen> {
   final TextEditingController _phoneController = TextEditingController();
+  final FlutterNativeContactPicker _contactPicker = FlutterNativeContactPicker();
 
   void _onPhoneChanged(String value, FarmerDetailsProvider provider) {
     if (value.length == 10) {
@@ -48,6 +51,30 @@ class _RecommendedProductsFarmerScreenState
     _provider.reset(); // safe now
     super.dispose();
   }
+  Future<void> _pickContact() async {
+    try {
+      // Open native contact picker
+      final Contact? contact = await _contactPicker.selectPhoneNumber();
+
+      if (contact != null && contact.selectedPhoneNumber != null) {
+        String phone = contact.selectedPhoneNumber!.replaceAll(RegExp(r'\D'), ''); // remove non-digits
+
+        // Trim country code if present (like +91 or 91)
+        if (phone.length > 10) {
+          phone = phone.substring(phone.length - 10); // keep last 10 digits
+        }
+
+        _phoneController.text = phone;
+
+        // Fetch farmer details
+        _onPhoneChanged(phone, _provider);
+      }
+    } catch (e) {
+      _showSnackBar("Failed to pick contact: $e", isError: true);
+    }
+  }
+
+
   Future<void> _sendRecommendationToFarmer() async {
     final recProvider = context.read<ProductRecommendationProvider>();
     final farmerProvider = context.read<FarmerDetailsProvider>();
@@ -226,15 +253,29 @@ class _RecommendedProductsFarmerScreenState
                                 Icons.phone_android,
                                 color: Color(0xFF8E2DE2),
                               ),
-                              suffixIcon: _phoneController.text.isNotEmpty
-                                  ? IconButton(
-                                icon: const Icon(Icons.clear, size: 20),
-                                onPressed: () {
-                                  _phoneController.clear();
-                                  provider.reset();
-                                },
-                              )
-                                  : null,
+                              suffixIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Clear icon
+                                  if (_phoneController.text.isNotEmpty)
+                                    IconButton(
+                                      icon: const Icon(Icons.clear, size: 20),
+                                      onPressed: () {
+                                        _phoneController.clear();
+                                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                                          provider.reset(); // safe now
+                                        });
+                                      },
+
+                                    ),
+                                  // Contacts icon
+                                  IconButton(
+                                    icon: const Icon(Icons.contacts, size: 20, color: Color(0xFF8E2DE2)),
+                                    onPressed: _pickContact,
+                                  ),
+                                ],
+                              ),
+
                               filled: true,
                               fillColor: Colors.white,
                               enabledBorder: OutlineInputBorder(

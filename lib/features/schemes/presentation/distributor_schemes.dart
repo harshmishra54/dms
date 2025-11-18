@@ -247,7 +247,7 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
                                 bottom: Radius.circular(14),
                               ),
                             ),
-                            child: AutoTranslateText(
+                            child: Text(
                               isOutOfStock
                                   ? "Out of Stock"
                                   : (_isRedeeming

@@ -18,14 +18,12 @@ class CreditLimitProvider with ChangeNotifier {
   final Set<String> _fetchedIds = {}; // ✅ track attempted distributor fetches
 
   /// 🔹 Existing function (do not break old places)
-  Future<void> fetchCreditLimitList({required String roleId}) async {
+  Future<void> fetchCreditLimitList({required String roleId,required String requestId}) async {
     isLoading = true;
     notifyListeners();
 
     try {
       final token = await SharedPrefsHelper.getAccessToken();
-      final requestId = await SharedPrefsHelper.getUserId(); // Using userId as requestId
-
       if (token == null || requestId == null) {
         debugPrint('Token or RequestId missing in SharedPreferences');
         creditList = [];

@@ -75,6 +75,7 @@ dependencies:
   easy_localization: ^3.0.8
   path: ^1.9.1
   share_plus: ^12.0.1
+  flutter_native_contact_picker: ^0.0.11
 
 
 

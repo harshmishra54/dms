@@ -6,11 +6,13 @@ import 'package:TrustTags_DMS/features/dashboard/provider/credit_update_provider
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../data/models/credit_update_model.dart';
 
 class CreditLimitUpdateScreen extends StatefulWidget {
-  const CreditLimitUpdateScreen({super.key});
+  final String? distributorId;
+  const CreditLimitUpdateScreen({super.key, this.distributorId});
 
   @override
   State<CreditLimitUpdateScreen> createState() =>
@@ -27,9 +29,26 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
     super.initState();
 
     Future.microtask(() async {
+      final roleId= await SharedPrefsHelper.getRoleId();
+      if (roleId!= 1){
+        final creditProvider =
+        Provider.of<CreditLimitProvider>(context, listen: false);
+        await creditProvider.fetchCreditLimitList(roleId: "1",requestId: widget.distributorId??"");
+
+        final currentLimit = (creditProvider.creditList.isNotEmpty &&
+            creditProvider.creditList.first.currentLimit != null &&
+            creditProvider.creditList.first.currentLimit != 0)
+            ? creditProvider.creditList.first.currentLimit
+            : 0;
+
+        _currentLimitController.text = currentLimit.toString();
+        setState(() {});
+      }
+      else{
+        final userId=await SharedPrefsHelper.getUserId();
       final creditProvider =
       Provider.of<CreditLimitProvider>(context, listen: false);
-      await creditProvider.fetchCreditLimitList(roleId: "1");
+      await creditProvider.fetchCreditLimitList(roleId: "1",requestId: userId??"");
 
       final currentLimit = (creditProvider.creditList.isNotEmpty &&
           creditProvider.creditList.first.currentLimit != null &&
@@ -39,7 +58,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
 
       _currentLimitController.text = currentLimit.toString();
       setState(() {});
-    });
+    }});
   }
 
   @override
@@ -65,27 +84,32 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const AppStatusBar(),
-                Container(
-                  height: 60,
-                  color: Colors.white,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const AutoTranslateText(
-                        'Credit Limit Update',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20,
+                Material(
+                  elevation: 4,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  child: Container(
+                    height: 60,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.black),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
-                      const Spacer(flex: 2),
-                    ],
+                        const Expanded(
+                          child: AutoTranslateText(
+                            'Credit Limit Update',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(width: 48),
+                      ],
+                    ),
                   ),
                 ),
+
                 Expanded(
                   child: limitProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -187,24 +211,37 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                                           .trim()) ??
                                       0;
 
-                              final requestId =
-                              await SharedPrefsHelper.getUserId();
+                              final savedRoleId = await SharedPrefsHelper.getRoleId() ?? "";
+                              final savedUserId = await SharedPrefsHelper.getUserId();
+
+                              final requestId = savedRoleId == 1
+                                  ? savedUserId
+                                  : widget.distributorId;
+
+                              print("ROLE ID = $savedRoleId");
+                              print("USER ID = $savedUserId");
+                              print("WIDGET DISTRIBUTOR ID = ${widget.distributorId}");
+                              print("FINAL REQUEST ID = $requestId");
+
                               if (requestId == null) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                    content: AutoTranslateText(
-                                        'User ID not found')));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: AutoTranslateText('Request ID not found'),
+                                  ),
+                                );
                                 return;
                               }
 
+
+
                               final request = CreditUpdateRequest(
-                                roleId: '1',
+                                roleId: "1",
                                 requestId: requestId,
                                 requestedLimit: newLimit,
-                                reason:
-                                _reasonController.text.trim(),
+                                reason: _reasonController.text.trim(),
                                 current_limit: currentLimit,
                               );
+
 
                               final success = await updateProvider
                                   .submitCreditLimit(

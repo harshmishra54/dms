@@ -1,13 +1,14 @@
-import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_home_navigation.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/farmer_dashboard_homenavigation.dart';
 import 'package:TrustTags_DMS/features/home/presentation/home_navigation.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/sales_dashboard_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../landing/presentation/landing_screen.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,21 +42,42 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () async {
-      await _navigateNext();
-    });
+    // Request permissions first
+    _requestPermissions();
   }
+
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.notification,
+      Permission.location,
+      Permission.photos,       // iOS: access media images
+      Permission.storage,      // Android < 33
+      Permission.mediaLibrary, // Android 13+ (READ_MEDIA_IMAGES)
+      Permission.contacts,     // Added contacts permission
+    ].request();
+
+    bool allGranted = statuses.values.every((status) => status.isGranted);
+
+    if (!allGranted) {
+      // Optionally, show a dialog to inform the user why permissions are needed
+      // You can also request again or guide them to settings
+    }
+
+    // After requesting permissions, navigate
+    Future.delayed(const Duration(seconds: 1), () => _navigateNext());
+  }
+
 
   Future<void> _navigateNext() async {
     final token = await SharedPrefsHelper.getAccessToken();
 
+    if (!mounted) return;
+
+    Widget nextScreen;
+
     if (token != null && token.isNotEmpty) {
       final roleId = await SharedPrefsHelper.getRoleId();
-
-      if (!mounted) return;
-
-      Widget nextScreen;
-
       switch (roleId) {
         case 1:
           nextScreen = const DistributorHomeNavigation();
@@ -76,13 +98,11 @@ class _SplashScreenState extends State<SplashScreen>
         default:
           nextScreen = const LandingScreen();
       }
-
-      if (!mounted) return;
-      _navigateWithFade(nextScreen);
     } else {
-      if (!mounted) return;
-      _navigateWithFade(const LandingScreen());
+      nextScreen = const LandingScreen();
     }
+
+    _navigateWithFade(nextScreen);
   }
 
   void _navigateWithFade(Widget screen) {
@@ -108,9 +128,8 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Custom status bar color for splash screen
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Make it transparent to show gradient
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
@@ -127,7 +146,6 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         child: Stack(
           children: [
-            // Removed AppStatusBar, using custom status bar above
             Positioned(
               top: screenHeight * 0.12,
               left: 0,

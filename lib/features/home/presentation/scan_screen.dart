@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -127,11 +128,69 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
       ],
     );
   }
+  Future<String?> _showCropNameDialog() async {
+    final TextEditingController _cropController = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Enter Crop Name",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+                TextField(
+                  controller: _cropController,
+                  decoration: InputDecoration(
+                    hintText: "Crop Name",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.topBarColor, // ✅ set your desired color here
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // optional rounded corners
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_cropController.text.trim().isEmpty) return;
+                      Navigator.of(context).pop(_cropController.text.trim());
+                    },
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white), // text color
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   Future<void> _handleScan(BuildContext context, String uid) async {
     setState(() {
       scannedUID = uid;
-      _isLoading = true; // ✅ show loader
+      _isLoading = true; // show loader
     });
 
     final scanProvider = Provider.of<ScanProvider>(context, listen: false);
@@ -152,24 +211,42 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     final postData = ScanPostData(isQrCodeDetected: true, uniqueCode: uid);
     final validateRes = await scanProvider.validateUID(token, postData);
 
-    setState(() => _isLoading = false); // ✅ hide loader
+    setState(() => _isLoading = false); // hide loader
 
-    // ✅ Extract spinnerId safely (data is String)
-    String? spinnerId = validateRes.data is String
-        ? validateRes.data as String
-        : null;
+    // Extract spinnerId safely (data is String)
+    String? spinnerId = validateRes.data is String ? validateRes.data as String : null;
 
-// ✅ If segments exist → Open Spinner
-    if (spinnerId != null && validateRes.segments != null &&
-        validateRes.segments!.isNotEmpty) {
+    // Spinner reward → open spinner
+    if (spinnerId != null && validateRes.segments != null && validateRes.segments!.isNotEmpty) {
+      final userId = await SharedPrefsHelper.getUserId();
+      final roleId = await SharedPrefsHelper.getRoleId();
+
+      // Only for roleId == 0 → show crop dialog and call API
+      if (roleId == 0) {
+        final cropName = await _showCropNameDialog();
+        if (cropName == null || cropName.isEmpty) {
+          (_scannerKey.currentState as dynamic).resetScanner();
+          return;
+        }
+
+        final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
+            .addPurchaseProduct(userId: userId!, cropName: cropName, roleId: roleId?? 0);
+
+        if (!added) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}",
+              ),
+            ),
+          );
+        }
+      }
+
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              SpinnerWidget(
-                spinnerId: spinnerId,
-                segments: validateRes.segments!,
-              ),
+          builder: (_) => SpinnerWidget(spinnerId: spinnerId, segments: validateRes.segments!),
         ),
       );
 
@@ -177,24 +254,41 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
       return;
     }
 
-
-// ✅ OLD behavior stays same
+    // Direct reward flow
     if (validateRes.success == 1 && validateRes.data != null) {
       String productName = "Unknown Product";
       String productUID = uid;
       String points = "0";
-      String message = validateRes.message.isNotEmpty
-          ? validateRes.message
-          : "Scan successful";
+      String message = validateRes.message.isNotEmpty ? validateRes.message : "Scan successful";
 
-      // ✅ If data is object (Map) then convert to SchemeData
       if (validateRes.data is Map<String, dynamic>) {
         final scheme = SchemeData.fromJson(validateRes.data);
-
         productName = scheme.productName ?? "Unknown Product";
         productUID = scheme.schemeUID ?? uid;
         points = scheme.points?.toString() ?? "0";
         message = scheme.message ?? validateRes.message;
+      }
+
+      final userId = await SharedPrefsHelper.getUserId();
+      final roleId = await SharedPrefsHelper.getRoleId();
+
+      // Only for roleId == 0 → show crop dialog and call API
+      if (roleId == 0) {
+        final cropName = await _showCropNameDialog();
+        if (cropName != null && cropName.isNotEmpty) {
+          final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
+              .addPurchaseProduct(userId: userId!, cropName: cropName, roleId: roleId?? 0);
+
+          if (!added) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}",
+                ),
+              ),
+            );
+          }
+        }
       }
 
       _showScanResultDialog(
@@ -206,7 +300,6 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
       );
     } else {
       String productUID = "";
-
       if (validateRes.data is Map<String, dynamic>) {
         final scheme = SchemeData.fromJson(validateRes.data);
         productUID = scheme.schemeUID ?? "";
@@ -217,17 +310,14 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
         productName: "Not Valid",
         productUID: productUID,
         points: "0",
-        message: validateRes.message.isNotEmpty
-            ? validateRes.message
-            : "Invalid QR code",
+        message: validateRes.message.isNotEmpty ? validateRes.message : "Invalid QR code",
       );
     }
 
     (_scannerKey.currentState as dynamic).resetScanner();
   }
 
-
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F1F1),

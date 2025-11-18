@@ -42,6 +42,8 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+
+    <!-- Existing permissions -->
     <key>NSCameraUsageDescription</key>
     <string>We need access to your camera to scan QR codes and take photos.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
@@ -50,6 +52,10 @@
     <string>We need permission to save photos to your photo library.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library to select photos.</string>
+
+    <!-- Added contacts permission -->
+    <key>NSContactsUsageDescription</key>
+    <string>We need access to your contacts to allow sharing and connecting with people.</string>
 
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
