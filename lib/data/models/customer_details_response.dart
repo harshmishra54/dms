@@ -67,6 +67,7 @@ class CustomerData {
   final DateTime? updatedAt;
   final int? cityDistrictId;
   final String? licenseexpiry;
+  final String? profilepicture;
 
   CustomerData({
     required this.id,
@@ -119,6 +120,7 @@ class CustomerData {
     this.updatedAt,
     this.cityDistrictId,
     this.licenseexpiry,
+    this.profilepicture,
   });
 
   factory CustomerData.fromJson(Map<String, dynamic> json) {
@@ -180,6 +182,7 @@ class CustomerData {
           : null,
       cityDistrictId: json['city.district_id'],
       licenseexpiry: json['license_expiry'],
+      profilepicture: json['profile_picture'],
     );
   }
 }

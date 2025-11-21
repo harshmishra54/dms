@@ -176,10 +176,20 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             ),
                           ),
                           const SizedBox(width: 8), // spacing between text and avatar
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 28,
-                            backgroundImage: AssetImage("assets/images/trust_tags.png"),
-                          ),
+                            backgroundImage: (
+                                profileProvider.decryptedCustomerData?.profilepicture != null &&
+                                    profileProvider.decryptedCustomerData!.profilepicture!.isNotEmpty
+                            )
+                                ? NetworkImage(
+                              profileProvider.decryptedCustomerData!.profilepicture!,
+                            )
+                                : AssetImage("assets/images/trust_tags.png"),
+                            onBackgroundImageError: (_, __) {},
+                          )
+
+
                         ],
                       ),
                     ),
@@ -237,37 +247,22 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF0DFFF),
+                            color: Color(0xFFF0DFFF),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Next Reward: ${nextMilestone.label}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Colors.purpleAccent,
-                                ),
-                              ),
-                              const SizedBox(width: 8), // spacing between the texts
-                              Text(
-                                neededPoints > 0
-                                    ? "Need $neededPoints More Points"
-                                    : "Unlocked!",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.purpleAccent,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                              ),
-                            ],
+                          child: Text(
+                            "Next Reward:${nextMilestone.label} "
+                                "${neededPoints > 0 ? "Need $neededPoints More Points" : "Unlocked!"}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Colors.purpleAccent,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-
                         ),
+
                       ),
                     ),
 

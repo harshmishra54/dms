@@ -3,6 +3,7 @@ import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/get_tsi_list_for_rsm_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
+import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/my_screen.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
@@ -13,6 +14,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/meeting_history.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/sales_dashboard_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/widgets/demand_prediction.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -32,7 +34,15 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
   void initState() {
     super.initState();
     _loadUserName();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final profileProvider =
+      Provider.of<ProfileProvider>(context, listen: false);
+
+      await profileProvider.fetchCustomerDetails("");
+    });
   }
+
 
   Future<void> _loadUserName() async {
     final name = await SharedPrefsHelper.getUserName();
@@ -236,11 +246,22 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                                         MaterialPageRoute(builder: (context) => const ProfileScreen()),
                                       );
                                     },
-                                    child: const CircleAvatar(
-                                      radius: 28,
-                                      backgroundColor: AppColors.topBarColor,
-                                      child: Icon(Icons.person, size: 32, color: Colors.white),
+                                    child: Consumer<ProfileProvider>(
+                                      builder: (context, profileProvider, _) {
+                                        final imageUrl = profileProvider.decryptedCustomerData?.profilepicture;
+                                        final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+
+                                        return CircleAvatar(
+                                          radius: 28,
+                                          backgroundColor: AppColors.topBarColor,
+                                          backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                                          child: hasImage
+                                              ? null
+                                              : const Icon(Icons.person, size: 32, color: Colors.white),
+                                        );
+                                      },
                                     ),
+
                                   ),
                                   const SizedBox(width: 12),
                                   SizedBox(
@@ -271,6 +292,8 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           _drawerItem(context, Icons.timer_off, 'Punch Out', PunchOut()),
 
                           _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
+                          _drawerItem(context, Icons.qr_code, 'Demand Prediction', const FarmerDemandDashboard()),
+
 
                           ListTile(
                             leading: const Icon(Icons.shopping_cart, color: Colors.black),

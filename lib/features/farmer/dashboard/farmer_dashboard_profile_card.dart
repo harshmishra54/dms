@@ -19,7 +19,6 @@ class _FarmerDashboardProfileCardState
     extends State<FarmerDashboardProfileCard> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -151,11 +150,19 @@ class _FarmerDashboardProfileCardState
                 // Right side: Avatar + Tier
                 Column(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 28,
-                      backgroundImage: AssetImage(
-                          "assets/images/trust_tags.png"),
+                      backgroundImage: (
+                          profileProvider.decryptedCustomerData?.profilepicture != null &&
+                              profileProvider.decryptedCustomerData!.profilepicture!.isNotEmpty
+                      )
+                          ? NetworkImage(
+                        profileProvider.decryptedCustomerData!.profilepicture!,
+                      )
+                          : AssetImage("assets/images/trust_tags.png"),
+                      onBackgroundImageError: (_, __) {},
                     ),
+
                     const SizedBox(height: 6),
                     AutoTranslateText(
                       tier,

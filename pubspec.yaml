@@ -76,6 +76,8 @@ dependencies:
   path: ^1.9.1
   share_plus: ^12.0.1
   flutter_native_contact_picker: ^0.0.11
+  fl_chart: 1.0.0
+
 
 
 

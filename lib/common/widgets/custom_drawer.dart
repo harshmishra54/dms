@@ -1,6 +1,7 @@
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_history_screen.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_screen.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
@@ -34,6 +35,12 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
   void initState() {
     super.initState();
     _loadUserName();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final profileProvider =
+      Provider.of<ProfileProvider>(context, listen: false);
+
+      await profileProvider.fetchCustomerDetails("");
+    });
 
     _controller = AnimationController(
       vsync: this,
@@ -199,12 +206,22 @@ class _CustomDrawerModalState extends State<CustomDrawerModal>
                                           ),
                                         );
                                       },
-                                      child: const CircleAvatar(
-                                        radius: 28,
-                                        backgroundColor: AppColors.topBarColor,
-                                        child: Icon(Icons.person,
-                                            size: 32, color: Colors.white),
+                                      child: Consumer<ProfileProvider>(
+                                        builder: (context, profileProvider, _) {
+                                          final imageUrl = profileProvider.decryptedCustomerData?.profilepicture;
+                                          final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+
+                                          return CircleAvatar(
+                                            radius: 28,
+                                            backgroundColor: AppColors.topBarColor,
+                                            backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                                            child: hasImage
+                                                ? null
+                                                : const Icon(Icons.person, size: 32, color: Colors.white),
+                                          );
+                                        },
                                       ),
+
                                     ),
                                     const SizedBox(width: 12),
                                     SizedBox(

@@ -355,8 +355,8 @@ class DioClient {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: AutoTranslateText("Session Expired"),
-        content: const AutoTranslateText("Please login again."),
+        title: Text("Session Expired"),
+        content: const Text("Please login again."),
         actions: [
           TextButton(
             onPressed: () async {
@@ -369,7 +369,7 @@ class DioClient {
                 );
               }
             },
-            child: const AutoTranslateText("OK"),
+            child: const Text("OK"),
           ),
         ],
       ),

@@ -8,6 +8,7 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/route_by_pincode_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/targetfarmer.dart';
+import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
@@ -32,7 +33,13 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
   void initState() {
     super.initState();
     _loadUserName();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileProvider>(context, listen: false)
+          .fetchCustomerDetails(""); // pass token if needed
+    });
   }
+
 
   Future<void> _loadUserName() async {
     final name = await SharedPrefsHelper.getUserName();
@@ -166,12 +173,27 @@ class _CrystalDoctorCustomDrawerState extends State<CrystalDoctorCustomDrawer> {
                                         ),
                                       );
                                     },
-                                    child: const CircleAvatar(
-                                      radius: 28,
-                                      backgroundColor: AppColors.topBarColor,
-                                      child: Icon(Icons.person,
-                                          size: 32, color: Colors.white),
+                                    child: Consumer<ProfileProvider>(
+                                      builder: (context, profileProvider, _) {
+                                        final imageUrl = profileProvider.decryptedCustomerData?.profilepicture;
+
+                                        final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+
+                                        return CircleAvatar(
+                                          radius: 28,
+                                          backgroundColor: AppColors.topBarColor,
+                                          backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                                          child: hasImage
+                                              ? null
+                                              : const Icon(
+                                            Icons.person,
+                                            size: 32,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
                                     ),
+
                                   ),
                                   const SizedBox(width: 12),
                                   SizedBox(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class ProfileRequest {
   final String phone;
   final String name;
@@ -19,6 +21,7 @@ class ProfileRequest {
   final String? licenseexpiry;
   final String? licenseNo;
   final String? refferalNo;
+  final File? profileImageFile;
 
   ProfileRequest({
     required this.phone,
@@ -41,6 +44,8 @@ class ProfileRequest {
     this.licenseexpiry,
     this.licenseNo,
     this.refferalNo,
+    this.profileImageFile,
+
 
   });
 

@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/distributor_history_screen.dart';
 import 'package:TrustTags_DMS/features/dashboard/helper/add_product_price_screen.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_screen.dart';
@@ -8,9 +9,6 @@ import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/recieve_return_order.dart';
 import 'package:TrustTags_DMS/features/returns/distributor/return_order_tab.dart';
 import 'package:TrustTags_DMS/features/rewards/reward_claim_history.dart';
-import 'package:TrustTags_DMS/features/schemes/presentation/scheme_program_screen.dart';
-import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
-import 'package:TrustTags_DMS/features/spinner/presentation/spinner_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/credit_limit.dart';
@@ -46,6 +44,12 @@ class _DistributorCustomDrawerModalState
   void initState() {
     super.initState();
     _loadUserName();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final profileProvider =
+      Provider.of<ProfileProvider>(context, listen: false);
+
+      await profileProvider.fetchCustomerDetails("");
+    });
 
     /// ✅ Animation setup
     _controller = AnimationController(
@@ -218,12 +222,22 @@ class _DistributorCustomDrawerModalState
                                           ),
                                         );
                                       },
-                                      child: const CircleAvatar(
-                                        radius: 28,
-                                        backgroundColor: AppColors.topBarColor,
-                                        child: Icon(Icons.person,
-                                            size: 32, color: Colors.white),
+                                      child: Consumer<ProfileProvider>(
+                                        builder: (context, profileProvider, _) {
+                                          final imageUrl = profileProvider.decryptedCustomerData?.profilepicture;
+                                          final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+
+                                          return CircleAvatar(
+                                            radius: 28,
+                                            backgroundColor: AppColors.topBarColor,
+                                            backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                                            child: hasImage
+                                                ? null
+                                                : const Icon(Icons.person, size: 32, color: Colors.white),
+                                          );
+                                        },
                                       ),
+
                                     ),
                                     const SizedBox(width: 12),
                                     SizedBox(

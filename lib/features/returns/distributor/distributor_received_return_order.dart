@@ -275,7 +275,7 @@ class _DistributorReceivedReturnOrderState
                                     style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.deepPurpleAccent,
+                                      color: Colors.purple,
                                     ),
                                   ),
                                   AutoTranslateText(

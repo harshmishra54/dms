@@ -155,12 +155,28 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                                     ),
                                   );
                                 },
-                                child: const CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: AppColors.topBarColor,
-                                  child: Icon(Icons.person,
-                                      size: 32, color: Colors.white),
+                                child: Consumer<ProfileProvider>(
+                                  builder: (context, profileProvider, _) {
+                                    final imageUrl = profileProvider
+                                        .decryptedCustomerData?.profilepicture;
+
+                                    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+
+                                    return CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: AppColors.topBarColor,
+                                      backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                                      child: hasImage
+                                          ? null
+                                          : const Icon(
+                                        Icons.person,
+                                        size: 32,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
                                 ),
+
                               ),
                               const SizedBox(width: 12),
                               SizedBox(

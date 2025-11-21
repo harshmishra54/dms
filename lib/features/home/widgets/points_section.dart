@@ -175,10 +175,19 @@ class _PointsSection extends State<PointsSection>
                             ),
                           ),
                           const SizedBox(width: 8), // spacing between text and avatar
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 28,
-                            backgroundImage: AssetImage("assets/images/trust_tags.png"),
-                          ),
+                            backgroundImage: (
+                                profileProvider.decryptedCustomerData?.profilepicture != null &&
+                                    profileProvider.decryptedCustomerData!.profilepicture!.isNotEmpty
+                            )
+                                ? NetworkImage(
+                              profileProvider.decryptedCustomerData!.profilepicture!,
+                            )
+                                : AssetImage("assets/images/trust_tags.png"),
+                            onBackgroundImageError: (_, __) {},
+                          )
+
                         ],
                       ),
                     ),
@@ -230,7 +239,7 @@ class _PointsSection extends State<PointsSection>
                           ),
                           child: Column(
                             children: [
-                              AutoTranslateText(
+                              Text(
                                 neededPoints > 0
                                     ? "Next Reward: ${nextMilestone.label} Need $neededPoints More Points"
                                     : "Next Reward: ${nextMilestone.label} - Unlocked!",

@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/profile_request.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
@@ -30,6 +34,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController licenseExpiryController = TextEditingController();
   final TextEditingController licenController = TextEditingController();
 
+  // ⭐ Added
+  XFile? _profileImage;
+  final ImagePicker _picker = ImagePicker();
+
   // Location data
   int? stateId;
   int? districtId;
@@ -40,7 +48,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   List<Map<String, dynamic>> districts = [];
   int? _roleId;
 
-  bool _isEditMode = false; // Track edit mode
+  bool _isEditMode = false;
 
   @override
   void initState() {
@@ -151,18 +159,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       final fetchedStateName = stateObj != null ? stateObj['name'] : "";
 
-      final fetchedDistricts = await repo.fetchDistricts(token, fetchedStateId);
+      final fetchedDistricts =
+      await repo.fetchDistricts(token, fetchedStateId);
       Map<String, dynamic>? districtObj;
       try {
-        districtObj =
-            fetchedDistricts.firstWhere((d) => d['id'] == fetchedDistrictId);
+        districtObj = fetchedDistricts.firstWhere(
+                (d) => d['id'] == fetchedDistrictId);
       } catch (_) {
         districtObj = null;
       }
 
-      final fetchedDistrictName = districtObj != null ? districtObj['name'] : "";
+      final fetchedDistrictName =
+      districtObj != null ? districtObj['name'] : "";
 
       if (!mounted) return;
+
       setState(() {
         states = allStates;
         districts = fetchedDistricts;
@@ -173,7 +184,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         districtName = fetchedDistrictName;
       });
     } catch (e) {
-      debugPrint("Error fetching location: $e");
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: AutoTranslateText("Invalid or unsupported PIN code")),
@@ -181,7 +191,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  bool get _hideFields => _roleId == 0 || _roleId == 18 || _roleId == 19 || _roleId==23;
+  bool get _hideFields =>
+      _roleId == 0 || _roleId == 18 || _roleId == 19 || _roleId == 23;
+
+  // ⭐ Added
+  Future<void> _pickFromGallery() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) setState(() => _profileImage = image);
+  }
+
+  // ⭐ Added
+  Future<void> _pickFromCamera() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) setState(() => _profileImage = image);
+  }
+
+  // ⭐ Added
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("Take Photo"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo),
+                title: const Text("Choose from Gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickFromGallery();
+                },
+              ),
+              if (_profileImage != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text("Remove Photo"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _profileImage = null);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +270,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           body: Column(
             children: [
               const AppStatusBar(),
+
+              // ----------------------
+              // ⭐ ADDED PROFILE PHOTO
+              // ----------------------
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 height: 56,
@@ -245,9 +315,51 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ],
                 ),
               ),
+
+              // ⭐ PROFILE IMAGE BLOCK
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: _isEditMode ? _showImagePickerOptions : null,
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 48,
+                      backgroundColor: Colors.grey.shade300,
+                      backgroundImage: _profileImage != null
+                          ? FileImage(File(_profileImage!.path))                      // PICKED IMAGE
+                          : (provider.decryptedCustomerData?.profilepicture != null &&
+                          provider.decryptedCustomerData!.profilepicture!.isNotEmpty)
+                          ? NetworkImage(provider.decryptedCustomerData!.profilepicture!)
+                      as ImageProvider                                      // BACKEND IMAGE
+                          : null,                                                   // DEFAULT
+
+                      child: (_profileImage == null &&
+                          (provider.decryptedCustomerData?.profilepicture == null ||
+                              provider.decryptedCustomerData!.profilepicture!.isEmpty))
+                          ? const Icon(Icons.person, size: 50, color: Colors.grey)      // NO IMAGE → ICON
+                          : null,
+                    ),
+
+                    const SizedBox(height: 8),
+                    if (_isEditMode)
+                      const Text(
+                        "Add Profile Photo",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              // ----------------------
+
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -259,11 +371,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       if (!_hideFields) ...[
                         buildLabel('Firm Name'),
-                        buildTextField(firmController, readOnly: !_isEditMode),
+                        buildTextField(firmController,
+                            readOnly: !_isEditMode),
                       ],
 
                       buildLabel('Address'),
-                      buildTextField(address1Controller, readOnly: !_isEditMode),
+                      buildTextField(address1Controller,
+                          readOnly: !_isEditMode),
 
                       buildLabel('PIN Code'),
                       TextFormField(
@@ -288,7 +402,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         items: states.map((s) {
                           return DropdownMenuItem<int>(
                             value: s['id'],
-                            child: AutoTranslateText(s['name'], overflow: TextOverflow.ellipsis),
+                            child: AutoTranslateText(s['name'],
+                                overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
                         onChanged: _isEditMode
@@ -299,9 +414,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             districtId = null;
                             districts = [];
                           });
-                          final token = await SharedPrefsHelper.getAccessToken();
-                          final repo = LocationRepository(dioClient: DioClient());
-                          final fetchedDistricts = await repo.fetchDistricts(token!, value);
+                          final token =
+                          await SharedPrefsHelper.getAccessToken();
+                          final repo =
+                          LocationRepository(dioClient: DioClient());
+                          final fetchedDistricts =
+                          await repo.fetchDistricts(
+                              token!, value);
                           if (!mounted) return;
                           setState(() {
                             districts = fetchedDistricts;
@@ -318,7 +437,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         items: districts.map((d) {
                           return DropdownMenuItem<int>(
                             value: d['id'],
-                            child: AutoTranslateText(d['name'], overflow: TextOverflow.ellipsis),
+                            child: AutoTranslateText(d['name'],
+                                overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
                         onChanged: _isEditMode
@@ -332,32 +452,39 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       if (!_hideFields) ...[
                         buildLabel('GST Number'),
-                        buildTextField(gstController, readOnly: !_isEditMode),
+                        buildTextField(gstController,
+                            readOnly: !_isEditMode),
 
                         buildLabel('PAN Number'),
-                        buildTextField(panController, readOnly: !_isEditMode),
-
-                        // buildLabel('Unique Name'),
-                        // buildTextField(uniqueNameController, readOnly:true),
+                        buildTextField(panController,
+                            readOnly: !_isEditMode),
 
                         buildLabel('License Expiry'),
                         TextFormField(
                           controller: licenseExpiryController,
                           readOnly: true,
-                          onTap: _isEditMode ? () async {
+                          onTap: _isEditMode
+                              ? () async {
                             DateTime initialDate = DateTime.now();
-                            if (licenseExpiryController.text.isNotEmpty) {
-                              // Try to parse existing date
-                              final parts = licenseExpiryController.text.split('-');
+                            if (licenseExpiryController
+                                .text.isNotEmpty) {
+                              final parts = licenseExpiryController
+                                  .text
+                                  .split('-');
                               if (parts.length == 3) {
-                                final day = int.tryParse(parts[0]) ?? 1;
-                                final month = int.tryParse(parts[1]) ?? 1;
-                                final year = 2000 + (int.tryParse(parts[2]) ?? 0); // "23" -> 2023
-                                initialDate = DateTime(year, month, day);
+                                final day =
+                                    int.tryParse(parts[0]) ?? 1;
+                                final month =
+                                    int.tryParse(parts[1]) ?? 1;
+                                final year = 2000 +
+                                    (int.tryParse(parts[2]) ?? 0);
+                                initialDate =
+                                    DateTime(year, month, day);
                               }
                             }
 
-                            final DateTime? picked = await showDatePicker(
+                            final DateTime? picked =
+                            await showDatePicker(
                               context: context,
                               initialDate: initialDate,
                               firstDate: DateTime(1900),
@@ -365,19 +492,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             );
 
                             if (picked != null && mounted) {
-                              // Format as dd-MM-yy
                               licenseExpiryController.text =
                               "${picked.day.toString().padLeft(2, '0')}-"
                                   "${picked.month.toString().padLeft(2, '0')}-"
-                                  "${picked.year.toString().substring(2)}"; // last 2 digits
+                                  "${picked.year.toString().substring(2)}";
                             }
-                          } : null,
+                          }
+                              : null,
                           decoration: _inputDecoration(),
                         ),
 
-
                         buildLabel('License No'),
-                        buildTextField(licenController, readOnly: !_isEditMode),
+                        buildTextField(licenController,
+                            readOnly: !_isEditMode),
                       ],
 
                       if (_isEditMode) ...[
@@ -387,16 +514,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryPurple,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding:
+                              const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             onPressed: () async {
-                              final token = await SharedPrefsHelper.getAccessToken();
+                              final token =
+                              await SharedPrefsHelper.getAccessToken();
                               if (token == null || token.isEmpty) return;
 
-                              // Build request
                               final request = ProfileRequest(
                                 name: nameController.text.trim(),
                                 phone: phoneController.text.trim(),
@@ -406,31 +534,44 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 gst: gstController.text.trim(),
                                 licenseNo: licenController.text.trim(),
                                 uniqueName: uniqueNameController.text.trim(),
-                                licenseexpiry: licenseExpiryController.text.trim(),
-                                stateId: stateId?? 0,
+                                licenseexpiry:
+                                licenseExpiryController.text.trim(),
+                                stateId: stateId ?? 0,
                                 cityId: cityId,
-                                districtId: districtId??0,
+                                districtId: districtId ?? 0,
                                 panNo: panController.text.trim(),
+                                profileImageFile:
+                                _profileImage != null ? File(_profileImage!.path) : null,
                               );
 
                               try {
-                                setState(() => _isEditMode = false); // disable edit while processing
-                                await context.read<ProfileProvider>().updateProfile(token, request);
+                                setState(() => _isEditMode = false);
 
-                                final provider = context.read<ProfileProvider>();
+                                await context
+                                    .read<ProfileProvider>()
+                                    .updateProfile(token, request);
+
+                                final provider =
+                                context.read<ProfileProvider>();
+
                                 if (provider.errorMessage != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: AutoTranslateText("Error: ${provider.errorMessage}")),
+                                    SnackBar(
+                                        content: AutoTranslateText(
+                                            "Error: ${provider.errorMessage}")),
                                   );
-                                  setState(() => _isEditMode = true); // re-enable edit on error
+                                  setState(() => _isEditMode = true);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: AutoTranslateText("Profile Updated Successfully")),
+                                    const SnackBar(
+                                        content: AutoTranslateText(
+                                            "Profile Updated Successfully")),
                                   );
                                 }
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: AutoTranslateText("Error: $e")),
+                                  SnackBar(
+                                      content: AutoTranslateText("Error: $e")),
                                 );
                                 setState(() => _isEditMode = true);
                               }
@@ -463,7 +604,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       padding: const EdgeInsets.only(bottom: 6, top: 16),
       child: AutoTranslateText(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style:
+        const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
   }
@@ -472,16 +614,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       {bool isNumber = false, bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      keyboardType:
+      isNumber ? TextInputType.number : TextInputType.text,
       readOnly: readOnly,
-      enableInteractiveSelection: !readOnly, // ✅ prevents crash
+      enableInteractiveSelection:
+      !readOnly, // prevents crash on read-only
       decoration: _inputDecoration(),
     );
   }
 
   InputDecoration _inputDecoration() {
     return InputDecoration(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       filled: true,
       fillColor: Colors.grey.shade100,
       enabledBorder: OutlineInputBorder(
@@ -490,7 +635,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primaryPurple, width: 1.5),
+        borderSide:
+        const BorderSide(color: AppColors.primaryPurple, width: 1.5),
       ),
     );
   }

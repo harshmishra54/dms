@@ -248,15 +248,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Column(
                                 children: [
                                   ClipRRect(
-                                    borderRadius:
-                                    BorderRadius.circular(30),
-                                    child: Image.asset(
-                                      'assets/images/trust_tags.png',
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: customer?.profilepicture != null &&
+                                        customer!.profilepicture!.isNotEmpty
+                                        ? Image.network(
+                                      customer.profilepicture!,        // backend image
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset(
+                                          'assets/images/trust_tags.png', // fallback (same as before)
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    )
+                                        : Image.asset(
+                                      'assets/images/trust_tags.png',   // default logo
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
+
                                   const SizedBox(height: 6),
                                   Container(
                                     padding:
@@ -264,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         horizontal: 10,
                                         vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.green,
+                                      color: AppColors.topBarColor,
                                       borderRadius:
                                       BorderRadius.circular(20),
                                     ),

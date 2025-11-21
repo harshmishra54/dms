@@ -14,13 +14,22 @@ class ProfileRepository {
   Future<ProfileUpdateResponse> updateProfile(
       String token, ProfileRequest request) async {
     try {
+      FormData formData = FormData.fromMap({
+        ...request.toJson(),
+        if (request.profileImageFile != null)
+          "profileImage": await MultipartFile.fromFile(
+            request.profileImageFile!.path,
+            filename: request.profileImageFile!.path.split("/").last,
+          ),
+      });
+
       final response = await dioClient.put(
         ApiEndpoints.updateProfile,
-        data: request.toJson(),
+        data: formData,
         options: Options(
           headers: {
             'x-access-token': token,
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
         ),
       );
@@ -30,6 +39,7 @@ class ProfileRepository {
       rethrow;
     }
   }
+
 
   // ✅ New: Fetch customer details API
   Future<CustomerDetailsResponse> getCustomerDetails(String token) async {
