@@ -151,7 +151,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
                                 color: Colors.black, size: 40),
                           ),
                           const GradientText(
-                            'TrustTags Sales',
+                            'Crystal Farmer',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> with TickerProviderSt
                               ),
                               const SizedBox(width: 12),
                               Image.asset(
-                                'assets/images/trust_tags.png',
+                                'assets/images/crystal_logo.jpeg',
                                 height: 35,
                                 fit: BoxFit.contain,
                               ),

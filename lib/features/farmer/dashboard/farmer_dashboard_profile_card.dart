@@ -159,7 +159,7 @@ class _FarmerDashboardProfileCardState
                           ? NetworkImage(
                         profileProvider.decryptedCustomerData!.profilepicture!,
                       )
-                          : AssetImage("assets/images/trust_tags.png"),
+                          : AssetImage("assets/images/crystal_logo.jpeg"),
                       onBackgroundImageError: (_, __) {},
                     ),
 

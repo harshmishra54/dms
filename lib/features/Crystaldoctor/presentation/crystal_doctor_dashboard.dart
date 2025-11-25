@@ -273,7 +273,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
               child: const Icon(Icons.menu, color: Colors.black, size: 40),
             ),
             const GradientText(
-              'TrustTags Advisor',
+              'Crystal Advisor',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -301,7 +301,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                 ),
                 const SizedBox(width: 12),
                 Image.asset(
-                  'assets/images/trust_tags.png',
+                  'assets/images/crystal_logo.jpeg',
                   height: 45,
                   fit: BoxFit.contain,
                 ),
@@ -458,7 +458,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
         'color': Colors.deepPurple
       },
       {
-        'title': 'Parijat GPT',
+        'title': 'Crystal GPT',
         'icon': Icons.psychology,
         'color': Colors.purple.shade800
       },
@@ -629,7 +629,7 @@ class _CrystalDoctorDashboardState extends State<CrystalDoctorDashboard>
                 MaterialPageRoute(
                     builder: (_) => const CrystalDoctorMeeting()),
               );
-            } else if (title == "Parijat GPT") {
+            } else if (title == "Crystal GPT") {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RecommendationScreen()),

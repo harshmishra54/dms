@@ -4,7 +4,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provid
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class StockDetailsScreen extends StatelessWidget {
+class StockDetailsScreen extends StatefulWidget {
   final String title;
 
   const StockDetailsScreen({
@@ -12,7 +12,27 @@ class StockDetailsScreen extends StatelessWidget {
     required this.title,
   }) : super(key: key);
 
-  // Updated quantity color logic
+  @override
+  State<StockDetailsScreen> createState() => _StockDetailsScreenState();
+}
+
+class _StockDetailsScreenState extends State<StockDetailsScreen> {
+  String? selectedAging;
+
+  List<dynamic> displayedList = []; // frontend shown list
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final stockProvider = Provider.of<DistStockProvider>(context);
+
+    // Load full list initially
+    if (displayedList.isEmpty && stockProvider.stockList.isNotEmpty) {
+      displayedList = List.from(stockProvider.stockList);
+    }
+  }
+
+  // Quantity color logic
   Color getQuantityColor(int? quantity) {
     if (quantity == null) return Colors.grey;
     return quantity > 4 ? Colors.green.shade400 : Colors.red.shade400;
@@ -27,6 +47,7 @@ class StockDetailsScreen extends StatelessWidget {
       body: Column(
         children: [
           const AppStatusBar(),
+
           // Header
           Material(
             elevation: 4,
@@ -42,7 +63,7 @@ class StockDetailsScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: AutoTranslateText(
-                      title,
+                      widget.title,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.black,
@@ -57,6 +78,67 @@ class StockDetailsScreen extends StatelessWidget {
             ),
           ),
 
+          // 🔽 AGING FILTER
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: selectedAging,
+                      underline: const SizedBox(),
+                      hint: const Text("Filter Aging"),
+                      items: const [
+                        DropdownMenuItem(value: "3", child: Text("Last 3 Months")),
+                        DropdownMenuItem(value: "6", child: Text("Last 6 Months")),
+                        DropdownMenuItem(value: "9", child: Text("Last 9 Months")),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedAging = value;
+
+                          // Dummy filtering logic
+                          if (value == "3") {
+                            displayedList = stockProvider.stockList.take(3).toList();
+                          } else if (value == "6") {
+                            displayedList = stockProvider.stockList.take(6).toList();
+                          } else if (value == "9") {
+                            displayedList = stockProvider.stockList.take(9).toList();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+
+                if (selectedAging != null)
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        selectedAging = null;
+                        displayedList = List.from(stockProvider.stockList);
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+
           // Body
           Expanded(
             child: Builder(
@@ -64,6 +146,7 @@ class StockDetailsScreen extends StatelessWidget {
                 if (stockProvider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
                 if (stockProvider.errorMessage != null) {
                   return Center(
                     child: AutoTranslateText(
@@ -72,7 +155,8 @@ class StockDetailsScreen extends StatelessWidget {
                     ),
                   );
                 }
-                if (stockProvider.stockList.isEmpty) {
+
+                if (displayedList.isEmpty) {
                   return const Center(
                     child: AutoTranslateText(
                       "No stock data found",
@@ -83,7 +167,7 @@ class StockDetailsScreen extends StatelessWidget {
 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  itemCount: stockProvider.stockList.length + 1, // +1 for header
+                  itemCount: displayedList.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return Container(
@@ -104,7 +188,7 @@ class StockDetailsScreen extends StatelessWidget {
                       );
                     }
 
-                    final stock = stockProvider.stockList[index - 1];
+                    final stock = displayedList[index - 1];
                     final isEven = (index - 1) % 2 == 0;
 
                     return Container(

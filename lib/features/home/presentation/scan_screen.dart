@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
 import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
@@ -72,13 +73,14 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 const SizedBox(height: 12),
                 Icon(Icons.qr_code_2, color: color, size: 40),
                 const SizedBox(height: 20),
+
+                // 👉 Only Points
                 _buildReadOnlyField("Points", points),
                 const SizedBox(height: 15),
+
+                // 👉 Only Product Name
                 _buildReadOnlyField("Product Name", productName),
-                const SizedBox(height: 15),
-                _buildReadOnlyField("Product UID", productUID),
-                const SizedBox(height: 15),
-                _buildReadOnlyField("Message", message),
+
                 const SizedBox(height: 25),
                 SizedBox(
                   width: double.infinity,
@@ -129,63 +131,133 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     );
   }
   Future<String?> _showCropNameDialog() async {
-    final TextEditingController _cropController = TextEditingController();
+    final cropProvider = Provider.of<CropProvider>(context, listen: false);
+
+    // Fetch crop list before showing dialog
+    await cropProvider.fetchCropList();
 
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
+        String? selectedCrop;
+
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Enter Crop Name",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: _cropController,
-                  decoration: InputDecoration(
-                    hintText: "Crop Name",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+            child: Consumer<CropProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const SizedBox(
+                    height: 120,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (provider.errorMessage != null) {
+                  return SizedBox(
+                    height: 150,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Failed to load crops",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 10),
+                        Text(provider.errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.red)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.topBarColor, // ✅ set your desired color here
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // optional rounded corners
+                  );
+                }
+
+                final crops = provider.cropResponse?.data ?? [];
+
+                if (crops.isEmpty) {
+                  return SizedBox(
+                    height: 150,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text("No crops available",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Select Crop",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Dropdown
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      value: selectedCrop,
+                      hint: const Text("Choose Crop"),
+                      items: crops.map((crop) {
+                        return DropdownMenuItem<String>(
+                          value: crop.cropTypeName ?? "",
+                          child: Text(crop.cropTypeName ?? ""),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        selectedCrop = value;
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // OK Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.topBarColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (selectedCrop == null) return;
+                          Navigator.pop(context, selectedCrop);
+                        },
+                        child: const Text("OK",
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
-                    onPressed: () {
-                      if (_cropController.text.trim().isEmpty) return;
-                      Navigator.of(context).pop(_cropController.text.trim());
-                    },
-                    child: const Text(
-                      "OK",
-                      style: TextStyle(color: Colors.white), // text color
-                    ),
-                  ),
-                ),
-
-              ],
+                  ],
+                );
+              },
             ),
           ),
         );
       },
     );
   }
-
 
   Future<void> _handleScan(BuildContext context, String uid) async {
     setState(() {

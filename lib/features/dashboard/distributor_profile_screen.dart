@@ -89,7 +89,7 @@ class DistributorProfileScreen extends StatelessWidget {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(30),
                             child: Image.asset(
-                              'assets/images/trust_tags.png',
+                              'assets/images/crystal_logo.jpeg',
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,

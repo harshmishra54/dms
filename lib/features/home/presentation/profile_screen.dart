@@ -258,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) {
                                         return Image.asset(
-                                          'assets/images/trust_tags.png', // fallback (same as before)
+                                          'assets/images/crystal_logo.jpeg', // fallback (same as before)
                                           width: 60,
                                           height: 60,
                                           fit: BoxFit.cover,
@@ -266,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       },
                                     )
                                         : Image.asset(
-                                      'assets/images/trust_tags.png',   // default logo
+                                      'assets/images/crystal_logo.jpeg',   // default logo
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.cover,

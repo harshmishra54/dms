@@ -161,7 +161,7 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
                           child: const Icon(Icons.menu, color: Colors.black, size: 40),
                         ),
                         const GradientText(
-                          'TrustTags Sales',
+                          'Crystal DMS',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -184,7 +184,7 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
                             ),
                             const SizedBox(width: 12),
                             Image.asset(
-                              'assets/images/trust_tags.png',
+                              'assets/images/crystal_logo.jpeg',
                               height: 35,
                               fit: BoxFit.contain,
                             ),

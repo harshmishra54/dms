@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
 import 'package:TrustTags_DMS/features/scan/models/product_level_check_model.dart';
 import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
@@ -42,9 +43,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
   void _showScanResultDialog({
     required bool isValid,
     required String productName,
-    required String productUID,
     required String points,
-    required String message,
   }) {
     final color = isValid ? Colors.green : Colors.redAccent;
     final title = isValid ? "Valid Scan" : "Invalid Scan";
@@ -68,13 +67,14 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                 const SizedBox(height: 12),
                 Icon(Icons.qr_code_2, color: color, size: 40),
                 const SizedBox(height: 20),
+
+                // ✔ Points only
                 _buildReadOnlyField("Points", points),
                 const SizedBox(height: 15),
+
+                // ✔ Product Name only
                 _buildReadOnlyField("Product Name", productName),
-                const SizedBox(height: 15),
-                _buildReadOnlyField("Product UID", productUID),
-                const SizedBox(height: 15),
-                _buildReadOnlyField("Message", message),
+
                 const SizedBox(height: 25),
                 SizedBox(
                   width: double.infinity,
@@ -87,7 +87,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      _restartOuterScanner(); // restart scanning after closing dialog
+                      _restartOuterScanner();
                     },
                     child: const AutoTranslateText(
                       'Okay',
@@ -141,9 +141,9 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       _showScanResultDialog(
         isValid: false,
         productName: "Token Missing",
-        productUID: uid,
+        // productUID: uid,
         points: "0",
-        message: "Authentication token missing",
+        // message: "Authentication token missing",
       );
       return;
     }
@@ -161,9 +161,9 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       _showScanResultDialog(
         isValid: false,
         productName: "Error",
-        productUID: uid,
+        // productUID: uid,
         points: "0",
-        message: productLevelProvider.errorMessage!,
+        // message: productLevelProvider.errorMessage!,
       );
       return;
     }
@@ -191,73 +191,128 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     }
   }
   Future<String?> _showCropNameDialog() async {
-    final TextEditingController _cropController = TextEditingController();
+    final cropProvider = Provider.of<CropProvider>(context, listen: false);
+
+    // Fetch crop list before showing dialog
+    await cropProvider.fetchCropList();
 
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
+        String? selectedCrop;
+
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom, // important
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Consumer<CropProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const SizedBox(
+                    height: 120,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (provider.errorMessage != null) {
+                  return SizedBox(
+                    height: 150,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          "Enter Crop Name",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 15),
-                        TextField(
-                          controller: _cropController,
-                          decoration: InputDecoration(
-                            hintText: "Crop Name",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          autofocus: true,
-                        ),
+                        Text("Failed to load crops",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 10),
+                        Text(provider.errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.red)),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 45,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.topBarColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (_cropController.text.trim().isEmpty) return;
-                              Navigator.of(context)
-                                  .pop(_cropController.text.trim());
-                            },
-                            child: const Text(
-                              "OK",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                }
+
+                final crops = provider.cropResponse?.data ?? [];
+
+                if (crops.isEmpty) {
+                  return SizedBox(
+                    height: 150,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text("No crops available",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Select Crop",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Dropdown
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      value: selectedCrop,
+                      hint: const Text("Choose Crop"),
+                      items: crops.map((crop) {
+                        return DropdownMenuItem<String>(
+                          value: crop.cropTypeName ?? "",
+                          child: Text(crop.cropTypeName ?? ""),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        selectedCrop = value;
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // OK Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.topBarColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (selectedCrop == null) return;
+                          Navigator.pop(context, selectedCrop);
+                        },
+                        child: const Text("OK",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         );
       },
@@ -363,23 +418,23 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       _showScanResultDialog(
         isValid: true,
         productName: schemeData.productName ?? "Unknown Product",
-        productUID: schemeData.schemeUID ?? outerCode,
+        // productUID: schemeData.schemeUID ?? outerCode,
         points: (schemeData.points ?? 0).toString(),
-        message: schemeData.message?.isNotEmpty == true
-            ? schemeData.message!
-            : validateRes.message.isNotEmpty
-            ? validateRes.message
-            : "Scan successful",
+        // message: schemeData.message?.isNotEmpty == true
+        //     ? schemeData.message!
+        //     : validateRes.message.isNotEmpty
+        //     ? validateRes.message
+            // : "Scan successful",
       );
     } else {
       _showScanResultDialog(
         isValid: false,
         productName: "Not Valid",
-        productUID: outerCode,
+        // productUID: outerCode,
         points: "0",
-        message: validateRes.message.isNotEmpty
-            ? validateRes.message
-            : "Invalid QR code",
+        // message: validateRes.message.isNotEmpty
+        //     ? validateRes.message
+        //     : "Invalid QR code",
       );
     }
   }

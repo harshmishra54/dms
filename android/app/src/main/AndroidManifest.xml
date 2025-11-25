@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="trusttags_dms"
+        android:label="Crystal-DMS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
