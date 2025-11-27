@@ -38,7 +38,9 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
     _borderColorAnimation = ColorTween(
       begin: const Color(0xFFD4AF37),
       end: Colors.purple,
-    ).animate(CurvedAnimation(parent: _borderController, curve: Curves.easeInOut));
+    ).animate(
+      CurvedAnimation(parent: _borderController, curve: Curves.easeInOut),
+    );
     _borderController.repeat(reverse: true);
 
     _rewardController = AnimationController(
@@ -56,10 +58,11 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Fetch fresh data every time the widget appears
-    final channelProvider = Provider.of<ChannelPerformanceProvider>(context, listen: false);
+    final channelProvider =
+    Provider.of<ChannelPerformanceProvider>(context, listen: false);
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-    final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+    final milestoneProvider =
+    Provider.of<MilestoneProvider>(context, listen: false);
 
     channelProvider.fetchChannelPerformance();
     milestoneProvider.fetchMilestones();
@@ -107,28 +110,30 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
               ),
             ),
             padding: const EdgeInsets.all(0),
-            child: Consumer3<ProfileProvider, ChannelPerformanceProvider, MilestoneProvider>(
-              builder: (context, profileProvider, channelProvider, milestoneProvider, child) {
+            child: Consumer3<ProfileProvider, ChannelPerformanceProvider,
+                MilestoneProvider>(
+              builder: (context, profileProvider, channelProvider,
+                  milestoneProvider, child) {
                 final rewards = channelProvider.data?.data?.rewards;
                 final int availablePoints = rewards?.availablePoints ?? 0;
-                final String tier = 'GOLD';
 
                 final displayName =
                     profileProvider.decryptedCustomerData?.name ?? userName;
 
-                // milestones
                 final milestones = milestoneProvider.milestones;
                 milestones.sort((a, b) => a.value.compareTo(b.value));
                 final nextMilestone = milestones.firstWhere(
                       (m) => availablePoints < m.value,
                   orElse: () => milestones.isNotEmpty
                       ? milestones.last
-                      : MilestoneData(value: 0, label: "No Milestone", image: ""),
+                      : MilestoneData(
+                      value: 0, label: "No Milestone", image: ""),
                 );
                 final neededPoints =
                 (nextMilestone.value - availablePoints).clamp(0, double.infinity).toInt();
 
-                int maxValue = milestones.isNotEmpty ? milestones.last.value : availablePoints;
+                int maxValue =
+                milestones.isNotEmpty ? milestones.last.value : availablePoints;
                 double progress = (availablePoints / maxValue).clamp(0, 1).toDouble();
 
                 if (profileProvider.isLoading || milestoneProvider.isLoading) {
@@ -138,19 +143,18 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // top row
-                    // top row with shaded background for name, role, and logo only
+                    /// Top Row with Name, Role, Avatar
                     Container(
-                      width: double.infinity, // takes full width of parent card
+                      width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.purple[50], // light purple shade
+                        color: Colors.purple[50],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded( // <-- make text column flexible
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -175,77 +179,92 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8), // spacing between text and avatar
+                          const SizedBox(width: 8),
                           CircleAvatar(
                             radius: 28,
                             backgroundImage: (
-                                profileProvider.decryptedCustomerData?.profilepicture != null &&
-                                    profileProvider.decryptedCustomerData!.profilepicture!.isNotEmpty
-                            )
+                                profileProvider.decryptedCustomerData
+                                    ?.profilepicture !=
+                                    null &&
+                                    profileProvider.decryptedCustomerData!
+                                        .profilepicture!
+                                        .isNotEmpty)
                                 ? NetworkImage(
-                              profileProvider.decryptedCustomerData!.profilepicture!,
+                              profileProvider
+                                  .decryptedCustomerData!.profilepicture!,
                             )
-                                : AssetImage("assets/images/trust_tags.png"),
+                                : const AssetImage(
+                                "assets/images/trust_tags.png")
+                            as ImageProvider,
                             onBackgroundImageError: (_, __) {},
                           )
-
-
                         ],
                       ),
                     ),
 
+                    const SizedBox(height: 12),
 
-
-// then show points below separately
+                    /// Points Row (Gold + Platinum) - Fixed Alignment
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
+                        /// LEFT SIDE: Available Points + Gold
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
-                          child: Text(
-                            availablePoints.toString(),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.topBarColor,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            "Points",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                // TextSpan(
+                                //   text: "$availablePoints ",
+                                //   style: const TextStyle(
+                                //     fontSize: 20,
+                                //     fontWeight: FontWeight.bold,
+                                //     color: AppColors.topBarColor,
+                                //   ),
+                                // ),
+                                TextSpan(
+                                  text: "Gold ",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFFD700),
+                                  ),
+                                ),
+
+                                TextSpan(
+                                  text: "$availablePoints ",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.topBarColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
 
                         const Spacer(),
 
-                        /// GOLD TEXT with right padding
+                        /// RIGHT SIDE: 500 Points Platinum
                         const Padding(
                           padding: EdgeInsets.only(right: 18.0),
                           child: Text(
-                            "Gold",
+                            "Platinum @ 500 Points ",
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFC5C9CC),
                             ),
                           ),
                         ),
                       ],
                     ),
 
-
-
-
                     const SizedBox(height: 10),
 
-                    // reward info
+                    /// Reward Info
                     AnimatedBuilder(
                       animation: _rewardController,
                       builder: (context, child) {
@@ -258,18 +277,18 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 12.0,right: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Color(0xFFF0DFFF),
+                            color: const Color(0xFFF0DFFF),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            "Next Reward:${nextMilestone.label} "
+                            "Next Reward: ${nextMilestone.label} "
                                 "${neededPoints > 0 ? "Need $neededPoints More Points" : "Unlocked!"}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Colors.purpleAccent,
@@ -278,13 +297,12 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
-                    // rewards progress
+                    /// Rewards Progress
                     Column(
                       children: [
                         Row(
@@ -301,9 +319,11 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                                     width: 40,
                                     height: 40,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (c, e, s) =>
-                                    const Icon(Icons.image_not_supported,
-                                        size: 32, color: Colors.grey),
+                                    errorBuilder: (c, e, s) => const Icon(
+                                      Icons.image_not_supported,
+                                      size: 32,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                                 if (unlocked)
@@ -328,19 +348,15 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             borderRadius: BorderRadius.circular(8),
                             child: Stack(
                               children: [
-                                // Background
-                                Container(
-                                  color: Colors.purple[100],
-                                ),
-                                // Foreground (progress)
+                                Container(color: Colors.purple[100]),
                                 FractionallySizedBox(
-                                  widthFactor: progress, // value between 0 and 1
+                                  widthFactor: progress,
                                   child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
                                         colors: [
-                                          Color(0xFF9C27B0), // start purple
-                                          Color(0xFFE040FB), // end purple
+                                          Color(0xFF9C27B0),
+                                          Color(0xFFE040FB),
                                         ],
                                       ),
                                     ),
@@ -350,12 +366,11 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: milestones.map((m) {
-                            return Expanded( // <-- flexible width
+                            return Expanded(
                               child: AutoTranslateText(
                                 m.label,
                                 style: const TextStyle(
@@ -363,22 +378,21 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis, // keep in one line
-                                maxLines: 1, // never wrap to 2nd line
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             );
                           }).toList(),
                         ),
-
-
                       ],
                     ),
 
                     const SizedBox(height: 20),
 
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0,right: 12),
-                      child: const TabStatSection(),
+                    /// Tab Stat Section
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: TabStatSection(),
                     ),
                   ],
                 );
