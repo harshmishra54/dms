@@ -198,7 +198,7 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
 // then show points below separately
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end, // aligns smaller text at bottom
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
@@ -211,19 +211,35 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6), // spacing between number & label
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
+                        const SizedBox(width: 6),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 2.0),
                           child: Text(
                             "Points",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
+
+                        const Spacer(),
+
+                        /// GOLD TEXT with right padding
+                        const Padding(
+                          padding: EdgeInsets.only(right: 18.0),
+                          child: Text(
+                            "Gold",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
+
 
 
 

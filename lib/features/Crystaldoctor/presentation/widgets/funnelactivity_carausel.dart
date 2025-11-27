@@ -20,12 +20,12 @@ class _FunnelActivityCarouselState extends State<FunnelActivityCarousel> {
   void initState() {
     super.initState();
     // Start auto-slide timer
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (!_pageController.hasClients) return;
       final nextPage = _pageController.page == 0 ? 1 : 0;
       _pageController.animateToPage(
         nextPage,
-        duration: const Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 800),
         curve: Curves.easeInOut,
       );
     });

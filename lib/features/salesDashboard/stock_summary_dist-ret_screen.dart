@@ -150,7 +150,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                             tabs: [
                               Tab(text: 'Distributors'),
                               Tab(text: 'Retailers'),
-                              Tab(text: 'CNF Stocks'),
+                              Tab(text: 'CFA Stocks'),
                             ],
                           ),
                         ),

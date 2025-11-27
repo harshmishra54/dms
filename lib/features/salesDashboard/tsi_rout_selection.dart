@@ -363,35 +363,35 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     }),
 
                     // Submit Button
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.topBarColor,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          onPressed: _isSubmitting ? null : _onSubmit,
-                          child: _isSubmitting
-                              ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                              : const AutoTranslateText(
-                            "Submit",
-                            style:
-                            TextStyle(color: Colors.white, fontSize: 15),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(16.0),
+                    //   child: SizedBox(
+                    //     width: double.infinity,
+                    //     child: ElevatedButton(
+                    //       style: ElevatedButton.styleFrom(
+                    //         backgroundColor: AppColors.topBarColor,
+                    //         padding: const EdgeInsets.symmetric(vertical: 14),
+                    //         shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(12)),
+                    //       ),
+                    //       onPressed: _isSubmitting ? null : _onSubmit,
+                    //       child: _isSubmitting
+                    //           ? const SizedBox(
+                    //         height: 22,
+                    //         width: 22,
+                    //         child: CircularProgressIndicator(
+                    //           strokeWidth: 2,
+                    //           color: Colors.white,
+                    //         ),
+                    //       )
+                    //           : const AutoTranslateText(
+                    //         "Submit",
+                    //         style:
+                    //         TextStyle(color: Colors.white, fontSize: 15),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -399,6 +399,37 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        color: Colors.white,
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.topBarColor,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: _isSubmitting ? null : _onSubmit,
+            child: _isSubmitting
+                ? const SizedBox(
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+                : const AutoTranslateText(
+              "Submit",
+              style: TextStyle(color: Colors.white, fontSize: 15),
+            ),
+          ),
+        ),
+      ),
+
     );
 
   }
