@@ -4,6 +4,7 @@ import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -160,14 +161,22 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                   TextField(
                     controller: _meetingNameController,
                     decoration: InputDecoration(
-                        hintText: 'Enter meeting name', border: inputBorder),
+                      hintText: 'Enter meeting name',
+                      border: inputBorder,
+                    ),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  const AutoTranslateText('Place Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const AutoTranslateText('Route Name', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                     controller: _routeNameController,
                     decoration: InputDecoration(
-                        hintText: 'Enter Place name', border: inputBorder),
+                        hintText: 'Enter Route name', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],
                   ),
                   const SizedBox(height: 12),
                   const AutoTranslateText('Meeting Date & Time',
@@ -186,6 +195,21 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                       hintText: 'Enter duration in hours',
                       border: inputBorder,
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,  // only numbers
+                      LengthLimitingTextInputFormatter(2),     // max 2 digits (00–99)
+                    ],
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        final numValue = int.tryParse(value) ?? 0;
+                        if (numValue > 12) {
+                          _meetingdurationController.text = '12';
+                          _meetingdurationController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _meetingdurationController.text.length),
+                          );
+                        }
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
                   const AutoTranslateText('Crop Focus', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -193,6 +217,9 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     controller: _cropFocusController,
                     decoration:
                     InputDecoration(hintText: 'Enter crop focus', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],
                   ),
                   const SizedBox(height: 12),
                   const AutoTranslateText('Product Discussed',
@@ -201,6 +228,9 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     controller: _productDiscussedController,
                     decoration: InputDecoration(
                         hintText: 'Enter product discussed', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],
                   ),
                   const SizedBox(height: 12),
                   const AutoTranslateText('Schemes Discussed',
@@ -209,6 +239,9 @@ class _CrystalDoctorMeetingState extends State<CrystalDoctorMeeting> {
                     controller: _schemesDiscussedController,
                     decoration: InputDecoration(
                         hintText: 'Enter schemes discussed', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],
                   ),
                   const SizedBox(height: 12),
                   EventPhotosSection(

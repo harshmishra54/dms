@@ -23,9 +23,6 @@ import 'package:TrustTags_DMS/features/home/widgets/schemes_banner.dart';
 import 'package:TrustTags_DMS/features/home/widgets/stories_section.dart';
 
 import 'inward_screen.dart';
-// TODO: Add this import with correct path
-// import 'package:TrustTags_DMS/path/to/recommendation_screen.dart';
-
 class DistributorDashboard extends StatefulWidget {
   /// Optional param to tell which action button to highlight when opening dashboard
   final String? highlightAction;
@@ -37,9 +34,6 @@ class DistributorDashboard extends StatefulWidget {
 }
 
 class _DistributorDashboardState extends State<DistributorDashboard> with TickerProviderStateMixin {
-  // Floating button properties
-  Offset _floatingPosition = const Offset(20, 400);
-  bool _isDragging = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -123,208 +117,172 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Stack(
+        body: Column(
           children: [
-            Column(
-              children: [
-                const AppStatusBar(),
-                // Top bar
-                Material(
-                  elevation: 3,
-                  child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            showGeneralDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              barrierLabel: 'Drawer',
-                              transitionDuration: const Duration(milliseconds: 250),
-                              pageBuilder: (context, _, __) {
-                                return DistributorCustomDrawerModal(
-                                  onLogout: () {
-                                    Navigator.of(context).pop();
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => LandingScreen()),
-                                          (route) => false,
-                                    );
-                                  },
+            const AppStatusBar(),
+            // Top bar
+            Material(
+              elevation: 3,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Drawer button
+                    GestureDetector(
+                      onTap: () {
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: 'Drawer',
+                          transitionDuration: const Duration(milliseconds: 250),
+                          pageBuilder: (context, _, __) {
+                            return DistributorCustomDrawerModal(
+                              onLogout: () {
+                                Navigator.of(context).pop();
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LandingScreen()),
+                                      (route) => false,
                                 );
                               },
                             );
                           },
-                          child: const Icon(Icons.menu, color: Colors.black, size: 40),
-                        ),
-                        const GradientText(
-                          'Crystal DMS',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)], // Purple shades
-                          ),
-                        ),
-
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
-                                );
-                              },
-                              child: const Icon(Icons.notifications_none, color: AppColors.topBarColor),
-                            ),
-                            const SizedBox(width: 12),
-                            Image.asset(
-                              'assets/images/crystal_logo.jpeg',
-                              height: 35,
-                              fit: BoxFit.contain,
-                            ),
-                          ],
-                        ),
-                      ],
+                        );
+                      },
+                      child: const Icon(Icons.menu, color: Colors.black, size: 40),
                     ),
-                  ),
-                ),
-                // Main content
-                Expanded(
-                  child: Consumer<DashboardProvider>(
-                    builder: (context, provider, child) {
-                      if (provider.isLoading && provider.data == null) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
 
-                      return RefreshIndicator(
-                        onRefresh: provider.fetchDashboardData,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DistributorProfileCard(),
-                              DashboardActionButtons(
-                                onInwardTap: () => _openInward(context),
-                                onScanTap: () {},
-                                onRewardTap: () => _openReward(context),
-                                highlightAction: widget.highlightAction, // ✅ Highlight support
-                              ),
-                              PointsUnitsCard(),
-                              StoriesSection(),
-                              const DiscoverCarousel(),
-                              const SizedBox(height: 10),
-                              const SchemesBanner(),
-                            ],
-                          ),
+                    // Title
+                    const GradientText(
+                      'Crystal DMS',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
+                      ),
+                    ),
+
+                    // Notification + AI button (replaces logo)
+                    Row(
+                      children: [
+                        // Notification
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                            );
+                          },
+                          child: const Icon(Icons.notifications_none, color: AppColors.topBarColor),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+                        const SizedBox(width: 12),
 
-            // 🔹 FLOATING AI ASSISTANT BUTTON
-            Positioned(
-              left: _floatingPosition.dx,
-              top: _floatingPosition.dy,
-              child: GestureDetector(
-                onPanStart: (details) {
-                  setState(() => _isDragging = true);
-                },
-                onPanUpdate: (details) {
-                  setState(() {
-                    final screenHeight = MediaQuery.of(context).size.height;
-                    final bottomSafeArea = MediaQuery.of(context).padding.bottom + 70; // Safe area + button height
-                    final maxY = screenHeight - bottomSafeArea - 70;
-
-                    _floatingPosition = Offset(
-                      (_floatingPosition.dx + details.delta.dx).clamp(0.0, MediaQuery.of(context).size.width - 70),
-                      (_floatingPosition.dy + details.delta.dy).clamp(0.0, maxY),
-                    );
-                  });
-                },
-                onPanEnd: (details) {
-                  setState(() => _isDragging = false);
-                  // Snap to nearest edge
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final shouldSnapLeft = _floatingPosition.dx < screenWidth / 2;
-
-                  setState(() {
-                    _floatingPosition = Offset(
-                      shouldSnapLeft ? 20 : screenWidth - 90,
-                      _floatingPosition.dy,
-                    );
-                  });
-                },
-                onTap: _openRecommendationScreen,
-                child: AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _isDragging ? 1.1 : _pulseAnimation.value,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF9C27B0).withOpacity(0.4),
-                              blurRadius: _isDragging ? 20 : 15,
-                              spreadRadius: _isDragging ? 5 : 2,
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: Icon(
-                                Icons.psychology,
-                                color: Colors.white,
-                                size: _isDragging ? 36 : 32,
-                              ),
-                            ),
-                            // Small pulsing dot
-                            if (!_isDragging)
-                              Positioned(
-                                top: 12,
-                                right: 12,
+                        // Fixed AI Assistant Button
+                        GestureDetector(
+                          onTap: _openRecommendationScreen,
+                          child: AnimatedBuilder(
+                            animation: _pulseAnimation,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _pulseAnimation.value,
                                 child: Container(
-                                  width: 12,
-                                  height: 12,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.greenAccent,
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.greenAccent.withOpacity(0.6),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
+                                        color: const Color(0xFF9C27B0).withOpacity(0.4),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                        child: Icon(
+                                          Icons.psychology,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      // Small pulsing dot
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.greenAccent,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.greenAccent.withOpacity(0.6),
+                                                blurRadius: 6,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                          ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ),
+
+            // Main content
+            Expanded(
+              child: Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading && provider.data == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: provider.fetchDashboardData,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DistributorProfileCard(),
+                          DashboardActionButtons(
+                            onInwardTap: () => _openInward(context),
+                            onScanTap: () {},
+                            onRewardTap: () => _openReward(context),
+                            highlightAction: widget.highlightAction,
+                          ),
+                          PointsUnitsCard(),
+                          StoriesSection(),
+                          const DiscoverCarousel(),
+                          const SizedBox(height: 10),
+                          const SchemesBanner(),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

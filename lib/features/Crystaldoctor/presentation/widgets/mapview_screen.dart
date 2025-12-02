@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/get_activity_timeline_provider.dart';
 import 'package:flutter/material.dart';
@@ -338,16 +339,16 @@ class _MapViewScreenState extends State<MapViewScreen> with TickerProviderStateM
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                        const SizedBox(height: 16),
-                        AutoTranslateText(
-                          "Failed to load route data",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[800],
-                          ),
-                        ),
+                        // Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                        // const SizedBox(height: 16),
+                        // AutoTranslateText(
+                        //   "No Route Found",
+                        //   style: TextStyle(
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.w600,
+                        //     color: Colors.grey[800],
+                        //   ),
+                        // ),
                         const SizedBox(height: 8),
                         AutoTranslateText(
                           provider.errorMessage!,
@@ -359,7 +360,7 @@ class _MapViewScreenState extends State<MapViewScreen> with TickerProviderStateM
                           icon: const Icon(Icons.refresh),
                           label: const AutoTranslateText("Retry"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
+                            backgroundColor: AppColors.topBarColor,
                             foregroundColor: Colors.white,
                           ),
                           onPressed: () {

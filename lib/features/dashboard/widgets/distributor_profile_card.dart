@@ -5,9 +5,27 @@ import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/milestone_provider.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/my_category_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/tab_stat_section.dart';
 import '../../../../common/app_colors.dart';
 import 'package:TrustTags_DMS/data/models/milestone_response.dart';
+
+
+Color getCategoryColor(String category) {
+  switch (category.toLowerCase()) {
+    case "silver":
+      return const Color(0xFFC0C0C0); // silver
+    case "gold":
+      return const Color(0xFFD4AF37); // gold
+    case "platinum":
+      return const Color(0xFFB0E0E6); // platinum (light blue)
+    case "diamond":
+      return const Color(0xFF9B59B6); // purple diamond
+    default:
+      return Colors.black; // fallback
+  }
+}
+
 
 class DistributorProfileCard extends StatefulWidget {
   const DistributorProfileCard({super.key});
@@ -60,11 +78,18 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
     final channelProvider =
     Provider.of<ChannelPerformanceProvider>(context, listen: false);
-    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    final profileProvider =
+    Provider.of<ProfileProvider>(context, listen: false);
     final milestoneProvider =
     Provider.of<MilestoneProvider>(context, listen: false);
+    final categoryProvider =
+    Provider.of<MyCategoryProvider>(context, listen: false);
 
-    channelProvider.fetchChannelPerformance();
+    channelProvider.fetchChannelPerformance().then((_) {
+      final pts = channelProvider.data?.data?.rewards?.points ?? 0;
+      categoryProvider.getMyCategory(pts);
+    });
+
     milestoneProvider.fetchMilestones();
 
     SharedPrefsHelper.getAccessToken().then((token) {
@@ -117,6 +142,19 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                 final rewards = channelProvider.data?.data?.rewards;
                 final int availablePoints = rewards?.availablePoints ?? 0;
 
+                final myCategory =
+                    Provider.of<MyCategoryProvider>(context).categoryData;
+
+                final currentCategory =
+                    myCategory?.currentCategory ?? "—";
+                final nextCategory =
+                    myCategory?.nextCategory ?? "—";
+                final nextCategoryPoints =
+                    myCategory?.pointsRequiredForNextCategory ?? 0;
+                final currentCategoryColor = getCategoryColor(currentCategory);
+                final nextCategoryColor = getCategoryColor(nextCategory);
+
+
                 final displayName =
                     profileProvider.decryptedCustomerData?.name ?? userName;
 
@@ -134,7 +172,8 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
                 int maxValue =
                 milestones.isNotEmpty ? milestones.last.value : availablePoints;
-                double progress = (availablePoints / maxValue).clamp(0, 1).toDouble();
+                double progress =
+                (availablePoints / maxValue).clamp(0, 1).toDouble();
 
                 if (profileProvider.isLoading || milestoneProvider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -143,7 +182,7 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Top Row with Name, Role, Avatar
+                    /// Header With Name / Avatar
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
@@ -183,20 +222,22 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                           CircleAvatar(
                             radius: 28,
                             backgroundImage: (
-                                profileProvider.decryptedCustomerData
+                                profileProvider
+                                    .decryptedCustomerData
                                     ?.profilepicture !=
                                     null &&
-                                    profileProvider.decryptedCustomerData!
+                                    profileProvider
+                                        .decryptedCustomerData!
                                         .profilepicture!
                                         .isNotEmpty)
                                 ? NetworkImage(
                               profileProvider
-                                  .decryptedCustomerData!.profilepicture!,
+                                  .decryptedCustomerData!
+                                  .profilepicture!,
                             )
                                 : const AssetImage(
                                 "assets/images/trust_tags.png")
                             as ImageProvider,
-                            onBackgroundImageError: (_, __) {},
                           )
                         ],
                       ),
@@ -204,34 +245,24 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
                     const SizedBox(height: 12),
 
-                    /// Points Row (Gold + Platinum) - Fixed Alignment
+                    /// ⭐⭐⭐ DYNAMIC CATEGORY ROW ⭐⭐⭐
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        /// LEFT SIDE: Available Points + Gold
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
                           child: RichText(
                             text: TextSpan(
                               children: [
-                                // TextSpan(
-                                //   text: "$availablePoints ",
-                                //   style: const TextStyle(
-                                //     fontSize: 20,
-                                //     fontWeight: FontWeight.bold,
-                                //     color: AppColors.topBarColor,
-                                //   ),
-                                // ),
                                 TextSpan(
-                                  text: "Gold ",
-                                  style: const TextStyle(
+                                  text: "$currentCategory ",
+                                  style:  TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFFFFD700),
+                                    color: currentCategoryColor,
                                   ),
                                 ),
-
                                 TextSpan(
                                   text: "$availablePoints ",
                                   style: const TextStyle(
@@ -244,18 +275,15 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
                             ),
                           ),
                         ),
-
                         const Spacer(),
-
-                        /// RIGHT SIDE: 500 Points Platinum
-                        const Padding(
-                          padding: EdgeInsets.only(right: 18.0),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 18.0),
                           child: Text(
-                            "Platinum @ 500 Points ",
-                            style: TextStyle(
+                            "$nextCategory @ $nextCategoryPoints Points",
+                            style:  TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFC5C9CC),
+                              color: nextCategoryColor,
                             ),
                           ),
                         ),
@@ -302,7 +330,7 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
                     const SizedBox(height: 20),
 
-                    /// Rewards Progress
+                    /// Milestone Section (UNTOUCHED)
                     Column(
                       children: [
                         Row(
@@ -389,7 +417,6 @@ class _DistributorProfileCardState extends State<DistributorProfileCard>
 
                     const SizedBox(height: 20),
 
-                    /// Tab Stat Section
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.0),
                       child: TabStatSection(),

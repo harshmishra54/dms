@@ -292,7 +292,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           _drawerItem(context, Icons.timer_off, 'Punch Out', PunchOut()),
 
                           _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
-                          _drawerItem(context, Icons.qr_code, 'Demand Prediction', const FarmerDemandDashboard()),
+                          // _drawerItem(context, Icons.qr_code, 'Demand Prediction', const FarmerDemandDashboard()),
 
 
                           ListTile(

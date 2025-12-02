@@ -135,7 +135,7 @@ class _FarmerDashboardProfileCardState
                           ),
                           const SizedBox(width: 6),
                           const AutoTranslateText(
-                            "Points Balance",
+                            "Points",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

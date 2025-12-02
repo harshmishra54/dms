@@ -56,6 +56,7 @@ import 'package:TrustTags_DMS/features/dashboard/provider/focus_product_provider
 import 'package:TrustTags_DMS/features/dashboard/provider/inward_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/meeting_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/milestone_provider.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/my_category_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/order_list_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/order_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/order_update_provider.dart';
@@ -422,6 +423,7 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> FarmerConsiderationProvider()),
         ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
         ChangeNotifierProvider(create: (_)=> AddPurchaseProvider()),
+        ChangeNotifierProvider(create: (_)=> MyCategoryProvider()),
 
 
       ],

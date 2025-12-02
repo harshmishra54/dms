@@ -37,9 +37,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
   final PageController _pageController = PageController();
   Timer? _autoSlideTimer;
 
-  // Floating button properties
-  Offset _floatingPosition = const Offset(20, 400);
-  bool _isDragging = false;
+  // Pulse animation for AI icon
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -58,14 +56,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Wait until first frame is rendered
+    // Start auto slide after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startAutoSlide();
     });
   }
 
   void _startAutoSlide() {
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) { // wait 15 sec between slides
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (!_pageController.hasClients) return;
 
       final currentPage = _pageController.page?.round() ?? 0;
@@ -73,11 +71,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
 
       _pageController.animateToPage(
         nextPage,
-        duration: const Duration(seconds: 1), // 1-second smooth animation
+        duration: const Duration(seconds: 1),
         curve: Curves.easeInOut,
       );
     });
-
   }
 
   @override
@@ -174,271 +171,217 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Stack(
+        body: Column(
           children: [
-            Column(
-              children: [
-                const AppStatusBar(),
+            const AppStatusBar(),
 
-                // 🔹 TOP BAR
-                Material(
-                  elevation: 3,
-                  child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // 🔹 TOP BAR
+            Material(
+              elevation: 3,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: 'Drawer',
+                          transitionDuration: const Duration(milliseconds: 250),
+                          pageBuilder: (context, _, __) {
+                            return const SalesCustomDrawer();
+                          },
+                        );
+                      },
+                      child: const Icon(Icons.menu, color: Colors.black, size: 40),
+                    ),
+                    const GradientText(
+                      'Crystal Sales',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
+                      ),
+                    ),
+                    Row(
                       children: [
                         GestureDetector(
                           onTap: () {
-                            showGeneralDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              barrierLabel: 'Drawer',
-                              transitionDuration: const Duration(milliseconds: 250),
-                              pageBuilder: (context, _, __) {
-                                return const SalesCustomDrawer();
-                              },
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const NotificationScreen()),
                             );
                           },
-                          child: const Icon(Icons.menu, color: Colors.black, size: 40),
+                          child: const Icon(Icons.notifications_none, color: AppColors.topBarColor),
                         ),
-                        const GradientText(
-                          'Crystal Sales',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
-                                );
-                              },
-                              child: const Icon(Icons.notifications_none, color: AppColors.topBarColor),
-                            ),
-                            const SizedBox(width: 12),
-                            Image.asset(
-                              'assets/images/crystal_logo.jpeg',
-                              height: 35,
-                              fit: BoxFit.contain,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                        const SizedBox(width: 12),
 
-                // 🔹 MAIN CONTENT (PageView + Stories + Schemes)
-                Expanded(
-                  child: Consumer2<ChannelPerformanceProvider, DashboardProvider>(
-                    builder: (context, channelProvider, dashboardProvider, _) {
-                      final hasError = channelProvider.errorMessage.isNotEmpty ||
-                          dashboardProvider.errorMessage.isNotEmpty;
-
-                      if ((channelProvider.data == null || dashboardProvider.data == null) && !hasError) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (hasError) {
-                        return Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const AutoTranslateText(
-                                "Failed to load data",
-                                style: TextStyle(color: Colors.red, fontSize: 16),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: _fetchAllData,
-                                child: const AutoTranslateText("Retry"),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      final channelData = channelProvider.data?.data;
-
-                      return RefreshIndicator(
-                        onRefresh: () async {
-                          _fetchAllData();
-                        },
-                        child: PageView(
-                          controller: _pageController,
-                          physics: const BouncingScrollPhysics(),
-                          children: [
-                            // 🟣 PAGE 1 — Dashboard + Stories + Schemes
-                            SingleChildScrollView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 🔸 Tab Stats + Visits
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    padding: const EdgeInsets.all(16),
-                                    child: const TabStatSection(),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: const [
-                                        BoxShadow(color: Colors.black12, blurRadius: 6)
-                                      ],
-                                    ),
-                                    child: const VisitSection(),
-                                  ),
-
-                                  const SizedBox(height: 8),
-
-                                  // 🔹 Stories Section
-                                  const StoriesSection(),
-                                  const SizedBox(height: 10),
-
-                                  // 🔹 Discover Carousel
-                                  if (channelData?.schemeBanners != null &&
-                                      channelData!.schemeBanners!.isNotEmpty)
-                                    const DiscoverCarousel()
-                                  else
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      alignment: Alignment.center,
-                                      child: const AutoTranslateText(
-                                        "No schemes to discover",
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    ),
-
-                                  const SizedBox(height: 10),
-
-                                ],
-                              ),
-                            ),
-
-                            // 🟣 PAGE 2 — Full Activity Overview
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: TsiActivity(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            // 🔹 FLOATING AI ASSISTANT BUTTON
-            Positioned(
-              left: _floatingPosition.dx,
-              top: _floatingPosition.dy,
-              child: GestureDetector(
-                onPanStart: (details) {
-                  setState(() => _isDragging = true);
-                },
-                onPanUpdate: (details) {
-                  setState(() {
-                    final screenHeight = MediaQuery.of(context).size.height;
-                    final bottomBarHeight = kBottomNavigationBarHeight + 20; // Bottom bar + padding
-                    final maxY = screenHeight - bottomBarHeight - 70; // 70 is button height
-
-                    _floatingPosition = Offset(
-                      (_floatingPosition.dx + details.delta.dx).clamp(0.0, MediaQuery.of(context).size.width - 70),
-                      (_floatingPosition.dy + details.delta.dy).clamp(0.0, maxY),
-                    );
-                  });
-                },
-                onPanEnd: (details) {
-                  setState(() => _isDragging = false);
-                  // Snap to nearest edge
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final shouldSnapLeft = _floatingPosition.dx < screenWidth / 2;
-
-                  setState(() {
-                    _floatingPosition = Offset(
-                      shouldSnapLeft ? 20 : screenWidth - 90,
-                      _floatingPosition.dy,
-                    );
-                  });
-                },
-                onTap: _openRecommendationScreen,
-                child: AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _isDragging ? 1.1 : _pulseAnimation.value,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF9C27B0).withOpacity(0.4),
-                              blurRadius: _isDragging ? 20 : 15,
-                              spreadRadius: _isDragging ? 5 : 2,
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: Icon(
-                                Icons.psychology,
-                                color: Colors.white,
-                                size: _isDragging ? 36 : 32,
-                              ),
-                            ),
-                            // Small pulsing dot
-                            if (!_isDragging)
-                              Positioned(
-                                top: 12,
-                                right: 12,
+                        // ✅ Pulsing AI icon fixed here
+                        GestureDetector(
+                          onTap: _openRecommendationScreen,
+                          child: AnimatedBuilder(
+                            animation: _pulseAnimation,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _pulseAnimation.value,
                                 child: Container(
-                                  width: 12,
-                                  height: 12,
+                                  width: 50,
+                                  height: 50,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.greenAccent,
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.greenAccent.withOpacity(0.6),
-                                        blurRadius: 8,
+                                        color: const Color(0xFF9C27B0).withOpacity(0.4),
+                                        blurRadius: 15,
                                         spreadRadius: 2,
                                       ),
                                     ],
                                   ),
+                                  child: Stack(
+                                    children: [
+                                      const Center(
+                                        child: Icon(Icons.psychology, color: Colors.white, size: 32),
+                                      ),
+                                      Positioned(
+                                        top: 12,
+                                        right: 12,
+                                        child: Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.greenAccent,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.greenAccent.withOpacity(0.6),
+                                                blurRadius: 8,
+                                                spreadRadius: 2,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                          ],
+                              );
+                            },
+                          ),
                         ),
+
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // 🔹 MAIN CONTENT
+            Expanded(
+              child: Consumer2<ChannelPerformanceProvider, DashboardProvider>(
+                builder: (context, channelProvider, dashboardProvider, _) {
+                  final hasError = channelProvider.errorMessage.isNotEmpty ||
+                      dashboardProvider.errorMessage.isNotEmpty;
+
+                  if ((channelProvider.data == null || dashboardProvider.data == null) && !hasError) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const AutoTranslateText(
+                            "Failed to load data",
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: _fetchAllData,
+                            child: const AutoTranslateText("Retry"),
+                          ),
+                        ],
                       ),
                     );
-                  },
-                ),
+                  }
+
+                  final channelData = channelProvider.data?.data;
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      _fetchAllData();
+                    },
+                    child: PageView(
+                      controller: _pageController,
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        // PAGE 1
+                        SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.grey.shade100,
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: const TabStatSection(),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: const [
+                                    BoxShadow(color: Colors.black12, blurRadius: 6)
+                                  ],
+                                ),
+                                child: const VisitSection(),
+                              ),
+                              const SizedBox(height: 8),
+                              const StoriesSection(),
+                              const SizedBox(height: 10),
+                              if (channelData?.schemeBanners != null &&
+                                  channelData!.schemeBanners!.isNotEmpty)
+                                const DiscoverCarousel()
+                              else
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  alignment: Alignment.center,
+                                  child: const AutoTranslateText(
+                                    "No schemes to discover",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
+                        ),
+
+                        // PAGE 2 — Full Activity Overview
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: TsiActivity(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],

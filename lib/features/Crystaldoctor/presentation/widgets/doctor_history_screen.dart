@@ -113,28 +113,28 @@ class _DoctorHistoryScreenState extends State<DoctorHistoryScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.error_outline,
-                              size: 56,
-                              color: Colors.red[400],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          AutoTranslateText(
-                            "Oops! Something went wrong",
-                            style: TextStyle(
-                              color: Colors.grey[800],
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
+                          // Container(
+                          //   padding: const EdgeInsets.all(20),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.red[50],
+                          //     shape: BoxShape.circle,
+                          //   ),
+                          //   child: Icon(
+                          //     Icons.error_outline,
+                          //     size: 56,
+                          //     color: Colors.red[400],
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 24),
+                          // AutoTranslateText(
+                          //   "Oops! Something went wrong",
+                          //   style: TextStyle(
+                          //     color: Colors.grey[800],
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.w600,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 32),
                             child: AutoTranslateText(

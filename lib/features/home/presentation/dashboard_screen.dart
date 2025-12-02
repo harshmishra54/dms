@@ -42,9 +42,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   bool get wantKeepAlive => true;
 
-  // Floating button properties
-  Offset _floatingPosition = const Offset(20, 400);
-  bool _isDragging = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -73,7 +70,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     final dashboardProvider =
     Provider.of<DashboardProvider>(context, listen: false);
 
-    // Fetch without trying to reset the state
     await channelProvider.fetchChannelPerformance();
     await dashboardProvider.fetchDashboardData();
   }
@@ -126,58 +122,60 @@ class _DashboardScreenState extends State<DashboardScreen>
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Stack(
+        body: Column(
           children: [
-            Column(
-              children: [
-                const AppStatusBar(),
+            const AppStatusBar(),
 
-                // Top bar
-                Material(
-                  elevation: 3,
-                  child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            showGeneralDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              barrierLabel: 'Drawer',
-                              transitionDuration: const Duration(milliseconds: 250),
-                              pageBuilder: (context, _, __) {
-                                return CustomDrawerModal(
-                                  onLogout: () {
-                                    Navigator.of(context).pop();
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const LandingScreen(),
-                                      ),
-                                          (route) => false,
-                                    );
-                                  },
+            // Top bar
+            Material(
+              elevation: 3,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: 'Drawer',
+                          transitionDuration: const Duration(milliseconds: 250),
+                          pageBuilder: (context, _, __) {
+                            return CustomDrawerModal(
+                              onLogout: () {
+                                Navigator.of(context).pop();
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LandingScreen(),
+                                  ),
+                                      (route) => false,
                                 );
                               },
                             );
                           },
-                          child: const Icon(Icons.menu, color: Colors.black, size: 40),
-                        ),
-                        const GradientText(
-                          'Crystal DMS',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)], // Purple shades
-                          ),
-                        ),
+                        );
+                      },
+                      child: const Icon(Icons.menu, color: Colors.black, size: 40),
+                    ),
+                    const GradientText(
+                      'Crystal DMS',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF9C27B0), Color(0xFF673AB7)], // Purple shades
+                      ),
+                    ),
 
-                        const SizedBox(width: 4),
+                    const SizedBox(width: 8),
+
+                    // Notification + AI Button
+                    Row(
+                      children: [
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -192,159 +190,119 @@ class _DashboardScreenState extends State<DashboardScreen>
                             color: AppColors.topBarColor,
                           ),
                         ),
-                        Image.asset(
-                          'assets/images/crystal_logo.jpeg',
-                          height: 35,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
+                        const SizedBox(width: 12),
 
-                // Main content
-                Expanded(
-                  child: Consumer<ChannelPerformanceProvider>(
-                    builder: (context, provider, _) {
-                      final channelData = provider.data?.data;
-
-                      // Show cached data if available, otherwise loader
-                      if (channelData == null) {
-                        if (provider.isLoading) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (provider.errorMessage.isNotEmpty) {
-                          return Center(child: AutoTranslateText(provider.errorMessage));
-                        } else {
-                          return const Center(child: AutoTranslateText('No data available'));
-                        }
-                      }
-
-                      // Default values to avoid null errors
-                      final points = (channelData.rewards?.points ?? 0).toDouble();
-                      final schemeBanners = channelData.schemeBanners ?? [];
-                      final scanCodes = channelData.counts ?? 0;
-
-                      return RefreshIndicator(
-                        onRefresh: _fetchFreshData,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const PointsSection(),
-                              EarnedPointsSection(
-                                earnedPoints: points,
-                                scanCodes: scanCodes,
-                              ),
-                              const StoriesSection(),
-                              if (schemeBanners.isNotEmpty) const DiscoverCarousel(),
-                              if (schemeBanners.isNotEmpty) const SchemesBanner(),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            // 🔹 FLOATING AI ASSISTANT BUTTON
-            Positioned(
-              left: _floatingPosition.dx,
-              top: _floatingPosition.dy,
-              child: GestureDetector(
-                onPanStart: (details) {
-                  setState(() => _isDragging = true);
-                },
-                onPanUpdate: (details) {
-                  setState(() {
-                    final screenHeight = MediaQuery.of(context).size.height;
-                    final bottomSafeArea = MediaQuery.of(context).padding.bottom + 70; // Safe area + button height
-                    final maxY = screenHeight - bottomSafeArea - 70;
-
-                    _floatingPosition = Offset(
-                      (_floatingPosition.dx + details.delta.dx).clamp(0.0, MediaQuery.of(context).size.width - 70),
-                      (_floatingPosition.dy + details.delta.dy).clamp(0.0, maxY),
-                    );
-                  });
-                },
-                onPanEnd: (details) {
-                  setState(() => _isDragging = false);
-                  // Snap to nearest edge
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final shouldSnapLeft = _floatingPosition.dx < screenWidth / 2;
-
-                  setState(() {
-                    _floatingPosition = Offset(
-                      shouldSnapLeft ? 20 : screenWidth - 90,
-                      _floatingPosition.dy,
-                    );
-                  });
-                },
-                onTap: _openRecommendationScreen,
-                child: AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _isDragging ? 1.1 : _pulseAnimation.value,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF9C27B0).withOpacity(0.4),
-                              blurRadius: _isDragging ? 20 : 15,
-                              spreadRadius: _isDragging ? 5 : 2,
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: Icon(
-                                Icons.psychology,
-                                color: Colors.white,
-                                size: _isDragging ? 36 : 32,
-                              ),
-                            ),
-                            // Small pulsing dot
-                            if (!_isDragging)
-                              Positioned(
-                                top: 12,
-                                right: 12,
+                        // Fixed AI Assistant Button
+                        GestureDetector(
+                          onTap: _openRecommendationScreen,
+                          child: AnimatedBuilder(
+                            animation: _pulseAnimation,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _pulseAnimation.value,
                                 child: Container(
-                                  width: 12,
-                                  height: 12,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.greenAccent,
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [Color(0xFF9C27B0), Color(0xFF673AB7)],
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.greenAccent.withOpacity(0.6),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
+                                        color: const Color(0xFF9C27B0).withOpacity(0.4),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                        child: Icon(
+                                          Icons.psychology,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.greenAccent,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.greenAccent.withOpacity(0.6),
+                                                blurRadius: 6,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                          ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Main content
+            Expanded(
+              child: Consumer<ChannelPerformanceProvider>(
+                builder: (context, provider, _) {
+                  final channelData = provider.data?.data;
+
+                  if (channelData == null) {
+                    if (provider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (provider.errorMessage.isNotEmpty) {
+                      return Center(child: AutoTranslateText(provider.errorMessage));
+                    } else {
+                      return const Center(child: AutoTranslateText('No data available'));
+                    }
+                  }
+
+                  final points = (channelData.rewards?.points ?? 0).toDouble();
+                  final schemeBanners = channelData.schemeBanners ?? [];
+                  final scanCodes = channelData.counts ?? 0;
+
+                  return RefreshIndicator(
+                    onRefresh: _fetchFreshData,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const PointsSection(),
+                          EarnedPointsSection(
+                            earnedPoints: points,
+                            scanCodes: scanCodes,
+                          ),
+                          const StoriesSection(),
+                          if (schemeBanners.isNotEmpty) const DiscoverCarousel(),
+                          if (schemeBanners.isNotEmpty) const SchemesBanner(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

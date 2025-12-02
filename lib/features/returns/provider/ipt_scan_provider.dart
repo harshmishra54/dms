@@ -34,11 +34,16 @@ class IPTScanProvider with ChangeNotifier {
 
       if (response.statusCode == 200 && response.data != null) {
         final scanResponse = AddReturnScanCodeResponse.fromJson(response.data);
+
+        // ⚠ API success message
+        _errorMessage = scanResponse.message;
+
         if (scanResponse.data != null) {
-          _scannedItems.add(scanResponse.data!); // ✅ add to list
+          _scannedItems.add(scanResponse.data!);
         }
       } else {
-        _errorMessage = 'Something went wrong. Please try again.';
+        // ⚠ API error message
+        _errorMessage = response.data["message"] ?? "Something went wrong";
       }
     } catch (e) {
       _errorMessage = e.toString();

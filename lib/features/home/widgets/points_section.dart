@@ -1,5 +1,6 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/my_category_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -7,6 +8,21 @@ import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_pr
 import 'package:TrustTags_DMS/features/dashboard/provider/milestone_provider.dart';
 import '../../../../common/app_colors.dart';
 import 'package:TrustTags_DMS/data/models/milestone_response.dart';
+
+Color getCategoryColor(String category) {
+  switch (category.toLowerCase()) {
+    case "silver":
+      return const Color(0xFFC0C0C0); // silver
+    case "gold":
+      return const Color(0xFFD4AF37); // gold
+    case "platinum":
+      return const Color(0xFFB0E0E6); // platinum (light blue)
+    case "diamond":
+      return const Color(0xFF9B59B6); // purple diamond
+    default:
+      return Colors.black; // fallback
+  }
+}
 
 class PointsSection extends StatefulWidget {
   const PointsSection({super.key});
@@ -59,6 +75,12 @@ class _PointsSection extends State<PointsSection>
     final channelProvider = Provider.of<ChannelPerformanceProvider>(context, listen: false);
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
     final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+    final categoryProvider =
+    Provider.of<MyCategoryProvider>(context, listen: false);
+    channelProvider.fetchChannelPerformance().then((_) {
+      final pts = channelProvider.data?.data?.rewards?.points ?? 0;
+      categoryProvider.getMyCategory(pts);
+    });
 
     channelProvider.fetchChannelPerformance();
     milestoneProvider.fetchMilestones();
@@ -111,6 +133,17 @@ class _PointsSection extends State<PointsSection>
                 final rewards = channelProvider.data?.data?.rewards;
                 final int availablePoints = rewards?.availablePoints ?? 0;
                 final String tier = 'GOLD';
+                final myCategory =
+                    Provider.of<MyCategoryProvider>(context).categoryData;
+
+                final currentCategory =
+                    myCategory?.currentCategory ?? "—";
+                final nextCategory =
+                    myCategory?.nextCategory ?? "—";
+                final nextCategoryPoints =
+                    myCategory?.pointsRequiredForNextCategory ?? 0;
+                final currentCategoryColor = getCategoryColor(currentCategory);
+                final nextCategoryColor = getCategoryColor(nextCategory);
 
                 final displayName =
                     profileProvider.decryptedCustomerData?.name ?? userName;
@@ -191,28 +224,53 @@ class _PointsSection extends State<PointsSection>
                         ],
                       ),
                     ),
+
 // then show points below separately
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
-                      child: Text(
-                        availablePoints.toString(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.topBarColor,
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12.0),
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "$currentCategory ",
+                                  style:  TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: currentCategoryColor,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "$availablePoints ",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.topBarColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
-                      child: const Text(
-                        "Points",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 18.0),
+                          child: Text(
+                            "$nextCategory @ $nextCategoryPoints Points",
+                            style:  TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: nextCategoryColor,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                    const SizedBox(height: 10),
 
 
 

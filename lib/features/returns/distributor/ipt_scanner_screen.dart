@@ -43,6 +43,13 @@ class _IptScannerScreenState extends State<IptScannerScreen> {
     await provider.scanIPTCode(
       AddReturnScanCodePostData(uniqueCode: code, id: id ?? ""),
     );
+    if (provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: AutoTranslateText(provider.errorMessage!)),
+      );
+      _scannerKey.currentState?.resetScanner();
+      return;
+    }
 
     Future.delayed(const Duration(milliseconds: 500), () {
       _scannerKey.currentState?.resetScanner();

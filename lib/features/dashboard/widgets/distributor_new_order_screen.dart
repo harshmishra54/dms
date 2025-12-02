@@ -240,7 +240,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                         showSearchBox: true,
                         searchFieldProps: TextFieldProps(
                           decoration: InputDecoration(
-                            hintText: "Search Distributor",
+                            hintText: "Search Here",
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(horizontal: 10),
                           ),

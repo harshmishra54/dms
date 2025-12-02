@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -191,22 +192,27 @@ class _AddMeetingScreenState extends State<AddMeetingScreen> {
                   TextField(
                       controller: _meetingNameController,
                       decoration: InputDecoration(
-                          hintText: 'Enter meeting name', border: inputBorder)),
+                          hintText: 'Enter meeting name', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],),
                   const SizedBox(height: 12),
 
-                  const AutoTranslateText('Mobile Number', style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextField(
-                      controller: _mobileNumberController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                          hintText: 'Enter mobile number', border: inputBorder)),
-                  const SizedBox(height: 12),
+                  // const AutoTranslateText('Mobile Number', style: TextStyle(fontWeight: FontWeight.bold)),
+                  // TextField(
+                  //     controller: _mobileNumberController,
+                  //     keyboardType: TextInputType.phone,
+                  //     decoration: InputDecoration(
+                  //         hintText: 'Enter mobile number', border: inputBorder)),
+                  // const SizedBox(height: 12),
 
                   const AutoTranslateText('Route Name', style: TextStyle(fontWeight: FontWeight.bold)),
                   TextField(
                       controller: _routeNameController,
                       decoration: InputDecoration(
-                          hintText: 'Enter route name', border: inputBorder)),
+                          hintText: 'Enter route name', border: inputBorder),inputFormatters: [
+                    LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                  ],),
                   const SizedBox(height: 12),
 
                   const AutoTranslateText('Meeting Date & Time',
@@ -222,9 +228,24 @@ class _AddMeetingScreenState extends State<AddMeetingScreen> {
                     controller: _meetingdurationController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      hintText: 'Enter meeting duration in Hours',
+                      hintText: 'Enter duration in hours',
                       border: inputBorder,
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,  // only numbers
+                      LengthLimitingTextInputFormatter(2),     // max 2 digits (00–99)
+                    ],
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        final numValue = int.tryParse(value) ?? 0;
+                        if (numValue > 12) {
+                          _meetingdurationController.text = '12';
+                          _meetingdurationController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _meetingdurationController.text.length),
+                          );
+                        }
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
 
@@ -232,7 +253,10 @@ class _AddMeetingScreenState extends State<AddMeetingScreen> {
                   TextField(
                       controller: _cropFocusController,
                       decoration: InputDecoration(
-                          hintText: 'Enter crop focus', border: inputBorder)),
+                          hintText: 'Enter crop focus', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],),
                   const SizedBox(height: 12),
 
                   const AutoTranslateText('Product Discussed',
@@ -240,7 +264,10 @@ class _AddMeetingScreenState extends State<AddMeetingScreen> {
                   TextField(
                       controller: _productDiscussedController,
                       decoration: InputDecoration(
-                          hintText: 'Enter product discussed', border: inputBorder)),
+                          hintText: 'Enter product discussed', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],),
                   const SizedBox(height: 12),
 
                   const AutoTranslateText('Schemes Discussed',
@@ -248,71 +275,74 @@ class _AddMeetingScreenState extends State<AddMeetingScreen> {
                   TextField(
                       controller: _schemesDiscussedController,
                       decoration: InputDecoration(
-                          hintText: 'Enter schemes discussed', border: inputBorder)),
+                          hintText: 'Enter schemes discussed', border: inputBorder),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50), // restrict to 100 chars
+                    ],),
                   const SizedBox(height: 12),
 
-                  const AutoTranslateText('Other Meeting Members',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Column(
-                    children: List.generate(otherMembers.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: TextField(
-                                controller: otherMembers[index]['name'],
-                                decoration: InputDecoration(
-                                  hintText: 'Name',
-                                  border: inputBorder,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            Expanded(
-                              flex: 5,
-                              child: TextField(
-                                controller: otherMembers[index]['phone'],
-                                keyboardType: TextInputType.phone,
-                                decoration: InputDecoration(
-                                  hintText: 'Phone',
-                                  border: inputBorder,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            Expanded(
-                              flex: 3,
-                              child: TextField(
-                                controller: otherMembers[index]['designation'],
-                                decoration: InputDecoration(
-                                  hintText: 'Designation',
-                                  border: inputBorder,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            SizedBox(
-                              width: 20,
-                              child: index == otherMembers.length - 1
-                                  ? IconButton(
-                                icon: const Icon(Icons.add_circle,
-                                    color: Colors.green),
-                                onPressed: addOtherMember,
-                              )
-                                  : IconButton(
-                                icon: const Icon(Icons.cancel,
-                                    color: Colors.red),
-                                onPressed: () => removeOtherMember(index),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 12),
+                  // const AutoTranslateText('Other Meeting Members',
+                  //     style: TextStyle(fontWeight: FontWeight.bold)),
+                  // Column(
+                  //   children: List.generate(otherMembers.length, (index) {
+                  //     return Padding(
+                  //       padding: const EdgeInsets.symmetric(vertical: 4),
+                  //       child: Row(
+                  //         children: [
+                  //           Expanded(
+                  //             flex: 5,
+                  //             child: TextField(
+                  //               controller: otherMembers[index]['name'],
+                  //               decoration: InputDecoration(
+                  //                 hintText: 'Name',
+                  //                 border: inputBorder,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           const SizedBox(width: 2),
+                  //           Expanded(
+                  //             flex: 5,
+                  //             child: TextField(
+                  //               controller: otherMembers[index]['phone'],
+                  //               keyboardType: TextInputType.phone,
+                  //               decoration: InputDecoration(
+                  //                 hintText: 'Phone',
+                  //                 border: inputBorder,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           const SizedBox(width: 2),
+                  //           Expanded(
+                  //             flex: 3,
+                  //             child: TextField(
+                  //               controller: otherMembers[index]['designation'],
+                  //               decoration: InputDecoration(
+                  //                 hintText: 'Designation',
+                  //                 border: inputBorder,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           const SizedBox(width: 2),
+                  //           SizedBox(
+                  //             width: 20,
+                  //             child: index == otherMembers.length - 1
+                  //                 ? IconButton(
+                  //               icon: const Icon(Icons.add_circle,
+                  //                   color: Colors.green),
+                  //               onPressed: addOtherMember,
+                  //             )
+                  //                 : IconButton(
+                  //               icon: const Icon(Icons.cancel,
+                  //                   color: Colors.red),
+                  //               onPressed: () => removeOtherMember(index),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     );
+                  //   }),
+                  // ),
+                  // const SizedBox(height: 12),
 
                   EventPhotosSection(
                     eventPhotos: _eventPhotos,

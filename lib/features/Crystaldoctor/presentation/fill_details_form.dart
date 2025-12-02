@@ -50,6 +50,21 @@ class _FillDetailsFormState extends State<FillDetailsForm> with SingleTickerProv
     'Rabi (Winter)',
     'Zaid (Summer)',
   ];
+  final List<String> _months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
 
   @override
   void initState() {
@@ -625,13 +640,33 @@ class _FillDetailsFormState extends State<FillDetailsForm> with SingleTickerProv
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _label('Area (Acres)', icon: Icons.square_foot, small: true),
+
                           TextFormField(
-                            controller: crop.areaController,
-                            keyboardType: TextInputType.number,
-                            decoration: _decor('0.0', compact: true),
-                            validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                          ),
-                        ],
+          controller: crop.areaController,
+            keyboardType: TextInputType.number,
+            decoration: _decor('0.0', compact: true),
+
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,     // only numbers allowed
+              LengthLimitingTextInputFormatter(5),        // max 5 digits (0 to 99999)
+            ],
+
+            validator: (val) {
+              if (val == null || val.isEmpty) {
+                return 'Required';
+              }
+
+              final numValue = int.tryParse(val) ?? 0;
+
+              if (numValue > 10000) {
+                return 'Area cannot exceed 10000 acres';
+              }
+
+              return null;
+            },
+          ),
+
+        ],
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -643,7 +678,37 @@ class _FillDetailsFormState extends State<FillDetailsForm> with SingleTickerProv
                           TextFormField(
                             controller: crop.durationController,
                             decoration: _decor('e.g., 4-5', compact: true),
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Required';
+
+                              // Pattern: 1 or 2 digits - 1 or 2 digits
+                              final regex = RegExp(r'^\d{1,2}-\d{1,2}$');
+
+                              if (!regex.hasMatch(value)) {
+                                return 'Enter valid duration (e.g., 4-5 months)';
+                              }
+
+                              // Split values
+                              final parts = value.split('-');
+                              final start = int.tryParse(parts[0]) ?? 0;
+                              final end = int.tryParse(parts[1]) ?? 0;
+
+                              // Month limits
+                              if (start > 11 || end > 11) {
+                                return 'Month cannot exceed 11';
+                              }
+
+                              // Ensure start < end
+                              if (start >= end) {
+                                return 'Start month should be less than end month';
+                              }
+
+                              return null;
+                            },
                           ),
+
+
                         ],
                       ),
                     ),
@@ -725,9 +790,21 @@ class _FillDetailsFormState extends State<FillDetailsForm> with SingleTickerProv
               children: [
                 TextFormField(
                   controller: product.productNameController,
-                  decoration: _decor('Product Name', compact: true, prefixIcon: Icons.label),
-                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  decoration: _decor(
+                    'Product Name',
+                    compact: true,
+                    prefixIcon: Icons.label,
+                  ),
+                  maxLength: 50, // ⭐ Add this
+                  buildCounter: (_, {required int currentLength, required int? maxLength, required bool isFocused}) => null,
+                  // hides the counter UI if you don’t want it
+                  validator: (val) {
+                    if (val == null || val.isEmpty) return 'Required';
+                    if (val.length > 50) return 'Max 50 characters allowed';
+                    return null;
+                  },
                 ),
+
                 const SizedBox(height: 4),
                 Container(
                   decoration: BoxDecoration(
@@ -784,11 +861,29 @@ class _FillDetailsFormState extends State<FillDetailsForm> with SingleTickerProv
                 ),
 
                 const SizedBox(height: 4),
-                TextFormField(
-                  controller: product.expectedMonthController,
-                  decoration: _decor('Expected Month', compact: true),
-                ),
-                const SizedBox(height: 4),
+              DropdownButtonFormField<String>(
+                value: product.expectedMonthController.text.isNotEmpty
+                    ? product.expectedMonthController.text
+                    : null,
+                decoration: _decor('Expected Month', compact: true, prefixIcon: Icons.calendar_today),
+                items: _months.map((month) {
+                  return DropdownMenuItem(
+                    value: month,
+                    child: AutoTranslateText(
+                      month,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    product.expectedMonthController.text = value!;
+                  });
+                },
+                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              ),
+
+              const SizedBox(height: 4),
                 TextFormField(
                   controller: product.remarksController,
                   decoration: _decor('Remarks (Optional)', compact: true),
