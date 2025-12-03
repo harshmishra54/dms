@@ -7,6 +7,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/expense_provider.
 import 'package:TrustTags_DMS/features/salesDashboard/provider/expenselist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../../common/app_colors.dart';
 import '../../../common/widgets/app_status_bar.dart';
@@ -354,7 +355,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       const SizedBox(height: 12),
                       _buildTextField(controller: _reasonController, hint: 'Expense Reason'),
                       const SizedBox(height: 12),
-                      _buildTextField(controller: _amountController, hint: 'Amount', keyboardType: TextInputType.number),
+                      _buildTextField(
+                        controller: _amountController,
+                        hint: 'Amount',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,   // <-- blocks everything except 0–9
+                        ],
+                      ),
+
                       const SizedBox(height: 12),
                       _buildRouteDropdown(routProvider),
                       const SizedBox(height: 12),
@@ -377,7 +386,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   // ---------------- Widgets: reuse from your previous code ----------------
 
-  Widget _buildTextField({required TextEditingController controller, required String hint, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -387,6 +401,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,  // <-- ADD THIS
         decoration: InputDecoration(
           hintText: hint,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -395,6 +410,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
     );
   }
+
 
   Widget _buildExpenseTypeDropdown() {
     return Container(

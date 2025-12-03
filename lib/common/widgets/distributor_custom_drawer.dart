@@ -302,13 +302,13 @@ class _DistributorCustomDrawerModalState
                                 'Recieved Return Orders',
                                 ReceiveReturnOrderScreen()),
                             const Divider(height: 32,),
-                            _drawerItem(context, Icons.swap_horiz, 'IPT',
-                                const DistributorIpt()),
-                            _drawerItem(
-                                context,
-                                Icons.move_to_inbox,
-                                'Received IPT',
-                                const DistributorReceivedIptlist()),
+                            // _drawerItem(context, Icons.swap_horiz, 'IPT',
+                            //     const DistributorIpt()),
+                            // _drawerItem(
+                            //     context,
+                            //     Icons.move_to_inbox,
+                            //     'Received IPT',
+                            //     const DistributorReceivedIptlist()),
                             // _drawerItem(
                             //     context,
                             //     Icons.menu_book,

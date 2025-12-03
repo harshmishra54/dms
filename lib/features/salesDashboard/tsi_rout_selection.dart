@@ -6,6 +6,7 @@ import 'package:TrustTags_DMS/data/models/route_asm_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_asm_provider.dart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class RouteSelectionScreen extends StatefulWidget {
@@ -233,6 +234,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                           filled: true,
                           fillColor: Colors.white,
                         ),
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(50),
+                        ],
                       ),
                     ),
 

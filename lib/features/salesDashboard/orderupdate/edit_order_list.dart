@@ -5,6 +5,7 @@ import 'package:TrustTags_DMS/data/models/order_product_list_data_response.dart'
 import 'package:TrustTags_DMS/data/models/tsi_update_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_update_order_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/data/models/order_details_model.dart';
 import 'package:TrustTags_DMS/features/orders/provider/order_details_provider.dart';
@@ -339,15 +340,18 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                       controller: controller,
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly, // ⛔ blocks all non-digits
+                                      ],
                                       decoration: const InputDecoration(
                                         hintText: "Qty",
                                         isDense: true,
-                                        contentPadding:
-                                        EdgeInsets.symmetric(vertical: 8),
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8),
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                   ),
+
                                   IconButton(
                                     icon:
                                     const Icon(Icons.delete, color: Colors.red),

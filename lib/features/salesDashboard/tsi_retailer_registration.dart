@@ -9,6 +9,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/taluka_provider.d
 import 'package:TrustTags_DMS/features/salesDashboard/provider/zrt_provider.dart';
 import 'package:TrustTags_DMS/widgets/distributor_dropdown_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,18 @@ import '../../../core/utils/shared_prefs_helper.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../data/repositories/location_repostitory.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 
 class TsiRetailerRegistration extends StatefulWidget {
   const TsiRetailerRegistration({super.key});
@@ -56,6 +69,24 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
 
   List<Map<String, dynamic>> states = [];
   List<Map<String, dynamic>> districts = [];
+  final gstFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(15),
+    UpperCaseTextFormatter(),
+  ];
+  final panFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(10),
+    UpperCaseTextFormatter(),
+  ];
+  final licenseFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(20),
+    UpperCaseTextFormatter(),
+  ];
+
+
+
 
   @override
   void initState() {
@@ -461,11 +492,23 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
                       },
                     ),
                     buildLabel("GST Number"),
-                    buildTextField(_gstController),
+                    buildTextField(
+                      _gstController,
+                      formatters: gstFormatter,
+                    ),
+
                     buildLabel("PAN Number"),
-                    buildTextField(_panController),
+                    buildTextField(
+                      _panController,
+                      formatters: panFormatter,
+                    ),
+
                     buildLabel("Licence No"),
-                    buildTextField(_retailerCodeController),
+                    buildTextField(
+                      _retailerCodeController,
+                      formatters: licenseFormatter,
+                    ),
+
                     buildLabel("Licence Expiry"),
                     TextFormField(
                       controller: _licenceExpiryController,
@@ -628,16 +671,26 @@ class _TsiRetailerRegistrationState extends State<TsiRetailerRegistration> {
     ),
   );
 
-  Widget buildTextField(TextEditingController controller) => TextFormField(
-    controller: controller,
-    decoration: _inputDecoration(),
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return "This field is required";
-      }
-      return null;
-    },
-  );
+  Widget buildTextField(
+      TextEditingController controller, {
+        List<TextInputFormatter>? formatters,
+      }) {
+    return TextFormField(
+      controller: controller,
+      decoration: _inputDecoration(),
+      inputFormatters: formatters ??
+          [
+            LengthLimitingTextInputFormatter(50), // default
+          ],
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return "This field is required";
+        }
+        return null;
+      },
+    );
+  }
+
 
   InputDecoration _inputDecoration() => InputDecoration(
     contentPadding:

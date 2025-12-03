@@ -2,6 +2,7 @@ import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/cancel_order_%20model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/data/models/order_details_model.dart';
 import 'package:TrustTags_DMS/features/orders/provider/order_details_provider.dart';
@@ -222,20 +223,20 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                     width: 70,
                                     child: TextField(
                                       controller: controller,
-                                      keyboardType:
-                                      TextInputType.number,
+                                      keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
-                                      decoration:
-                                      const InputDecoration(
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly, // ⛔ blocks all non-digits
+                                      ],
+                                      decoration: const InputDecoration(
                                         hintText: "Qty",
                                         isDense: true,
-                                        contentPadding:
-                                        EdgeInsets.symmetric(
-                                            vertical: 8),
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8),
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                   ),
+
                                   IconButton(
                                     icon: const Icon(
                                       Icons.delete,

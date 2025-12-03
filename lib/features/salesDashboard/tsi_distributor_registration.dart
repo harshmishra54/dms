@@ -4,7 +4,9 @@ import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/tsi_distributor_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_distributor_registration_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/zrt_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/tsi_retailer_registration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +53,24 @@ class _TsiDistributorRegistrationState
 
   List<Map<String, dynamic>> states = [];
   List<Map<String, dynamic>> districts = [];
+  final gstFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(15),
+    UpperCaseTextFormatter(),
+  ];
+
+  final panFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(10),
+    UpperCaseTextFormatter(),
+  ];
+
+  final licenseFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+    LengthLimitingTextInputFormatter(20),
+    UpperCaseTextFormatter(),
+  ];
+
 
   String? _base64Image;
 
@@ -440,11 +460,23 @@ class _TsiDistributorRegistrationState
                             },
                           ),
                           buildLabel("GST Number"),
-                          buildTextField(_gstController),
+                          buildTextField(
+                            _gstController,
+                            formatters: gstFormatter,
+                          ),
+
                           buildLabel("PAN Number"),
-                          buildTextField(_panController),
+                          buildTextField(
+                            _panController,
+                            formatters: panFormatter,
+                          ),
+
                           buildLabel("License Number"),
-                          buildTextField(_distributorCodeController),
+                          buildTextField(
+                            _distributorCodeController,
+                            formatters: licenseFormatter,
+                          ),
+
                           buildLabel("License Expiry"),
                           TextFormField(
                             controller: _licenseExpiryController,
@@ -543,12 +575,19 @@ class _TsiDistributorRegistrationState
     ),
   );
 
-  Widget buildTextField(TextEditingController controller,
-      {bool readOnly = false}) =>
+  Widget buildTextField(
+      TextEditingController controller, {
+        bool readOnly = false,
+        List<TextInputFormatter>? formatters,
+      }) =>
       TextFormField(
         controller: controller,
         readOnly: readOnly,
         decoration: _inputDecoration(),
+        inputFormatters: formatters ??
+            [
+              LengthLimitingTextInputFormatter(50),
+            ],
         validator: (value) {
           if (value == null || value.isEmpty) {
             return "This field is required";
