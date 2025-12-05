@@ -345,20 +345,26 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
       final roleId = await SharedPrefsHelper.getRoleId();
 
       // Only for roleId == 0 → show crop dialog and call API
-      if (roleId == 0) {
-        final cropName = await _showCropNameDialog();
-        if (cropName != null && cropName.isNotEmpty) {
-          final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
-              .addPurchaseProduct(userId: userId!, cropName: cropName, roleId: roleId?? 0);
+      if(validateRes.success == 1) {
+        if (roleId == 0) {
+          final cropName = await _showCropNameDialog();
+          if (cropName != null && cropName.isNotEmpty) {
+            final added = await Provider.of<AddPurchaseProvider>(
+                context, listen: false)
+                .addPurchaseProduct(
+                userId: userId!, cropName: cropName, roleId: roleId ?? 0);
 
-          if (!added) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}",
+            if (!added) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Failed to add purchase: ${Provider
+                        .of<AddPurchaseProvider>(context, listen: false)
+                        .errorMessage ?? ""}",
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }
         }
       }

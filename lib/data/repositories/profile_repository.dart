@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:TrustTags_DMS/core/network/dio_client.dart';
 import 'package:TrustTags_DMS/core/network/api_endpoints.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import '../models/profile_request.dart';
 import '../models/profile_response.dart';
 import '../models/customer_details_response.dart';
@@ -11,9 +12,14 @@ class ProfileRepository {
   ProfileRepository({required this.dioClient});
 
   // Update Profile API
-  Future<ProfileUpdateResponse> updateProfile(
-      String token, ProfileRequest request) async {
+  Future<ProfileUpdateResponse> updateProfile(String token, ProfileRequest request) async {
     try {
+
+      // 🔥 Auto-load token if missing
+      if (token.isEmpty) {
+        token = await SharedPrefsHelper.getAccessToken() ?? "";
+      }
+
       FormData formData = FormData.fromMap({
         ...request.toJson(),
         if (request.profileImageFile != null)
@@ -41,9 +47,15 @@ class ProfileRepository {
   }
 
 
-  // ✅ New: Fetch customer details API
+  // Fetch customer details API
   Future<CustomerDetailsResponse> getCustomerDetails(String token) async {
     try {
+
+      // 🔥 Auto-load token if missing
+      if (token.isEmpty) {
+        token = await SharedPrefsHelper.getAccessToken() ?? "";
+      }
+
       final response = await dioClient.get(
         ApiEndpoints.getCustomerDetail,
         options: Options(

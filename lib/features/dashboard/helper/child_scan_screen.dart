@@ -88,7 +88,10 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
         await _callDeleteApi(value);
 
         // Remove deleted item from local list
-        scannedItems.removeWhere((item) => item.uniqueCode == value);
+        // scannedItems.removeWhere((item) => item.uniqueCode == value);
+        final uid = value.trim().toUpperCase();
+        scannedItems.removeWhere((item) => (item.uniqueCode ?? "").trim().toUpperCase() == uid);
+
       } else {
         await _callScanApi(value, addLoose: _activeTab == "addLoose");
 

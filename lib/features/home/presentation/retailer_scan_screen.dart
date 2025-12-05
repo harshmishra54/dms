@@ -169,9 +169,14 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     }
 
     final level = productLevelProvider.productLevelResponse?.level ?? '';
+    final packagingType = productLevelProvider.productLevelResponse?.packagingtype ?? 0;
 
+    if (packagingType == 1) {
+      await _validateUid(token, outerCode: uid,packagingtype: packagingType);
+      return;
+    }
     if (level.toUpperCase() == 'O') {
-      // Show 1 second info message
+      // Show 1 second info messages
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: AutoTranslateText("Now scan the inner code...",style: TextStyle(color: Colors.red),),
@@ -224,11 +229,11 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                         Text("Failed to load crops",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 10),
-                        Text(provider.errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.red)),
-                        const SizedBox(height: 20),
+                        // const SizedBox(height: 10),
+                        // Text(provider.errorMessage!,
+                        //     textAlign: TextAlign.center,
+                        //     style: TextStyle(color: Colors.red)),
+                        // const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           child: const Text("Close"),
@@ -337,6 +342,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       String token, {
         required String outerCode,
         String? innerCode,
+        int? packagingtype,
       }) async {
     final scanProvider = Provider.of<ScanProvider>(context, listen: false);
 
@@ -344,6 +350,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       isQrCodeDetected: true,
       uniqueCode: outerCode,
       innerCode: innerCode,
+      packagingtype: packagingtype
     );
 
     final validateRes = await scanProvider.validateUID(token, postData);
@@ -356,22 +363,27 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       // ✅ Show crop dialog + API call only for roleId 3
       final roleId = await SharedPrefsHelper.getRoleId();
       final userId = await SharedPrefsHelper.getUserId();
+if(validateRes.success == 1) {
+  if (roleId == 3 && userId != null) {
+    final cropName = await _showCropNameDialog();
+    if (cropName != null && cropName.isNotEmpty) {
+      final added = await Provider.of<AddPurchaseProvider>(
+          context, listen: false)
+          .addPurchaseProduct(
+          userId: userId, cropName: cropName, roleId: roleId ?? 0);
 
-      if (roleId == 3 && userId != null) {
-        final cropName = await _showCropNameDialog();
-        if (cropName != null && cropName.isNotEmpty) {
-          final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
-              .addPurchaseProduct(userId: userId, cropName: cropName, roleId: roleId??0);
-
-          if (!added) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}"),
-              ),
-            );
-          }
-        }
+      if (!added) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to add purchase: ${Provider
+                .of<AddPurchaseProvider>(context, listen: false)
+                .errorMessage ?? ""}"),
+          ),
+        );
       }
+    }
+  }
+}
 
       await Navigator.push(
         context,

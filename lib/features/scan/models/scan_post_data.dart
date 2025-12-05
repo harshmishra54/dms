@@ -2,11 +2,13 @@ class ScanPostData {
   final bool isQrCodeDetected;
   final String uniqueCode;
   final String? innerCode;
+  final int? packagingtype;
 
   ScanPostData({
     required this.isQrCodeDetected,
     required this.uniqueCode,
-    this.innerCode
+    this.innerCode,
+    this.packagingtype,
   });
 
   Map<String, dynamic> toJson() {
@@ -14,6 +16,7 @@ class ScanPostData {
       'isQrCodeDetected': isQrCodeDetected,
       'uniqueCode': uniqueCode,
       'innerCode': innerCode,
+      'packaging_type': packagingtype,
     };
   }
 }

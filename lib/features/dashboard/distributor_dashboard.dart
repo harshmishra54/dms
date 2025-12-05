@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:TrustTags_DMS/common/gradient_text.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
+import 'package:TrustTags_DMS/features/dashboard/provider/channel_performance_provider.dart';
 import 'package:TrustTags_DMS/features/home/presentation/scan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,7 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
     // Fetch dashboard data after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DashboardProvider>(context, listen: false).fetchDashboardData();
+      Provider.of<ChannelPerformanceProvider>(context, listen: false).fetchChannelPerformance();
     });
   }
 
@@ -64,12 +66,17 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
     );
   }
 
-  void _openReward(BuildContext context) {
-    Navigator.push(
+  void _openReward(BuildContext context) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const ScanQRScreen()),
     );
+
+    if (mounted) {
+      Provider.of<ChannelPerformanceProvider>(context, listen: false).fetchChannelPerformance();
+    }
   }
+
 
   void _openRecommendationScreen() {
     Navigator.push(
@@ -269,7 +276,17 @@ class _DistributorDashboardState extends State<DistributorDashboard> with Ticker
                           DistributorProfileCard(),
                           DashboardActionButtons(
                             onInwardTap: () => _openInward(context),
-                            onScanTap: () {},
+                            onScanTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ScanQRScreen()),
+                              );
+
+                              if (mounted) {
+                                Provider.of<ChannelPerformanceProvider>(context, listen: false).fetchChannelPerformance();
+                              }
+                            },
+
                             onRewardTap: () => _openReward(context),
                             highlightAction: widget.highlightAction,
                           ),

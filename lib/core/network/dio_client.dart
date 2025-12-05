@@ -13,6 +13,7 @@ import './api_endpoints.dart';
 
 class DioClient {
   late Dio _dio;
+  bool _isDialogShowing = false; // ✅ Added: Prevent multiple dialogs
 
   DioClient() {
     BaseOptions options = BaseOptions(
@@ -38,18 +39,34 @@ class DioClient {
         error: true,
       ));
     }
+
+    // ✅ Added: Global 401 interceptor
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (DioException error, ErrorInterceptorHandler handler) {
+          debugPrint("🔥 Interceptor: Status ${error.response?.statusCode}");
+
+          if (error.response?.statusCode == 401 && !_isDialogShowing) {
+            debugPrint("🚨 401 Unauthorized - Showing dialog");
+            _isDialogShowing = true;
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _handleUnauthorized();
+            });
+          }
+
+          handler.next(error);
+        },
+      ),
+    );
   }
 
-  /// ✅ Check internet
   Future<bool> _hasInternet() async {
     final result = await Connectivity().checkConnectivity();
     debugPrint("📡 Connectivity result: $result");
     return result != ConnectivityResult.none;
   }
 
-  // ---------------------------------------------------------------------------
-  // ✅ GET with caching + fallback
-  // ---------------------------------------------------------------------------
   Future<Response> get(
       String path, {
         Map<String, dynamic>? queryParameters,
@@ -61,12 +78,9 @@ class DioClient {
       if (online) {
         final response = await _dio.get(path,
             queryParameters: queryParameters, options: options);
-
-        // cache response
         await OfflineCacheService.cacheResponse(path, response.data);
         return response;
       } else {
-        // offline → fetch cached data
         final cached = await OfflineCacheService.getCachedResponse(path);
         if (cached != null) {
           debugPrint("📴 Offline: Returning cached GET response for $path");
@@ -81,8 +95,6 @@ class DioClient {
       }
     } catch (e) {
       debugPrint("⚠️ Dio GET error: $e");
-
-      // If online but fails, try cached fallback
       final cached = await OfflineCacheService.getCachedResponse(path);
       if (cached != null) {
         debugPrint("♻️ Using cached GET data after Dio error");
@@ -92,14 +104,10 @@ class DioClient {
           statusCode: 200,
         );
       }
-
       throw _handleError(e);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // ✅ POST with offline queue
-  // ---------------------------------------------------------------------------
   Future<Response> post(
       String path, {
         dynamic data,
@@ -108,11 +116,9 @@ class DioClient {
       }) async {
     final online = await _hasInternet();
 
-    // 📴 If no internet at all → directly save request
     if (!online) {
       debugPrint("📴 No Internet — saving POST to pending queue: $path");
       await OfflineCacheService.savePendingRequest("POST", path, data);
-
       return Response(
         requestOptions: RequestOptions(path: path),
         data: {
@@ -123,10 +129,8 @@ class DioClient {
       );
     }
 
-    // 🌐 Try sending online request
     try {
       final token = await SharedPrefsHelper.getAccessToken();
-
       final response = await _dio.post(
         path,
         data: data,
@@ -140,14 +144,12 @@ class DioClient {
               },
             ),
       );
-
       return response;
     } catch (e) {
       debugPrint("🚨 Dio POST failed for $path → $e");
 
       bool isOfflineError = false;
 
-      // ✅ Covers all network/offline/DNS related cases
       if (e is DioException) {
         final msg = e.message ?? '';
 
@@ -163,11 +165,9 @@ class DioClient {
                     (msg.contains("Failed host lookup") ||
                         msg.contains("No address associated")));
 
-        // 🧠 Also handle sudden internet drop after check
         if (isOfflineError) {
           debugPrint("📶 Network/DNS failure detected — saving POST to queue: $path");
           await OfflineCacheService.savePendingRequest("POST", path, data);
-
           return Response(
             requestOptions: RequestOptions(path: path),
             data: {
@@ -178,20 +178,17 @@ class DioClient {
           );
         }
 
-        // ❌ Handle unauthorized separately (token expired etc.)
+        // ✅ Modified: Removed separate 401 handling (now handled by interceptor)
         if (e.response?.statusCode == 401) {
-          _handleUnauthorized();
           throw Exception("Unauthorized. Please log in again.");
         }
       }
 
-      // 🛑 Fallback — if error was something unknown but still network related
       if (!isOfflineError) {
         try {
           if (e is SocketException || e.toString().contains("SocketException")) {
             debugPrint("⚡ SocketException fallback — saving POST request: $path");
             await OfflineCacheService.savePendingRequest("POST", path, data);
-
             return Response(
               requestOptions: RequestOptions(path: path),
               data: {"message": "Saved offline (fallback)."},
@@ -201,10 +198,8 @@ class DioClient {
         } catch (_) {}
       }
 
-      // 🧩 Final fallback — never lose the request even if unknown error
       debugPrint("🛑 Unknown error, still queueing POST request: $path");
       await OfflineCacheService.savePendingRequest("POST", path, data);
-
       return Response(
         requestOptions: RequestOptions(path: path),
         data: {"message": "Saved offline (safe fallback)."},
@@ -213,9 +208,6 @@ class DioClient {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // ✅ PUT with offline queue
-  // ---------------------------------------------------------------------------
   Future<Response> put(
       String path, {
         dynamic data,
@@ -228,7 +220,6 @@ class DioClient {
       if (!online) {
         await OfflineCacheService.savePendingRequest("PUT", path, data);
         debugPrint("📴 Offline detected — queueing PUT request: $path");
-
         return Response(
           requestOptions: RequestOptions(path: path),
           data: {"message": "Saved offline. Will sync later.", "offline": true},
@@ -242,7 +233,6 @@ class DioClient {
         queryParameters: queryParameters,
         options: options,
       );
-
       return response;
     } catch (e) {
       if (e is DioException &&
@@ -251,21 +241,16 @@ class DioClient {
               e.type == DioExceptionType.unknown)) {
         debugPrint("⚠️ Network error — saving PUT to pending: $path");
         await OfflineCacheService.savePendingRequest("PUT", path, data);
-
         return Response(
           requestOptions: RequestOptions(path: path),
           data: {"message": "Saved offline. Will sync later.", "offline": true},
           statusCode: 200,
         );
       }
-
       throw _handleError(e);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // ✅ DELETE with offline queue
-  // ---------------------------------------------------------------------------
   Future<Response> delete(
       String path, {
         dynamic data,
@@ -277,7 +262,6 @@ class DioClient {
       if (!online) {
         await OfflineCacheService.savePendingRequest("DELETE", path, data);
         debugPrint("📴 Offline detected — queueing DELETE request: $path");
-
         return Response(
           requestOptions: RequestOptions(path: path),
           data: {"message": "Saved offline. Will sync later.", "offline": true},
@@ -290,7 +274,6 @@ class DioClient {
         data: data,
         queryParameters: queryParameters,
       );
-
       return response;
     } catch (e) {
       if (e is DioException &&
@@ -299,21 +282,16 @@ class DioClient {
               e.type == DioExceptionType.unknown)) {
         debugPrint("⚠️ Network error — saving DELETE to pending: $path");
         await OfflineCacheService.savePendingRequest("DELETE", path, data);
-
         return Response(
           requestOptions: RequestOptions(path: path),
           data: {"message": "Saved offline. Will sync later.", "offline": true},
           statusCode: 200,
         );
       }
-
       throw _handleError(e);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 🔥 Centralized Error Handler
-  // ---------------------------------------------------------------------------
   String _handleError(dynamic e) {
     if (e is DioException) {
       if (e.type == DioExceptionType.connectionTimeout ||
@@ -325,7 +303,7 @@ class DioClient {
           case 400:
             return "Bad request.";
           case 401:
-            _handleUnauthorized();
+          // ✅ Modified: Don't call _handleUnauthorized here (interceptor handles it)
             return "Unauthorized. Please login again.";
           case 403:
             return "Access forbidden.";
@@ -349,29 +327,48 @@ class DioClient {
 
   void _handleUnauthorized() {
     final context = navigatorKey.currentContext;
-    if (context == null) return;
+    debugPrint("🔔 _handleUnauthorized - context: $context");
+
+    if (context == null) {
+      debugPrint("❌ Context is NULL!");
+      _isDialogShowing = false;
+      return;
+    }
+
+    if (!context.mounted) {
+      debugPrint("❌ Context NOT MOUNTED!");
+      _isDialogShowing = false;
+      return;
+    }
+
+    debugPrint("✅ Showing session expired dialog");
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: Text("Session Expired"),
-        content: const Text("Please login again."),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              await SharedPrefsHelper.clearAll();
-              if (context.mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/login',
-                      (route) => false,
-                );
-              }
-            },
-            child: const Text("OK"),
-          ),
-        ],
+      builder: (ctx) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: const Text("Session Expired"),
+          content: const Text("Your session has expired. Please login again."),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                debugPrint("👆 OK pressed - clearing data");
+                _isDialogShowing = false;
+                Navigator.of(ctx).pop();
+                await SharedPrefsHelper.clearAll();
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/login',
+                        (route) => false,
+                  );
+                }
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
       ),
     );
   }

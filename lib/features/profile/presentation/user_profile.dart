@@ -5,6 +5,7 @@ import 'package:TrustTags_DMS/data/models/profile_request.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
@@ -13,6 +14,72 @@ import 'package:TrustTags_DMS/core/network/dio_client.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/customer_details_response.dart';
 import 'package:TrustTags_DMS/data/repositories/location_repostitory.dart';
+
+// ⭐ GST Number Formatter - Format: 22AAAAA0000A1Z5
+class GSTFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text.toUpperCase();
+
+    // Remove any non-alphanumeric characters
+    text = text.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+    // Limit to 15 characters
+    if (text.length > 15) {
+      text = text.substring(0, 15);
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
+// ⭐ PAN Number Formatter - Format: ABCDE1234F
+class PANFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text.toUpperCase();
+
+    // Remove any non-alphanumeric characters
+    text = text.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+    // Limit to 10 characters
+    if (text.length > 10) {
+      text = text.substring(0, 10);
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
+// ⭐ License Number Formatter - Alphanumeric only
+class LicenseFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text.toUpperCase();
+
+    // Remove any special characters, allow only alphanumeric and hyphen
+    text = text.replaceAll(RegExp(r'[^A-Z0-9\-]'), '');
+
+    // Limit to 20 characters (adjust as per your requirement)
+    if (text.length > 20) {
+      text = text.substring(0, 20);
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -34,7 +101,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController licenseExpiryController = TextEditingController();
   final TextEditingController licenController = TextEditingController();
 
-  // ⭐ Added
   XFile? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
@@ -194,19 +260,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool get _hideFields =>
       _roleId == 0 || _roleId == 18 || _roleId == 19 || _roleId == 23;
 
-  // ⭐ Added
   Future<void> _pickFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) setState(() => _profileImage = image);
   }
 
-  // ⭐ Added
   Future<void> _pickFromCamera() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) setState(() => _profileImage = image);
   }
 
-  // ⭐ Added
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
@@ -249,6 +312,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
@@ -271,9 +336,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             children: [
               const AppStatusBar(),
 
-              // ----------------------
-              // ⭐ ADDED PROFILE PHOTO
-              // ----------------------
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 height: 56,
@@ -316,7 +378,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ),
 
-              // ⭐ PROFILE IMAGE BLOCK
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: _isEditMode ? _showImagePickerOptions : null,
@@ -326,17 +387,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       radius: 48,
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage: _profileImage != null
-                          ? FileImage(File(_profileImage!.path))                      // PICKED IMAGE
+                          ? FileImage(File(_profileImage!.path))
                           : (provider.decryptedCustomerData?.profilepicture != null &&
                           provider.decryptedCustomerData!.profilepicture!.isNotEmpty)
                           ? NetworkImage(provider.decryptedCustomerData!.profilepicture!)
-                      as ImageProvider                                      // BACKEND IMAGE
-                          : null,                                                   // DEFAULT
+                      as ImageProvider
+                          : null,
 
                       child: (_profileImage == null &&
                           (provider.decryptedCustomerData?.profilepicture == null ||
                               provider.decryptedCustomerData!.profilepicture!.isEmpty))
-                          ? const Icon(Icons.person, size: 50, color: Colors.grey)      // NO IMAGE → ICON
+                          ? const Icon(Icons.person, size: 50, color: Colors.grey)
                           : null,
                     ),
 
@@ -353,8 +414,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ],
                 ),
               ),
-
-              // ----------------------
 
               Expanded(
                 child: SingleChildScrollView(
@@ -386,6 +445,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         readOnly: !_isEditMode,
                         enableInteractiveSelection: _isEditMode,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: _inputDecoration().copyWith(counterText: ''),
                         onChanged: (value) async {
                           if (_isEditMode && value.length == 6) {
@@ -452,12 +514,32 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       if (!_hideFields) ...[
                         buildLabel('GST Number'),
-                        buildTextField(gstController,
-                            readOnly: !_isEditMode),
+                        TextFormField(
+                          controller: gstController,
+                          readOnly: !_isEditMode,
+                          enableInteractiveSelection: _isEditMode,
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.characters,
+                          inputFormatters: _isEditMode ? [GSTFormatter()] : [],
+                          decoration: _inputDecoration().copyWith(
+                            hintText: _isEditMode ? 'Max 15 characters' : null,
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          ),
+                        ),
 
                         buildLabel('PAN Number'),
-                        buildTextField(panController,
-                            readOnly: !_isEditMode),
+                        TextFormField(
+                          controller: panController,
+                          readOnly: !_isEditMode,
+                          enableInteractiveSelection: _isEditMode,
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.characters,
+                          inputFormatters: _isEditMode ? [PANFormatter()] : [],
+                          decoration: _inputDecoration().copyWith(
+                            hintText: _isEditMode ? 'Max 10 characters' : null,
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          ),
+                        ),
 
                         buildLabel('License Expiry'),
                         TextFormField(
@@ -503,8 +585,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
 
                         buildLabel('License No'),
-                        buildTextField(licenController,
-                            readOnly: !_isEditMode),
+                        TextFormField(
+                          controller: licenController,
+                          readOnly: !_isEditMode,
+                          enableInteractiveSelection: _isEditMode,
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.characters,
+                          inputFormatters: _isEditMode ? [LicenseFormatter()] : [],
+                          decoration: _inputDecoration().copyWith(
+                            hintText: _isEditMode ? 'Max 20 characters' : null,
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          ),
+                        ),
                       ],
 
                       if (_isEditMode) ...[
@@ -617,8 +709,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       keyboardType:
       isNumber ? TextInputType.number : TextInputType.text,
       readOnly: readOnly,
-      enableInteractiveSelection:
-      !readOnly, // prevents crash on read-only
+      enableInteractiveSelection: !readOnly,
       decoration: _inputDecoration(),
     );
   }
@@ -637,6 +728,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         borderRadius: BorderRadius.circular(10),
         borderSide:
         const BorderSide(color: AppColors.primaryPurple, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
       ),
     );
   }

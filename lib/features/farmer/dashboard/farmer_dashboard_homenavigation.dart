@@ -1,3 +1,4 @@
+import 'package:TrustTags_DMS/core/network/dio_client.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/farmer_dashboard.dart';
 import 'package:TrustTags_DMS/features/home/presentation/history_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/widgets/custom_bottom_nav_bar.dart';
 import '../../dashboard/provider/channel_performance_provider.dart';
 import '../../dashboard/provider/dashboard_provider.dart';
+
 
 class FarmerDashboardHomenavigation extends StatefulWidget {
   final int initialIndex;
@@ -26,15 +28,11 @@ class _FarmerDashboardHomenavigationState
     extends State<FarmerDashboardHomenavigation> {
   late int _selectedIndex;
   int? roleId;
-
+  final DioClient _dioClient = DioClient(); // create instance
 
   Future<void> _loadRoleId() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      // ❌ Wrong
-      // roleId = prefs.getInt('roleId');
-
-      // ✅ Correct (use the same key name you used in SharedPrefsHelper)
       roleId = prefs.getInt('role_id');
     });
   }
@@ -57,24 +55,39 @@ class _FarmerDashboardHomenavigationState
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
 
-    if (index == 0) {
-      // ✅ Refresh Farmer Dashboard data when tab 0 is selected
-      final channelProvider =
-      Provider.of<ChannelPerformanceProvider>(context, listen: false);
-      final dashboardProvider =
-      Provider.of<DashboardProvider>(context, listen: false);
 
-      channelProvider.fetchChannelPerformance();
-      dashboardProvider.fetchDashboardData();
+    if (index == 0) {
+    _refreshDashboard();
     }
+
+
+  }
+
+  /// ✅ Refresh Dashboard safely with context-aware 401 handling
+  void _refreshDashboard() async {
+    final channelProvider =
+    Provider.of<ChannelPerformanceProvider>(context, listen: false);
+    final dashboardProvider =
+    Provider.of<DashboardProvider>(context, listen: false);
+
+
+    try {
+    // Wrap in try-catch to catch Dio 401
+    await channelProvider.fetchChannelPerformanceWithContext(context);
+    await dashboardProvider.fetchDashboardDataWithContext(context);
+    } catch (e) {
+    debugPrint("Error refreshing dashboard: $e");
+    }
+
+
   }
 
   Future<bool> _onWillPop() async {
     if (_selectedIndex != 0) {
       setState(() => _selectedIndex = 0);
-      return false; // Stay in app, just go to Dashboard
+      return false;
     }
-    return true; // Allow back (exit) if already on Dashboard
+    return true;
   }
 
   @override
@@ -88,6 +101,89 @@ class _FarmerDashboardHomenavigationState
           onTap: _onItemTapped,
           roleId: roleId,
         ),
+      ),
+    );
+  }
+}
+
+// ===========================================
+// ✅ Extension: Add context-aware fetch methods
+// ===========================================
+extension ContextAwareFetch on ChannelPerformanceProvider {
+  Future<void> fetchChannelPerformanceWithContext(BuildContext context) async {
+    try {
+      await fetchChannelPerformance();
+    } catch (e) {
+      if (e.toString().contains("Unauthorized")) {
+        _showUnauthorizedDialog(context);
+        rethrow;
+      }
+    }
+  }
+
+  void _showUnauthorizedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Session Expired"),
+        content: const Text("Please login again."),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await SharedPreferences.getInstance()
+                  .then((prefs) => prefs.clear());
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                      (route) => false,
+                );
+              }
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension DashboardFetchContext on DashboardProvider {
+  Future<void> fetchDashboardDataWithContext(BuildContext context) async {
+    try {
+      await fetchDashboardData();
+    } catch (e) {
+      if (e.toString().contains("Unauthorized")) {
+        _showUnauthorizedDialog(context);
+        rethrow;
+      }
+    }
+  }
+
+  void _showUnauthorizedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Session Expired"),
+        content: const Text("Please login again."),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await SharedPreferences.getInstance()
+                  .then((prefs) => prefs.clear());
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                      (route) => false,
+                );
+              }
+            },
+            child: const Text("OK"),
+          ),
+        ],
       ),
     );
   }

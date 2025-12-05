@@ -18,6 +18,7 @@ class ProductLevelResponse {
   final String level;
   final String uniqueCode;
   final String codeUID;
+  final int? packagingtype;
 
   ProductLevelResponse({
     required this.success,
@@ -25,6 +26,7 @@ class ProductLevelResponse {
     required this.level,
     required this.uniqueCode,
     required this.codeUID,
+    this.packagingtype,
   });
 
   factory ProductLevelResponse.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class ProductLevelResponse {
       level: json['level'] ?? '',
       uniqueCode: json['uniqueCode'] ?? '',
       codeUID: json['codeUID'] ?? '',
+      packagingtype: json['packaging_type'] ?? '',
     );
   }
 
@@ -44,6 +47,7 @@ class ProductLevelResponse {
       'level': level,
       'uniqueCode': uniqueCode,
       'codeUID': codeUID,
+      'packaging_type': packagingtype,
     };
   }
 }

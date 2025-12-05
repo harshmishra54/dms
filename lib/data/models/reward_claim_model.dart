@@ -22,16 +22,19 @@ class GetMyRewardRequest {
 
 class GetMyRewardResponse {
   final String? success;
+  final String? message;
   final RewardData? data;
 
   GetMyRewardResponse({
     this.success,
+    this.message,
     this.data,
   });
 
   factory GetMyRewardResponse.fromJson(Map<String, dynamic> json) {
     return GetMyRewardResponse(
       success: json["success"]?.toString(),
+      message: json["message"]?.toString(),
       data: json["data"] != null ? RewardData.fromJson(json["data"]) : null,
     );
   }
@@ -39,6 +42,7 @@ class GetMyRewardResponse {
   Map<String, dynamic> toJson() {
     return {
       "success": success,
+      "message": message,
       "data": data?.toJson(),
     };
   }

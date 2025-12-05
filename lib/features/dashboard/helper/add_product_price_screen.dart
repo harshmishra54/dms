@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:convert';
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
@@ -6,6 +8,7 @@ import 'package:TrustTags_DMS/features/dashboard/provider/product_price_provider
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/data/models/product_price_model.dart';
 
@@ -19,6 +22,7 @@ class AddProductPriceScreen extends StatefulWidget {
 class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
   List<ProductPrice> _productList = [];
   bool _isFileSelected = false;
+  bool _isProcessing = false;
   List<int> _invalidRows = [];
   List<String> _missingProducts = [];
 
@@ -29,72 +33,176 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
     );
 
     if (result != null && result.files.single.path != null) {
-      final fileBytes = File(result.files.single.path!).readAsBytesSync();
-      final excel = Excel.decodeBytes(fileBytes);
+      setState(() => _isProcessing = true);
 
-      List<ProductPrice> tempList = [];
-      List<int> invalidRows = [];
-      Set<String> fileProductCodes = {};
+      try {
+        final provider = Provider.of<AddProductPriceProvider>(context, listen: false);
+        final serverProducts = provider.serverProductList;
+        final serverProductCodes = serverProducts.map((p) => p.itemCode).toList();
 
-      final provider = Provider.of<AddProductPriceProvider>(context, listen: false);
-      final serverProducts = provider.serverProductList;
-      final serverProductCodes = serverProducts.map((p) => p.itemCode).toSet();
-
-      for (var table in excel.tables.keys) {
-        final rows = excel.tables[table]?.rows ?? [];
-        for (int i = 1; i < rows.length; i++) {
-          var row = rows[i];
-          String itemCode = row[0]?.value?.toString().trim() ?? "";
-          String productName = row[1]?.value?.toString().trim() ?? "";
-          String uniqueName = row[2]?.value?.toString().trim() ?? "";
-          double? price = double.tryParse(row[3]?.value?.toString() ?? "");
-          double? schemePrice = double.tryParse(row[4]?.value?.toString() ?? "");
-
-          if (itemCode.isEmpty || productName.isEmpty || price == null) {
-            invalidRows.add(i + 1);
-            continue;
-          }
-
-          tempList.add(ProductPrice(
-            itemCode: itemCode,
-            productName: productName,
-            uniqueName: uniqueName,
-            price: price,
-            schemePrice: schemePrice ?? 0.0,
-          ));
-          fileProductCodes.add(itemCode);
-        }
-        break; // Only handle first sheet
-      }
-
-      List<String> missingProducts = serverProductCodes.difference(fileProductCodes).toList();
-
-      setState(() {
-        _productList = tempList;
-        _isFileSelected = true;
-        _invalidRows = invalidRows;
-        _missingProducts = missingProducts;
-      });
-
-      if (invalidRows.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: AutoTranslateText("⚠️ Invalid rows: ${invalidRows.join(', ')}"),
-            backgroundColor: Colors.orange,
-          ),
+        // Use compute for heavy processing (better than manual isolate)
+        final parseResult = await compute(
+          _parseExcelWorker,
+          {
+            'filePath': result.files.single.path!,
+            'serverProductCodes': serverProductCodes,
+          },
         );
-      }
 
-      if (missingProducts.isNotEmpty) {
+        if (!mounted) return;
+
+        // Check for errors
+        if (parseResult['error'] != null) {
+          throw Exception(parseResult['error']);
+        }
+
+        // Convert JSON back to ProductPrice objects
+        final products = (parseResult['products'] as List)
+            .map((json) => ProductPrice(
+          itemCode: json['itemCode'],
+          productName: json['productName'],
+          uniqueName: json['uniqueName'],
+          price: json['price'],
+          schemePrice: json['schemePrice'],
+        ))
+            .toList();
+
+        setState(() {
+          _productList = products;
+          _isFileSelected = true;
+          _invalidRows = List<int>.from(parseResult['invalidRows'] ?? []);
+          _missingProducts = List<String>.from(parseResult['missingProducts'] ?? []);
+          _isProcessing = false;
+        });
+
+        if (_invalidRows.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: AutoTranslateText("⚠️ Invalid rows: ${_invalidRows.take(10).join(', ')}${_invalidRows.length > 10 ? ' and ${_invalidRows.length - 10} more' : ''}"),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+
+        if (_missingProducts.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: AutoTranslateText("⚠️ ${_missingProducts.length} product(s) missing from file."),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: AutoTranslateText("⚠️ ${missingProducts.length} product(s) missing from file."),
-            backgroundColor: Colors.orange,
+            content: AutoTranslateText("❌ Error processing file: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
     } else {
       setState(() => _isFileSelected = false);
+    }
+  }
+
+  // Static method to run in isolate - must be top-level or static
+  static Map<String, dynamic> _parseExcelWorker(Map<String, dynamic> params) {
+    try {
+      final filePath = params['filePath'] as String;
+      final serverProductCodes = List<String>.from(params['serverProductCodes']);
+      final serverProductSet = serverProductCodes.toSet();
+
+      // Read file
+      final file = File(filePath);
+      final fileBytes = file.readAsBytesSync();
+      final excel = Excel.decodeBytes(fileBytes);
+
+      List<Map<String, dynamic>> productJsonList = [];
+      List<int> invalidRows = [];
+      Set<String> fileProductCodes = {};
+
+      // Get first sheet
+      if (excel.tables.isEmpty) {
+        return {
+          'error': 'No sheets found in Excel file',
+          'products': [],
+          'invalidRows': [],
+          'missingProducts': [],
+        };
+      }
+
+      final firstTableName = excel.tables.keys.first;
+      final rows = excel.tables[firstTableName]?.rows ?? [];
+
+      if (rows.isEmpty || rows.length < 2) {
+        return {
+          'error': 'Excel file is empty or has only headers',
+          'products': [],
+          'invalidRows': [],
+          'missingProducts': [],
+        };
+      }
+
+      // Process rows (skip header row at index 0)
+      for (int i = 1; i < rows.length; i++) {
+        var row = rows[i];
+
+        // Check if row has minimum required columns
+        if (row.isEmpty || row.length < 4) {
+          invalidRows.add(i + 1);
+          continue;
+        }
+
+        // Check if all cells in row are null (empty row)
+        bool isEmptyRow = row.every((cell) => cell?.value == null);
+        if (isEmptyRow) {
+          continue; // Skip empty rows silently
+        }
+
+        String itemCode = row[0]?.value?.toString().trim() ?? "";
+        String productName = row[1]?.value?.toString().trim() ?? "";
+        String uniqueName = (row.length > 2) ? (row[2]?.value?.toString().trim() ?? "") : "";
+        double? price = double.tryParse(row[3]?.value?.toString() ?? "");
+        double? schemePrice = (row.length > 4) ? double.tryParse(row[4]?.value?.toString() ?? "") : null;
+
+        // Validate required fields
+        if (itemCode.isEmpty || productName.isEmpty || price == null) {
+          invalidRows.add(i + 1);
+          continue;
+        }
+
+        // Add to list as JSON (serializable)
+        productJsonList.add({
+          'itemCode': itemCode,
+          'productName': productName,
+          'uniqueName': uniqueName,
+          'price': price,
+          'schemePrice': schemePrice ?? 0.0,
+        });
+        fileProductCodes.add(itemCode);
+      }
+
+      // Find missing products
+      List<String> missingProducts = serverProductSet.difference(fileProductCodes).toList();
+
+      return {
+        'products': productJsonList,
+        'invalidRows': invalidRows,
+        'missingProducts': missingProducts,
+        'error': null,
+      };
+    } catch (e) {
+      return {
+        'error': e.toString(),
+        'products': [],
+        'invalidRows': [],
+        'missingProducts': [],
+      };
     }
   }
 
@@ -111,6 +219,8 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
 
     final provider = Provider.of<AddProductPriceProvider>(context, listen: false);
     await provider.addProductPrice(_productList);
+
+    if (!mounted) return;
 
     if (provider.updateResponse != null && provider.updateResponse!.success == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -155,7 +265,10 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                   _buildUploadCard(),
                   const SizedBox(height: 24),
 
-                  if (_isFileSelected)
+                  if (_isProcessing)
+                    _buildProcessingCard(),
+
+                  if (_isFileSelected && !_isProcessing)
                     _buildStatusCard(
                       "File Loaded Successfully",
                       "${_productList.length} products ready to upload",
@@ -167,7 +280,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                     _buildWarningCard(
                       icon: Icons.error_outline,
                       title: "Invalid Rows Detected",
-                      message: "Rows: ${_invalidRows.join(', ')}",
+                      message: "Rows: ${_invalidRows.take(10).join(', ')}${_invalidRows.length > 10 ? ' and ${_invalidRows.length - 10} more' : ''}",
                       color: Colors.orange,
                     ),
 
@@ -175,11 +288,11 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                     _buildWarningCard(
                       icon: Icons.info_outline,
                       title: "Missing Products",
-                      message: _missingProducts.join(', '),
+                      message: "${_missingProducts.length} products missing: ${_missingProducts.take(5).join(', ')}${_missingProducts.length > 5 ? ' and ${_missingProducts.length - 5} more' : ''}",
                       color: Colors.deepPurple,
                     ),
 
-                  if (_isFileSelected) ...[
+                  if (_isFileSelected && !_isProcessing) ...[
                     const SizedBox(height: 16),
                     _buildUploadButton(provider),
                   ],
@@ -263,7 +376,7 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: _pickExcelFile,
+            onPressed: _isProcessing ? null : _pickExcelFile,
             icon: const Icon(Icons.folder_open),
             label: const AutoTranslateText("Choose File"),
             style: ElevatedButton.styleFrom(
@@ -275,6 +388,37 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  Widget _buildProcessingCard() => Card(
+    elevation: 2,
+    color: Colors.blue[50],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(color: Colors.blue[200]!, width: 1),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          AutoTranslateText(
+            "Processing file...",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue[900],
+            ),
+          ),
+          const SizedBox(height: 8),
+          AutoTranslateText(
+            "This may take up to 30 seconds for large files",
+            style: TextStyle(fontSize: 14, color: Colors.blue[700]),
           ),
         ],
       ),
@@ -408,7 +552,8 @@ class _AddProductPriceScreenState extends State<AddProductPriceScreen> {
                 AutoTranslateText(
                   "• Supported formats: .xlsx, .xls\n"
                       "• Required columns: Item Code, Product Name, Price\n"
-                      "• Optional: Unique Name, Scheme Price",
+                      "• Optional: Unique Name, Scheme Price\n"
+                      "• File should be smaller in size.",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.deepPurple[700],

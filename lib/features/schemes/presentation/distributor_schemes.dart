@@ -54,16 +54,28 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
     final rewardProvider =
     Provider.of<GetMyRewardProvider>(context, listen: false);
 
+    // await rewardProvider.fetchMyReward(reward.id ?? "");
+
     await rewardProvider.fetchMyReward(reward.id ?? "");
 
-    if (rewardProvider.errorMessage != null) {
+// Correct success/error handling
+    final response = rewardProvider.rewardResponse;
+
+// Error flow
+    if (response == null || response.success == "0" || rewardProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: AutoTranslateText(rewardProvider.errorMessage!),
+          content: AutoTranslateText(
+            rewardProvider.errorMessage ??
+                response?.message ??
+                "Failed to claim reward",
+          ),
           backgroundColor: Colors.red,
         ),
       );
-    } else {
+    }
+// Success flow
+    else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: AutoTranslateText("Reward ${reward.name} claimed successfully!"),
@@ -71,14 +83,13 @@ class _DistributorSchemesState extends State<DistributorSchemes> {
         ),
       );
 
-      // Refresh both rewards list and channel performance
       await Future.wait([
-        Provider.of<SchemeRunningProvider>(context, listen: false)
-            .fetchMyRewards(),
+        Provider.of<SchemeRunningProvider>(context, listen: false).fetchMyRewards(),
         Provider.of<ChannelPerformanceProvider>(context, listen: false)
             .fetchChannelPerformance(),
       ]);
     }
+
 
     setState(() => _isRedeeming = false);
   }

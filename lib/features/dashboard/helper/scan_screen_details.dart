@@ -345,7 +345,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: AutoTranslateText(
+                            child: Text(
                               'Total Scanning: ${item.inwardQty}/${item.totalQty}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -354,7 +354,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                               ),
                             ),
                           ),
-                          AutoTranslateText(
+                          Text(
                             item.name,
                             style: const TextStyle(
                               fontSize: 16,
@@ -381,7 +381,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                   },
                                 ),
                               Expanded(
-                                child: AutoTranslateText(
+                                child: Text(
                                   "Batch: ${item.batchNo}",
                                   style: const TextStyle(
                                     fontSize: 14,
@@ -395,7 +395,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
 
 
 
-                          AutoTranslateText(
+                          Text(
                             "SKU:${item.sku}",
                             style: const TextStyle(
                               fontSize: 14,
@@ -428,7 +428,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                     border: Border.all(color: Colors.green),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: AutoTranslateText(
+                                  child: Text(
                                     item.inwardQty,
                                     style: const TextStyle(
                                       color: Colors.green,
@@ -461,7 +461,7 @@ class _ScanDetailsScreenState extends State<ScanDetailsScreen> {
                                     border: Border.all(color: Colors.red),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: AutoTranslateText(
+                                  child: Text(
                                     item.missingQty,
                                     style: const TextStyle(
                                       color: Colors.red,
