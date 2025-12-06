@@ -342,6 +342,7 @@ class _TSIUpdateOrderScreenState extends State<TSIUpdateOrderScreen> {
                                       textAlign: TextAlign.center,
                                       inputFormatters: [
                                         FilteringTextInputFormatter.digitsOnly, // ⛔ blocks all non-digits
+                                        LengthLimitingTextInputFormatter(3),
                                       ],
                                       decoration: const InputDecoration(
                                         hintText: "Qty",

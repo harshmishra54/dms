@@ -68,7 +68,7 @@ class _OrderListScreenState extends State<DistributorHistoryScreen> with SingleT
               indicatorWeight: 2,
               tabs: const [
                 Tab(text: 'Created'),
-                Tab(text: 'TSI'),
+                Tab(text: 'TSM'),
               ],
             ),
           ),

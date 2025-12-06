@@ -3,6 +3,7 @@ import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_limit_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_update_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Expense/amount_limit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -157,7 +158,8 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                           hintText: 'Enter Limit',
                           inputType: TextInputType.number,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
+                            FilteringTextInputFormatter.digitsOnly,
+                            MaxAmountInputFormatter(1000000000000000),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -172,6 +174,7 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
                         _buildInputField(
                           controller: _reasonController,
                           hintText: 'Enter Reason',
+                          maxLength: 30
                         ),
                         const SizedBox(height: 20),
                         if (updateProvider.responseMessage.isNotEmpty)
@@ -292,11 +295,15 @@ class _CreditLimitUpdateScreenState extends State<CreditLimitUpdateScreen> {
     required String hintText,
     TextInputType inputType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
+    int? maxLength,
   }) {
     return TextField(
       controller: controller,
       keyboardType: inputType,
-      inputFormatters: inputFormatters,
+      inputFormatters: [
+        if (inputFormatters != null) ...inputFormatters,
+        if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+      ],
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,

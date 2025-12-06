@@ -30,9 +30,12 @@ class _LeaveScreenState extends State<LeaveScreen> {
   String? endDay;
 
   final Map<String, int> leaveTypeMap = {
-    'Sick Leave': 1,
-    'Casual Leave': 2,
-    'Earned Leave': 3,
+    'Sick Leave': 0,
+    'Casual Leave': 1,
+    'Earned Leave': 2,
+    'Maternity Leave': 3,
+    'Paternity Leave': 4,
+    'Compensatory Leave': 5,
   };
 
   @override

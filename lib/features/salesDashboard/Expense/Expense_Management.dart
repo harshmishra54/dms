@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/rout_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Expense/amount_limit.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/expense_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/expenselist_provider.dart';
 import 'package:flutter/material.dart';
@@ -200,7 +201,7 @@ class _ExpensesDetailScreenState extends State<ExpensesDetailScreen> {
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 4),
-              AutoTranslateText(
+              Text(
                 amount,
                 style: TextStyle(
                   color: AppColors.primaryColor,
@@ -353,14 +354,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     children: [
                       _buildExpenseTypeDropdown(),
                       const SizedBox(height: 12),
-                      _buildTextField(controller: _reasonController, hint: 'Expense Reason'),
+                      _buildTextField(controller: _reasonController, hint: 'Expense Reason',maxLength: 30,),
                       const SizedBox(height: 12),
                       _buildTextField(
                         controller: _amountController,
                         hint: 'Amount',
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,   // <-- blocks everything except 0–9
+                          FilteringTextInputFormatter.digitsOnly,
+                          MaxAmountInputFormatter(1000000000),
+                          // <-- blocks everything except 0–9
                         ],
                       ),
 
@@ -391,6 +394,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     required String hint,
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
+    int? maxLength,  // <-- NEW PARAM
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -401,9 +405,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        inputFormatters: inputFormatters,  // <-- ADD THIS
+        inputFormatters: [
+          ...?inputFormatters,
+          if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+        ],
         decoration: InputDecoration(
           hintText: hint,
+          counterText: "",   // hides the default counter
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: InputBorder.none,
         ),
@@ -468,7 +476,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AutoTranslateText(_selectedDate != null ? "${_selectedDate!.toLocal()}".split(" ")[0] : "Select Date",
+          Text(_selectedDate != null ? "${_selectedDate!.toLocal()}".split(" ")[0] : "Select Date",
             style: TextStyle(color: _selectedDate != null ? Colors.black : Colors.grey.shade600),
           ),
           const Icon(Icons.calendar_today, size: 18, color: Colors.grey),

@@ -226,7 +226,9 @@ class _CancelUpdateOrderScreenState extends State<CancelUpdateOrderScreen> {
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
                                       inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly, // ⛔ blocks all non-digits
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(3),
+                                        // ⛔ blocks all non-digits
                                       ],
                                       decoration: const InputDecoration(
                                         hintText: "Qty",

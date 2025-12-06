@@ -57,7 +57,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
 
             if (territoryProvider.errorMessage != null) {
               return Center(
-                child: AutoTranslateText(
+                child: Text(
                   territoryProvider.errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
@@ -160,7 +160,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                               // Distributors Tab
                               distributors.isEmpty
                                   ? const Center(
-                                  child: AutoTranslateText(
+                                  child: Text(
                                       "No distributors found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
@@ -253,12 +253,12 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                                 child: AutoTranslateText(
                                   cfaProvider.error!,
                                   style: const TextStyle(
-                                      color: Colors.red),
+                                      color: Colors.black),
                                 ),
                               )
                                   : cfaProvider.stockData.isEmpty
                                   ? const Center(
-                                  child: AutoTranslateText(
+                                  child: Text(
                                       "No CNF stocks found"))
                                   : ListView.builder(
                                 padding: const EdgeInsets.all(12),
@@ -456,10 +456,10 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AutoTranslateText(name ?? "",
+          Text(name ?? "",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          AutoTranslateText(phone ?? "",
+          Text(phone ?? "",
               style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         ],
       ),

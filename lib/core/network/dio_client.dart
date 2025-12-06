@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/common/widgets/no_internet_screen.dart';
 import 'package:TrustTags_DMS/core/network/offline_cache_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -54,6 +55,22 @@ class DioClient {
               _handleUnauthorized();
             });
           }
+          if ((error.type == DioExceptionType.receiveTimeout ||
+              error.type == DioExceptionType.connectionTimeout ||
+              error.type == DioExceptionType.sendTimeout ||
+              error.type == DioExceptionType.connectionError ||
+              error.type == DioExceptionType.unknown) &&
+              !_isDialogShowing)
+          {
+            debugPrint("🌐 Network Timeout/Error — Showing No Internet Screen");
+
+            _isDialogShowing = true;
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showNoInternetScreen();
+            });
+          }
+
 
           handler.next(error);
         },
@@ -324,6 +341,26 @@ class DioClient {
   }
 
   Dio get client => _dio;
+  void _showNoInternetScreen() {
+    final context = navigatorKey.currentContext;
+
+    if (context == null) {
+      _isDialogShowing = false;
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NoInternetScreen(
+          message: "Please check your internet connection.",
+        ),
+      ),
+    ).then((_) {
+      _isDialogShowing = false;
+    });
+  }
+
 
   void _handleUnauthorized() {
     final context = navigatorKey.currentContext;
@@ -369,7 +406,9 @@ class DioClient {
             ),
           ],
         ),
+
       ),
+
     );
   }
 }

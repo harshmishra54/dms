@@ -14,7 +14,7 @@ class LeaveTypeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final leaveTypes = ['Sick Leave', 'Casual Leave', 'Earned Leave', 'Other'];
+    final leaveTypes = ['Sick Leave', 'Casual Leave', 'Earned Leave', 'Other','Maternity Leave','Compensatory Leave', 'Paternity Leave'];
 
     return SizedBox(
       width: double.infinity,
