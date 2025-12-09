@@ -101,6 +101,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
       requestId: requestId,
       reason: reasonController.text,
       leaveType: leaveTypeMap[selectedLeaveType!] ?? 0,
+      Startperiod: startDay,
+      endPeriod: endDay,
     );
 
     final resp = await context.read<LeaveProvider>().submitLeaveRequest(req, token: token);

@@ -53,7 +53,7 @@ class DatePickerField extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8), // ✅ top margin
                   DropdownSearch<String>(
-                    items: const ['Morning', 'Evening'],
+                    items: const ['Morning', 'Afternoon', 'Evening',],
                     selectedItem: tempValue,
                     onChanged: (v) => tempValue = v,
                     popupProps: PopupProps.menu(

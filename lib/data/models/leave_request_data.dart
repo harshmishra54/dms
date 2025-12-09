@@ -5,6 +5,8 @@ class LeaveRequestData {
   final String requestId;
   final String reason;
   final int leaveType;
+  final String? Startperiod;
+  final String? endPeriod;
 
   LeaveRequestData({
     required this.startDate,
@@ -13,6 +15,8 @@ class LeaveRequestData {
     required this.requestId,
     required this.reason,
     required this.leaveType,
+    this.Startperiod,
+    this.endPeriod,
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,5 +26,7 @@ class LeaveRequestData {
     "request_id": requestId,
     "reason": reason,
     "leave_type": leaveType,
+    "start_period": Startperiod,
+    "end_period": endPeriod,
   };
 }
