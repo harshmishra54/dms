@@ -21,6 +21,8 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
   String _activeTab = "scan"; // scan | delete | addLoose
   bool _scannerInitialized = false;
   bool is_processing = false;
+  bool showScannerLoader = false;
+
 
   // **Local list to keep scanned items**
   List<dynamic> scannedItems = [];
@@ -83,16 +85,25 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
   void _onScanned(String value) async {
     if (is_processing) return;
     is_processing = true;
+    setState(() => showScannerLoader = true);
     try {
       if (_activeTab == "delete") {
         await _callDeleteApi(value);
 
-        // Remove deleted item from local list
-        // scannedItems.removeWhere((item) => item.uniqueCode == value);
-        final uid = value.trim().toUpperCase();
-        scannedItems.removeWhere((item) => (item.uniqueCode ?? "").trim().toUpperCase() == uid);
+        final deleteProvider = context.read<DeleteScanProvider>();
 
-      } else {
+        final deletedUid = (deleteProvider.deleteResponse?.data?.uniqueCode ?? "")
+            .trim()
+            .toLowerCase();
+
+
+        scannedItems.removeWhere((item) {
+          final itemUid = (item.uniqueCode ?? "").trim().toLowerCase();
+          return itemUid == deletedUid;
+        });
+      }
+
+      else {
         await _callScanApi(value, addLoose: _activeTab == "addLoose");
 
         // Add scanned item to local list
@@ -104,8 +115,9 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
     } finally {
       await Future.delayed(const Duration(seconds: 2));
       is_processing = false;
+      setState(() => showScannerLoader = false); // HIDE LOADER
       _resetScanner();
-      setState(() {}); // rebuild UI
+
     }
   }
 
@@ -137,7 +149,20 @@ class _InvoiceQRScannerScreenState extends State<InvoiceQRScannerScreen> with Wi
                 ),
               ),
               if (_scannerInitialized)
-                ReusableQRScanner(onScanned: (value) => _onScanned(value))
+                Stack(
+                  children: [
+                    ReusableQRScanner(onScanned: (value) => _onScanned(value)),
+
+                    if (showScannerLoader)
+                      Container(
+                        height: 250,
+                        color: Colors.black54.withOpacity(0.4),
+                        child: const Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        ),
+                      ),
+                  ],
+                )
               else
                 Container(
                   height: 250,

@@ -139,6 +139,8 @@ import 'package:TrustTags_DMS/features/schemes/provider/scheme_running_provider.
 import 'package:TrustTags_DMS/features/spinner/provider/spinner_history_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/provider/spinner_reward_provider.dart';
 import 'package:TrustTags_DMS/features/themes/theme_provider.dart';
+import 'package:TrustTags_DMS/features/weather/provider/agriculture_provider.dart';
+import 'package:TrustTags_DMS/features/weather/provider/weather_provider.dart';
 import 'package:TrustTags_DMS/firebase_options.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -424,6 +426,8 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
         ChangeNotifierProvider(create: (_)=> AddPurchaseProvider()),
         ChangeNotifierProvider(create: (_)=> MyCategoryProvider()),
+        ChangeNotifierProvider(create: (_)=> WeatherProvider()),
+        ChangeNotifierProvider(create: (_)=> AgricultureProvider()),
 
 
       ],

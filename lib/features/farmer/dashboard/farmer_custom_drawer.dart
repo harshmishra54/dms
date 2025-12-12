@@ -4,6 +4,7 @@ import 'package:TrustTags_DMS/features/dashboard/widgets/product_catalogue_scree
 import 'package:TrustTags_DMS/features/farmer/dashboard/invite_earn_screen.dart';
 import 'package:TrustTags_DMS/features/farmer/dashboard/recommended_product_by_advisor.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner_history_screen.dart';
+import 'package:TrustTags_DMS/features/weather/presentation/weather_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
@@ -225,6 +226,11 @@ class _FarmerCustomDrawerState extends State<FarmerCustomDrawer> {
                           Icons.move_to_inbox,
                           'Catalogue',
                           const ProductCatalogueScreen()),
+                      _drawerItem(
+                          context,
+                          Icons.radar,
+                          'Weather Report',
+                          const WeatherDashboardScreen()),
                       // _drawerItem(context, Icons.menu_book, 'Catalogue',
                       //     const HistoryScreen(initialTab: 1)),
                       _drawerItem(

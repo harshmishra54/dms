@@ -21,6 +21,8 @@ class _InwardScreenState extends State<InwardScreen> {
   String scannedUID = '';
   final TextEditingController _uidController = TextEditingController();
   int _scannerKeyCounter = 0; // unique key counter for the scanner
+  GlobalKey<ReusableQRScannerState> scannerKey = GlobalKey();
+
 
   @override
   void initState() {
@@ -33,6 +35,9 @@ class _InwardScreenState extends State<InwardScreen> {
 
   Future<void> _fetchAndNavigate(String uid) async {
     final inwardProvider = Provider.of<InwardProvider>(context, listen: false);
+    try {
+      scannerKey.currentState?.forceDisposeCamera();
+    } catch (_) {}
 
     // Show loading
     showDialog(
@@ -61,7 +66,7 @@ class _InwardScreenState extends State<InwardScreen> {
       setState(() {
         scannedUID = '';
         _uidController.clear();
-        _scannerKeyCounter++; // force rebuild of scanner to restart camera
+        scannerKey = GlobalKey<ReusableQRScannerState>(); // force rebuild of scanner to restart camera
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,9 +133,10 @@ class _InwardScreenState extends State<InwardScreen> {
                 children: [
                   // QR Scanner
                   ReusableQRScanner(
-                    key: ValueKey(_scannerKeyCounter), // force rebuild when counter changes
+                    key: scannerKey,    // ✅ use new key
                     onScanned: handleScan,
                   ),
+
 
                   const SizedBox(height: 20),
 

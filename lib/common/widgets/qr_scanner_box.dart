@@ -47,6 +47,17 @@ class ReusableQRScannerState extends State<ReusableQRScanner>
       _isScanned = true;
     });
   }
+  /// FORCE close camera immediately (for parent screens)
+  void forceDisposeCamera() {
+    try {
+      _controller.stop();
+    } catch (_) {}
+
+    try {
+      _controller.dispose();
+    } catch (_) {}
+  }
+
 
   void _toggleTorch() {
     _controller.toggleTorch();
@@ -57,10 +68,16 @@ class ReusableQRScannerState extends State<ReusableQRScanner>
 
   @override
   void dispose() {
-    _controller.dispose();
+    try {
+      _controller.stop();
+    } catch (_) {}
+    try {
+      _controller.dispose();
+    } catch (_) {}
     _borderAnimationController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {

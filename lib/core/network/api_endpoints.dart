@@ -135,6 +135,10 @@ class ApiEndpoints {
   static const String cnfstock="/pwa/get-cfa-stock";
   static const String addpurchaseprod="/pwa/add-purchase-prod";
   static const String getmycategoryDIS="/pwa/get-my-category";
+  //-------Weather API--------
+  static const String getWeather ="https://api.open-meteo.com/v1/forecast";
+  //-------Soil Type API--------
+  static const String agricultureData = "https://your-api.com/agriculture?lat={lat}&lon={lon}";
 
 
 }

@@ -200,12 +200,15 @@ class _InventoryStockField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
+        maxLength: 10, // limit to 5 characters
         decoration: const InputDecoration(
           hintText: "Enter inventory stock",
           border: InputBorder.none,
+          counterText: "", // removes the counter text
         ),
         style: const TextStyle(fontSize: 14),
       ),
+
     );
   }
 }
