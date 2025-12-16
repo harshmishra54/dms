@@ -2,11 +2,17 @@ import 'dart:convert';
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/get_tsi_list_for_rsm_model.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/fill_details_form.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/doctor_history_screen.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_details_and_location.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_list_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/targetfarmer.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/my_screen.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/my_leave_screen_list.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Retailer_approval.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/distributor_approval.dart';
@@ -330,6 +336,21 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyLeaveScreen()));
                               },
                             ),
+                          const Divider(height: 32),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 4),
+                            child: Text('Farmer', style: TextStyle(fontSize: 16)),
+                          ),
+                          _drawerItem(context, Icons.location_on, 'Farmer Onboarding', const FillDetailsForm()),
+                          _drawerItem(context, Icons.location_on, 'Farmer Location', const PhoneLocationScreen()),
+                          _drawerItem(context, Icons.agriculture, 'Farmers Details', const FarmerListScreen()),
+                          /// 👇 Show Approve Distributor only for roleId 1
+
+                          _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
+                          _drawerItem(context, Icons.analytics, 'Farmer Analytics', const RetargetFarmerScreen()),
+                          // _drawerItem(context, Icons.leave_bags_at_home, 'Leave Management', LeaveScreen()),
+
+
 
                           const Divider(height: 32),
                           const Padding(

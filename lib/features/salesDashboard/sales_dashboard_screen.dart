@@ -1,7 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/data/models/farmer_funnel_model.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/funnel_stage_detail_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_consideration_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
+import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/tsi_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +45,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
   final PageController _pageController = PageController();
   Timer? _autoSlideTimer;
 
+
   // Pulse animation for AI icon
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -61,13 +70,50 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
       _startAutoSlide();
     });
   }
+  void _fetchData() async {
+    final createdBy = await SharedPrefsHelper.getUserId(); // ✅ await the future
+
+    context.read<DashboardProvider>().fetchDashboardData();
+    context.read<ChannelPerformanceProvider>().fetchChannelPerformance();
+    context.read<FarmerFunnelProvider>().fetchFarmerFunnel();
+    context.read<AdvocacyProvider>().fetchAdvocacy();
+    context.read<PurchaseDataProvider>().fetchPurchaseData();
+
+    if (createdBy != null) {
+      context.read<FarmerConsiderationProvider>().fetchConsideration(
+        createdBy: createdBy,
+      );
+    }
+  }
+  void _handleFunnelTap(Offset localPosition, {required Size size}) {
+    final double y = localPosition.dy;
+    const int sections = 5; // 5 funnel stages
+    final double sectionHeight = size.height / sections;
+
+    // Determine tapped stage index
+    final int tappedSection = (y ~/ sectionHeight).clamp(0, sections - 1);
+
+    // Stage names
+    const stageNames = ['Awareness', 'Consideration', 'Purchase', 'Retention', 'Advocacy'];
+
+    // Navigate to FunnelStageDetailScreen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FunnelStageDetailScreen(
+          stageIndex: tappedSection,
+          stageName: stageNames[tappedSection],
+        ),
+      ),
+    );
+  }
 
   void _startAutoSlide() {
     _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (!_pageController.hasClients) return;
 
       final currentPage = _pageController.page?.round() ?? 0;
-      final nextPage = currentPage == 0 ? 1 : 0;
+      final nextPage = (currentPage + 1) % 3; // 🔥 3 pages now
 
       _pageController.animateToPage(
         nextPage,
@@ -76,6 +122,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
       );
     });
   }
+
 
   @override
   void didChangeDependencies() {
@@ -94,7 +141,20 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
     }
   }
 
-  void _fetchAllData() {
+  void _fetchAllData() async{
+    final createdBy = await SharedPrefsHelper.getUserId(); // ✅ await the future
+
+    context.read<DashboardProvider>().fetchDashboardData();
+    context.read<ChannelPerformanceProvider>().fetchChannelPerformance();
+    context.read<FarmerFunnelProvider>().fetchFarmerFunnel();
+    context.read<AdvocacyProvider>().fetchAdvocacy();
+    context.read<PurchaseDataProvider>().fetchPurchaseData();
+
+    if (createdBy != null) {
+      context.read<FarmerConsiderationProvider>().fetchConsideration(
+        createdBy: createdBy,
+      );
+    }
     final channelProvider = Provider.of<ChannelPerformanceProvider>(context, listen: false);
     final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
     final todayRouteScheduleProvider = Provider.of<TodayRouteScheduleProvider>(context, listen: false);
@@ -164,6 +224,145 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
     _pulseController.dispose();
     super.dispose();
   }
+  FunnelMetrics _calculateMetrics(
+      FarmerFunnelResponse? funnelData,
+      PurchaseDataProvider purchaseProvider,
+      ) {
+    if (funnelData?.data == null || funnelData!.data!.isEmpty) {
+      return FunnelMetrics.empty();
+    }
+
+    final farmers = funnelData.data!;
+
+    // Awareness = total unique farmers
+    final awareness = farmers.length;
+
+    // Consideration = farmers in FarmerConsiderationProvider
+    final considerationProvider = context.read<FarmerConsiderationProvider>();
+    final consideration = considerationProvider.farmers.length;
+
+    // Purchase = total purchase farmers
+    final purchase = purchaseProvider.purchaseList.length;
+
+    // Retention = repeat purchase farmers
+    final retention = purchaseProvider.repeatPurchaseList.length;
+
+    // Advocacy = API count from provider
+    final advocacy = context.read<AdvocacyProvider>().advocacyCount;
+
+    return FunnelMetrics(
+      awareness: awareness,
+      consideration: consideration,
+      purchase: purchase,
+      retention: retention,
+      advocacy: advocacy,
+    );
+  }
+
+  Widget _buildFarmerFunnelSection() {
+    return Consumer2<FarmerFunnelProvider, PurchaseDataProvider>(
+      builder: (context, funnelProvider, purchaseProvider, child) {
+        if (funnelProvider.isLoading && funnelProvider.farmerFunnel == null) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(32),
+            child: const Center(
+              child: CircularProgressIndicator(color: Colors.deepPurple),
+            ),
+          );
+        }
+
+        final metrics = _calculateMetrics(
+          funnelProvider.farmerFunnel,
+          purchaseProvider,
+        );
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: AutoTranslateText(
+                  'Sales Analytics',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ),
+
+              /// 🔥 Responsive Funnel Area
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final screenHeight = MediaQuery.of(context).size.height;
+
+                  // Adaptive height logic
+                  final funnelHeight = (screenHeight * 0.28)
+                      .clamp(220.0, 360.0); // min & max safe limits
+
+                  final funnelWidth =
+                  constraints.maxWidth.clamp(260.0, 360.0);
+
+                  final funnelSize = Size(funnelWidth, funnelHeight);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: GestureDetector(
+                      onTapDown: (details) {
+                        _handleFunnelTap(
+                          details.localPosition,
+                          size: funnelSize,
+                        );
+                      },
+                      child: CustomPaint(
+                        size: funnelSize,
+                        painter: Funnel3DPainter(1.0, metrics),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              if (metrics.awareness == 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: AutoTranslateText(
+                    'No farmer data available yet',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +525,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                       controller: _pageController,
                       physics: const BouncingScrollPhysics(),
                       children: [
-                        // PAGE 1
+                        // PAGE 1 — Dashboard Overview
                         SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -368,17 +567,26 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 ),
-                              const SizedBox(height: 10),
                             ],
                           ),
                         ),
 
-                        // PAGE 2 — Full Activity Overview
+                        // PAGE 2 — FARMER FUNNEL (NEW)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            child: _buildFarmerFunnelSection(),
+                          ),
+                        ),
+
+                        // PAGE 3 — TSI ACTIVITY
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: TsiActivity(),
                         ),
                       ],
+
                     ),
                   );
                 },

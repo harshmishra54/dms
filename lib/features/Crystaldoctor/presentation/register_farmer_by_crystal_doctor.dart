@@ -210,12 +210,8 @@ class _RegisterFarmerByCrystalDoctorState
       });
 
       // Navigate to CrystalDoctorDashboard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CrystalDoctorDashboard(),
-        ),
-      );
+      Navigator.pop(context);
+
     }
   }
 

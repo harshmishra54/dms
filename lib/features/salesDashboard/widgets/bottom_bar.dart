@@ -14,8 +14,15 @@ import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dar
 
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 
-class BottomBar extends StatelessWidget {
+class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
+
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,45 +31,82 @@ class BottomBar extends StatelessWidget {
     final int rows = (totalItems / crossAxisCount).ceil();
 
     final double itemHeight = 100;
-    final double barHeight = (rows * itemHeight) + 40;
+    final double expandedHeight = (rows * itemHeight) + 40;
+    const double collapsedHeight = 60;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: SafeArea(
-        child: Container(
-          height: barHeight,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(20),
-              bottom: Radius.circular(20),
-            ),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8)],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: _isExpanded ? expandedHeight : collapsedHeight,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+            bottom: Radius.circular(20),
           ),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 16, left: 16,top: 16,bottom: 0),
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: crossAxisCount,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 0.85,
-              children: [
-                _buildSchemeIcon(context, "Beat Plan", Icons.local_shipping),
-                _buildSchemeIcon(context, "Meeting", Icons.meeting_room_rounded),
-                _buildSchemeIcon(context, "Stock Summary", Icons.assignment_turned_in),
-                _buildSchemeIcon(context, "Expense", Icons.account_balance_wallet),
-                _buildSchemeIcon(context, "Distributor", Icons.fact_check),
-                _buildSchemeIcon(context, "Retailer", Icons.storefront),
-                _buildSchemeIcon(context, "Order", Icons.phone_android),
-                _buildSchemeIcon(context, "Leave", Icons.event_available),
-              ],
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 8),
+          ],
+        ),
+        child: Column(
+          children: [
+            /// 🔼 Arrow Cap
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() => _isExpanded = !_isExpanded);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Icon(
+                  _isExpanded
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_up,
+                  size: 30,
+                  color: Colors.black87,
+                ),
+              ),
             ),
-          ),
+
+            /// 📦 Your Existing Grid (UNCHANGED)
+            if (_isExpanded)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    right: 16,
+                    left: 16,
+                    top: 16,
+                    bottom: 0,
+                  ),
+                  child: GridView.count(
+                    shrinkWrap: true,
+                    crossAxisCount: crossAxisCount,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 0.85,
+                    children: [
+                      _buildSchemeIcon(context, "Beat Plan", Icons.local_shipping),
+                      _buildSchemeIcon(context, "Meeting", Icons.meeting_room_rounded),
+                      _buildSchemeIcon(context, "Stock Summary", Icons.assignment_turned_in),
+                      _buildSchemeIcon(context, "Expense", Icons.account_balance_wallet),
+                      _buildSchemeIcon(context, "Distributor", Icons.fact_check),
+                      _buildSchemeIcon(context, "Retailer", Icons.storefront),
+                      _buildSchemeIcon(context, "Order", Icons.phone_android),
+                      _buildSchemeIcon(context, "Leave", Icons.event_available),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 
+  // ===========================
+  // EVERYTHING BELOW IS UNCHANGED
+  // ===========================
   Widget _buildSchemeIcon(BuildContext context, String label, IconData icon) {
     return GestureDetector(
       onTap: () async {
@@ -80,7 +124,6 @@ class BottomBar extends StatelessWidget {
           final userId = await SharedPrefsHelper.getUserId();
 
           if (roleId == 19 && userId != null) {
-            // Fetch TSI List
             final provider = Provider.of<TsiListProvider>(context, listen: false);
             await provider.fetchTsiList(userId);
 
@@ -91,8 +134,6 @@ class BottomBar extends StatelessWidget {
               return;
             }
 
-            // Show BottomSheet for TSI selection
-            // ignore: use_build_context_synchronously
             showModalBottomSheet(
               context: context,
               shape: const RoundedRectangleBorder(
@@ -102,10 +143,12 @@ class BottomBar extends StatelessWidget {
                 return Consumer<TsiListProvider>(
                   builder: (ctx, provider, _) {
                     if (provider.isLoading) {
-                      return const Center(child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                     }
                     return ListView.builder(
                       itemCount: provider.tsiUsers.length,
@@ -115,13 +158,11 @@ class BottomBar extends StatelessWidget {
                           title: AutoTranslateText(tsi.name ?? "Unknown"),
                           subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
-                            Navigator.pop(ctx); // close sheet
+                            Navigator.pop(ctx);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => MyScreen(
-                                   tsiId: tsi.id, // Pass selected TSI
-                                ),
+                                builder: (_) => MyScreen(tsiId: tsi.id),
                               ),
                             );
                           },
@@ -136,12 +177,12 @@ class BottomBar extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const MyScreen()));
           }
         }
+
         if (label == "Distributor") {
           final roleId = await SharedPrefsHelper.getRoleId();
           final userId = await SharedPrefsHelper.getUserId();
 
           if (roleId == 19 && userId != null) {
-            // Fetch TSI List
             final provider = Provider.of<TsiListProvider>(context, listen: false);
             await provider.fetchTsiList(userId);
 
@@ -152,8 +193,6 @@ class BottomBar extends StatelessWidget {
               return;
             }
 
-            // Show BottomSheet for TSI selection
-            // ignore: use_build_context_synchronously
             showModalBottomSheet(
               context: context,
               shape: const RoundedRectangleBorder(
@@ -163,10 +202,12 @@ class BottomBar extends StatelessWidget {
                 return Consumer<TsiListProvider>(
                   builder: (ctx, provider, _) {
                     if (provider.isLoading) {
-                      return const Center(child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                     }
                     return ListView.builder(
                       itemCount: provider.tsiUsers.length,
@@ -176,13 +217,11 @@ class BottomBar extends StatelessWidget {
                           title: AutoTranslateText(tsi.name ?? "Unknown"),
                           subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
-                            Navigator.pop(ctx); // close sheet
+                            Navigator.pop(ctx);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => DistributorsScreen(
-                                  tsiId: tsi.id, // Pass selected TSI
-                                ),
+                                builder: (_) => DistributorsScreen(tsiId: tsi.id),
                               ),
                             );
                           },
@@ -197,12 +236,12 @@ class BottomBar extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const DistributorsScreen()));
           }
         }
+
         if (label == "Stock Summary") {
           final roleId = await SharedPrefsHelper.getRoleId();
           final userId = await SharedPrefsHelper.getUserId();
 
           if (roleId == 19 && userId != null) {
-            // Fetch TSI List
             final provider = Provider.of<TsiListProvider>(context, listen: false);
             await provider.fetchTsiList(userId);
 
@@ -213,8 +252,6 @@ class BottomBar extends StatelessWidget {
               return;
             }
 
-            // Show BottomSheet for TSI selection
-            // ignore: use_build_context_synchronously
             showModalBottomSheet(
               context: context,
               shape: const RoundedRectangleBorder(
@@ -224,10 +261,12 @@ class BottomBar extends StatelessWidget {
                 return Consumer<TsiListProvider>(
                   builder: (ctx, provider, _) {
                     if (provider.isLoading) {
-                      return const Center(child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                     }
                     return ListView.builder(
                       itemCount: provider.tsiUsers.length,
@@ -237,13 +276,11 @@ class BottomBar extends StatelessWidget {
                           title: AutoTranslateText(tsi.name ?? "Unknown"),
                           subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
-                            Navigator.pop(ctx); // close sheet
+                            Navigator.pop(ctx);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => DistributorRetailerScreen(
-                                  tsiId: tsi.id, // Pass selected TSI
-                                ),
+                                builder: (_) => DistributorRetailerScreen(tsiId: tsi.id),
                               ),
                             );
                           },
@@ -258,12 +295,12 @@ class BottomBar extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const DistributorRetailerScreen()));
           }
         }
+
         if (label == "Retailer") {
           final roleId = await SharedPrefsHelper.getRoleId();
           final userId = await SharedPrefsHelper.getUserId();
 
           if (roleId == 19 && userId != null) {
-            // Fetch TSI List
             final provider = Provider.of<TsiListProvider>(context, listen: false);
             await provider.fetchTsiList(userId);
 
@@ -274,8 +311,6 @@ class BottomBar extends StatelessWidget {
               return;
             }
 
-            // Show BottomSheet for TSI selection
-            // ignore: use_build_context_synchronously
             showModalBottomSheet(
               context: context,
               shape: const RoundedRectangleBorder(
@@ -285,10 +320,12 @@ class BottomBar extends StatelessWidget {
                 return Consumer<TsiListProvider>(
                   builder: (ctx, provider, _) {
                     if (provider.isLoading) {
-                      return const Center(child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                     }
                     return ListView.builder(
                       itemCount: provider.tsiUsers.length,
@@ -298,13 +335,11 @@ class BottomBar extends StatelessWidget {
                           title: AutoTranslateText(tsi.name ?? "Unknown"),
                           subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                           onTap: () {
-                            Navigator.pop(ctx); // close sheet
+                            Navigator.pop(ctx);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => RetailersScreen(
-                                  tsiId: tsi.id, // Pass selected TSI
-                                ),
+                                builder: (_) => RetailersScreen(tsiId: tsi.id),
                               ),
                             );
                           },
@@ -319,10 +354,10 @@ class BottomBar extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const RetailersScreen()));
           }
         }
+
         if (label == "Meeting") {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AddMeetingScreen()));
         }
-
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
