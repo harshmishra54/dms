@@ -118,6 +118,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/expense_provider.
 import 'package:TrustTags_DMS/features/salesDashboard/provider/expenselist_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/retailer_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/retailer_rsm_approval_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/route_activity_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_asm_provider.dart.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_meeting_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/rsm_update_order_provider.dart';
@@ -428,6 +429,7 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> MyCategoryProvider()),
         ChangeNotifierProvider(create: (_)=> WeatherProvider()),
         ChangeNotifierProvider(create: (_)=> AgricultureProvider()),
+        ChangeNotifierProvider(create: (_)=> RouteActivityProvider()),
 
 
       ],

@@ -96,35 +96,35 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
         children: [
           Column(
             children: [
-              const AppStatusBar(),
-              // ✅ Custom AppBar
-              Material(
-                elevation: 2,
-                child: Container(
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Expanded(
-                        child: AutoTranslateText(
-                          'Beat Plan',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                ),
-              ),
+              // const AppStatusBar(),
+              // // ✅ Custom AppBar
+              // Material(
+              //   elevation: 2,
+              //   child: Container(
+              //     height: 60,
+              //     padding: const EdgeInsets.symmetric(horizontal: 16),
+              //     child: Row(
+              //       children: [
+              //         IconButton(
+              //           icon: const Icon(Icons.arrow_back, color: Colors.black),
+              //           onPressed: () => Navigator.pop(context),
+              //         ),
+              //         const Expanded(
+              //           child: AutoTranslateText(
+              //             'Beat Plan',
+              //             textAlign: TextAlign.center,
+              //             style: TextStyle(
+              //               color: Colors.black,
+              //               fontWeight: FontWeight.w600,
+              //               fontSize: 18,
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(width: 48),
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
               // ✅ Beat Plan Cards List
               Expanded(

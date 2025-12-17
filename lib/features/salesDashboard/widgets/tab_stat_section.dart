@@ -85,61 +85,71 @@ class _TabStatSectionState extends State<TabStatSection> {
           ),
         ),
 
-        // Stats section with cards + progress bar
-        SizedBox(
-          height: 120,
-          width: double.infinity,
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() => selectedIndex = index);
-            },
-            children: [
-              _buildStatsPage("50,000", "27,000"),
-              _buildStatsPage("1,20,000", "75,000"),
-              _buildStatsPage("5,00,000", "4,10,000"),
-            ],
-          ),
+        // Stats section
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final textScale = MediaQuery
+                .of(context)
+                .textScaleFactor;
+
+            return SizedBox(
+              height: 110 * textScale.clamp(1.0, 1.25),
+              width: double.infinity,
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() => selectedIndex = index);
+                },
+                children: const [
+                  _StatsPage(target: "50,000", sales: "27,000"),
+                  _StatsPage(target: "1,20,000", sales: "75,000"),
+                  _StatsPage(target: "5,00,000", sales: "4,10,000"),
+                ],
+              ),
+            );
+          },
         ),
       ],
     );
   }
+}
 
-  /// Each page contains Target + Sales card + ONE progress bar
-  Widget _buildStatsPage(String target, String sales) {
-    double targetValue = _parseNumber(target);
-    double salesValue = _parseNumber(sales);
+/// ========================
+/// STATS PAGE
+/// ========================
+class _StatsPage extends StatelessWidget {
+  final String target;
+  final String sales;
 
-    double progress = 0.0;
-    if (targetValue > 0) {
-      progress = (salesValue / targetValue).clamp(0.0, 1.0);
-    }
+  const _StatsPage({
+    required this.target,
+    required this.sales,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final targetValue = _parseNumber(target);
+    final salesValue = _parseNumber(sales);
+
+    final progress =
+    targetValue > 0 ? (salesValue / targetValue).clamp(0.0, 1.0) : 0.0;
 
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildStatCard(targetValue.toStringAsFixed(0), "TARGET", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DistributorListScreen(),
-                ),
-              );
-            }),
-            _buildStatCard(salesValue.toStringAsFixed(0), "SALES", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DistributorListScreen(),
-                ),
-              );
-            }),
+            _StatCard(
+              value: targetValue.toStringAsFixed(0),
+              label: "TARGET",
+            ),
+            _StatCard(
+              value: salesValue.toStringAsFixed(0),
+              label: "SALES",
+            ),
           ],
         ),
         const SizedBox(height: 16),
-        // Gradient Progress Bar with percentage inside
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: LayoutBuilder(
@@ -157,15 +167,13 @@ class _TabStatSectionState extends State<TabStatSection> {
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     height: 15,
-                    width: fullWidth * progress, // Use exact width
+                    width: fullWidth * progress,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [
                           Colors.purpleAccent,
                           Color(0xFF9C27B0),
                         ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
                       ),
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -176,8 +184,8 @@ class _TabStatSectionState extends State<TabStatSection> {
                         "${(progress * 100).toStringAsFixed(1)}%",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
                           fontSize: 10,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -187,43 +195,55 @@ class _TabStatSectionState extends State<TabStatSection> {
             },
           ),
         ),
-
       ],
     );
   }
 
-  /// Convert "1,20,000" into 120000
-  double _parseNumber(String value) {
+  static double _parseNumber(String value) {
     return double.tryParse(value.replaceAll(",", "")) ?? 0.0;
   }
+}
 
-  /// Small card widget
-  /// Small card widget
-  Widget _buildStatCard(String value, String label, VoidCallback onTap) {
+/// ========================
+/// RESPONSIVE STAT CARD
+/// ========================
+class _StatCard extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _StatCard({
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.of(context).textScaleFactor;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final cardHeight =
+        screenHeight * 0.085 * textScale.clamp(1.0, 1.3);
+
     return GestureDetector(
       onTap: () async {
         final roleId = await SharedPrefsHelper.getRoleId();
         final userId = await SharedPrefsHelper.getUserId();
 
         if (roleId == 1) {
-          // ✅ Distributor → go directly
-          if (label == "TARGET") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ProductListingScreen()),
-            );
-          } else if (label == "SALES") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => AchievedTargetListingScreen()),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => label == "TARGET"
+                  ? ProductListingScreen()
+                  : AchievedTargetListingScreen(),
+            ),
+          );
           return;
         }
 
         if (roleId == 19 && userId != null) {
-          // RSM → Fetch TSI List
-          final provider = Provider.of<TsiListProvider>(context, listen: false);
+          final provider =
+          Provider.of<TsiListProvider>(context, listen: false);
           await provider.fetchTsiList(userId);
 
           if (provider.tsiUsers.isEmpty) {
@@ -233,7 +253,6 @@ class _TabStatSectionState extends State<TabStatSection> {
             return;
           }
 
-          // Show BottomSheet for TSI selection
           showModalBottomSheet(
             context: context,
             shape: const RoundedRectangleBorder(
@@ -243,11 +262,9 @@ class _TabStatSectionState extends State<TabStatSection> {
               return Consumer<TsiListProvider>(
                 builder: (ctx, provider, _) {
                   if (provider.isLoading) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(),
-                      ),
+                    return const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(child: CircularProgressIndicator()),
                     );
                   }
                   return ListView.builder(
@@ -258,8 +275,7 @@ class _TabStatSectionState extends State<TabStatSection> {
                         title: AutoTranslateText(tsi.name ?? "Unknown"),
                         subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
                         onTap: () {
-                          Navigator.pop(ctx); // close sheet
-                          // Navigate to distributor list screen with TSI ID
+                          Navigator.pop(ctx);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -276,10 +292,11 @@ class _TabStatSectionState extends State<TabStatSection> {
             },
           );
         } else {
-          // Other roles → Distributor list
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => DistributorListScreen()),
+            MaterialPageRoute(
+              builder: (_) => DistributorListScreen(),
+            ),
           );
         }
       },
@@ -289,29 +306,31 @@ class _TabStatSectionState extends State<TabStatSection> {
         color: Colors.white,
         child: Container(
           width: 130,
-          height: 70,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          height: cardHeight,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AutoTranslateText(
-                value,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: AppColors.primaryPurple,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AutoTranslateText(
+                  value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppColors.primaryPurple,
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -321,4 +340,3 @@ class _TabStatSectionState extends State<TabStatSection> {
     );
   }
 }
-

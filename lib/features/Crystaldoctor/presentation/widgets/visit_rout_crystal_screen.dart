@@ -56,6 +56,20 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
     'Rabi (Winter)',
     'Zaid (Summer)',
   ];
+  final List<String> _months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   @override
   void initState() {
@@ -701,6 +715,7 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                           TextFormField(
                             controller: crop.areaController,
                             keyboardType: TextInputType.number,
+                            maxLength: 5,
                             decoration: _decor('0.0', compact: true),
                             validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                           ),
@@ -715,8 +730,25 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                           _label('Duration (Months)', icon: Icons.calendar_today, small: true),
                           TextFormField(
                             controller: crop.durationController,
-                            decoration: _decor('e.g., 4-5', compact: true),
+                            decoration: _decor('e.g., 4 or 12', compact: true),
+                            keyboardType: TextInputType.number,
+                            maxLength: 2,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Required';
+
+                              final month = int.tryParse(value);
+                              if (month == null) {
+                                return 'Enter a valid number';
+                              }
+
+                              if (month < 1 || month > 12) {
+                                return 'Duration must be between 1 and 12 months';
+                              }
+
+                              return null;
+                            },
                           ),
+
                         ],
                       ),
                     ),
@@ -856,10 +888,29 @@ class _FarmerMeetingScreenState extends State<FarmerMeetingScreen> with SingleTi
                   },
                 ),
                 const SizedBox(height: 4),
-                TextFormField(
-                  controller: product.expectedMonthController,
-                  decoration: _decor('Expected Month', compact: true),
+                DropdownButtonFormField<String>(
+                  value: product.expectedMonthController.text.isNotEmpty
+                      ? product.expectedMonthController.text
+                      : null,
+                  decoration: _decor('Expected Month', compact: true, prefixIcon: Icons.calendar_today),
+                  items: _months.map((month) {
+                    return DropdownMenuItem(
+                      value: month,
+                      child: AutoTranslateText(
+                        month,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      product.expectedMonthController.text = value!;
+                    });
+                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Required' : null,
                 ),
+
+
                 const SizedBox(height: 4),
                 TextFormField(
                   controller: product.remarksController,

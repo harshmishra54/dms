@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/beat_plan_tabs_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,78 +27,73 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    const int totalItems = 8;
     const int crossAxisCount = 4;
-    final int rows = (totalItems / crossAxisCount).ceil();
+    const double itemHeight = 96;
 
-    final double itemHeight = 100;
-    final double expandedHeight = (rows * itemHeight) + 40;
-    const double collapsedHeight = 60;
+    const double arrowHeight = 48;
+    const double collapsedHeight = arrowHeight + itemHeight;
+    const double expandedHeight = arrowHeight + (itemHeight * 2); // 2 rows
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 280),
         curve: Curves.easeInOut,
         height: _isExpanded ? expandedHeight : collapsedHeight,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-            bottom: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: const [
             BoxShadow(color: Colors.black26, blurRadius: 8),
           ],
         ),
         child: Column(
           children: [
-            /// 🔼 Arrow Cap
+            /// 🔼 Animated Arrow (compact)
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                setState(() => _isExpanded = !_isExpanded);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Icon(
-                  _isExpanded
-                      ? Icons.keyboard_arrow_down
-                      : Icons.keyboard_arrow_up,
-                  size: 30,
-                  color: Colors.black87,
+              onTap: () => setState(() => _isExpanded = !_isExpanded),
+              child: SizedBox(
+                height: arrowHeight,
+                child: Center(
+                  child: AnimatedRotation(
+                    turns: _isExpanded ? 0.5 : 0.0,
+                    duration: const Duration(milliseconds: 280),
+                    child: const Icon(
+                      Icons.keyboard_arrow_up,
+                      size: 28,
+                    ),
+                  ),
                 ),
               ),
             ),
 
-            /// 📦 Your Existing Grid (UNCHANGED)
-            if (_isExpanded)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    right: 16,
-                    left: 16,
-                    top: 16,
-                    bottom: 0,
-                  ),
-                  child: GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: crossAxisCount,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 0.85,
-                    children: [
-                      _buildSchemeIcon(context, "Beat Plan", Icons.local_shipping),
-                      _buildSchemeIcon(context, "Meeting", Icons.meeting_room_rounded),
-                      _buildSchemeIcon(context, "Stock Summary", Icons.assignment_turned_in),
-                      _buildSchemeIcon(context, "Expense", Icons.account_balance_wallet),
+            /// 📦 Grid
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  physics: const NeverScrollableScrollPhysics(),
+                  childAspectRatio: 0.85,
+                  children: [
+                    // ✅ FIRST ROW (always visible)
+                    _buildSchemeIcon(context, "Beat Plan", Icons.local_shipping),
+                    _buildSchemeIcon(context, "Meeting", Icons.meeting_room_rounded),
+                    _buildSchemeIcon(context, "Stock Summary", Icons.assignment_turned_in),
+                    _buildSchemeIcon(context, "Expense", Icons.account_balance_wallet),
+
+                    // ✅ SECOND ROW (only when expanded)
+                    if (_isExpanded) ...[
                       _buildSchemeIcon(context, "Distributor", Icons.fact_check),
                       _buildSchemeIcon(context, "Retailer", Icons.storefront),
                       _buildSchemeIcon(context, "Order", Icons.phone_android),
                       _buildSchemeIcon(context, "Leave", Icons.event_available),
                     ],
-                  ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -111,7 +107,7 @@ class _BottomBarState extends State<BottomBar> {
     return GestureDetector(
       onTap: () async {
         if (label == "Beat Plan") {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const BeatPlanScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const BeatPlanTabsScreen()));
         }
         if (label == "Leave") {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const LeaveScreen()));

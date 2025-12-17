@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/farmer_funnel_model.dart';
+import 'package:TrustTags_DMS/data/models/merged_route_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/crystal_doctor_dashboard.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/funnel_stage_detail_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/chat_bot.dart';
@@ -10,6 +11,8 @@ import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_pr
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_consideration_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/purchase_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/route_activity_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/widgets/merged_activity_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/tsi_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -109,7 +112,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
   }
 
   void _startAutoSlide() {
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (!_pageController.hasClients) return;
 
       final currentPage = _pageController.page?.round() ?? 0;
@@ -157,11 +160,17 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
     }
     final channelProvider = Provider.of<ChannelPerformanceProvider>(context, listen: false);
     final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-    final todayRouteScheduleProvider = Provider.of<TodayRouteScheduleProvider>(context, listen: false);
+    final todayRouteScheduleProvider = Provider.of<RouteActivityProvider>(context, listen: false);
 
     channelProvider.fetchChannelPerformance();
     dashboardProvider.fetchDashboardData();
-    todayRouteScheduleProvider.fetchTodayRouteSchedule();
+    if (createdBy != null) {
+      todayRouteScheduleProvider.fetchRouteActivity(
+        request: RouteActivityRequest(
+          id: createdBy,
+        ),
+      );
+    }
   }
 
   void _checkAttendanceAndShowPopup() async {
@@ -318,7 +327,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                   final screenHeight = MediaQuery.of(context).size.height;
 
                   // Adaptive height logic
-                  final funnelHeight = (screenHeight * 0.28)
+                  final funnelHeight = (screenHeight * 0.32)
                       .clamp(220.0, 360.0); // min & max safe limits
 
                   final funnelWidth =
@@ -344,18 +353,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                 },
               ),
 
-              if (metrics.awareness == 0)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: AutoTranslateText(
-                    'No farmer data available yet',
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
             ],
           ),
         );
@@ -583,7 +580,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> with Widget
                         // PAGE 3 — TSI ACTIVITY
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: TsiActivity(),
+                          child: MergedActivityScreen(),
                         ),
                       ],
 

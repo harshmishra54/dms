@@ -21,6 +21,7 @@ import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_
 import 'package:TrustTags_DMS/features/salesDashboard/sales_dashboard_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/demand_prediction.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/widgets/whatsapp_product_demo_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -348,6 +349,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
 
                           _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
                           _drawerItem(context, Icons.analytics, 'Farmer Analytics', const RetargetFarmerScreen()),
+                          _drawerItem(context, Icons.next_plan_outlined, 'Plan Demo', const DemoWhatsappScreen()),
                           // _drawerItem(context, Icons.leave_bags_at_home, 'Leave Management', LeaveScreen()),
 
 

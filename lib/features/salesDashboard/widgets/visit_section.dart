@@ -1,24 +1,26 @@
-import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/provider/today_rout_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/route_activity_provider.dart';
 
 class VisitSection extends StatelessWidget {
   const VisitSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TodayRouteScheduleProvider>(
+    return Consumer<RouteActivityProvider>(
       builder: (context, provider, _) {
-        final data = provider.schedule?.data;
+        final data = provider.routeActivityResponse;
 
         final total = data?.total ?? 0;
         final pending = data?.pending ?? 0;
         final complete = data?.complete ?? 0;
 
         // Debug log
-        print("📊 Visits → total: $total, pending: $pending, complete: $complete");
+        debugPrint(
+          "📊 Route Activity → total: $total, pending: $pending, complete: $complete",
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +76,7 @@ class _VisitStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AutoTranslateText(
+        Text(
           count,
           style: TextStyle(
             fontWeight: FontWeight.bold,

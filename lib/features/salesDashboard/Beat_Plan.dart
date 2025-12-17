@@ -89,34 +89,34 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
       ),
       body: Column(
         children: [
-          const AppStatusBar(),
-
-          // Top Bar
-          Material(
-            elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.1),
-            child: Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: AutoTranslateText(
-                      'Beat Plan',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
-          ),
+          // const AppStatusBar(),
+          //
+          // // Top Bar
+          // Material(
+          //   elevation: 4,
+          //   shadowColor: Colors.black.withOpacity(0.1),
+          //   child: Container(
+          //     height: 60,
+          //     padding: const EdgeInsets.symmetric(horizontal: 16),
+          //     color: Colors.white,
+          //     child: Row(
+          //       children: [
+          //         IconButton(
+          //           icon: const Icon(Icons.arrow_back, color: Colors.black),
+          //           onPressed: () => Navigator.pop(context),
+          //         ),
+          //         const Expanded(
+          //           child: AutoTranslateText(
+          //             'Beat Plan',
+          //             textAlign: TextAlign.center,
+          //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
+          //           ),
+          //         ),
+          //         const SizedBox(width: 48),
+          //       ],
+          //     ),
+          //   ),
+          // ),
 
           // List of Routes
           Expanded(
