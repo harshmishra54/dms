@@ -61,7 +61,7 @@ class Stock {
   final String createdAt;
   final Product? product;
   final Batch? batch;
-  final Bin bin;
+  final Bin? bin; // ✅ nullable
 
   Stock({
     required this.id,
@@ -70,7 +70,7 @@ class Stock {
     required this.createdAt,
     this.product,
     this.batch,
-    required this.bin,
+    this.bin,
   });
 
   factory Stock.fromJson(Map<String, dynamic> json) {
@@ -79,13 +79,19 @@ class Stock {
       qty: json['qty'],
       packagingLevel: json['packaging_level'],
       createdAt: json['createdAt'],
-      product:
-      json['product'] != null ? Product.fromJson(json['product']) : null,
-      batch: json['batch'] != null ? Batch.fromJson(json['batch']) : null,
-      bin: Bin.fromJson(json['bin']),
+      product: json['product'] != null
+          ? Product.fromJson(json['product'])
+          : null,
+      batch: json['batch'] != null
+          ? Batch.fromJson(json['batch'])
+          : null,
+      bin: json['bin'] != null
+          ? Bin.fromJson(json['bin'])
+          : null, // ✅ safe
     );
   }
 }
+
 
 class Product {
   final String name;

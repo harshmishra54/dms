@@ -1,8 +1,9 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
+import 'package:TrustTags_DMS/data/models/asynchronous_reward_response_model.dart';
+import 'package:TrustTags_DMS/features/home/presentation/history_screen.dart';
+import 'package:TrustTags_DMS/features/home/widgets/history_points_section.dart';
 import 'package:TrustTags_DMS/features/scan/models/product_level_check_model.dart';
-import 'package:TrustTags_DMS/features/scan/providers/add_purchase_provider.dart';
 import 'package:TrustTags_DMS/features/spinner/presentation/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ import '../../../core/utils/shared_prefs_helper.dart';
 import '../../scan/providers/product_level_provider.dart';
 import 'package:TrustTags_DMS/features/scan/models/scan_response.dart';
 
+
 class RetailerScanQRScreen extends StatefulWidget {
   const RetailerScanQRScreen({super.key});
 
@@ -23,12 +25,32 @@ class RetailerScanQRScreen extends StatefulWidget {
 }
 
 class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
-  String scannedUID = '';
   bool _isLoading = false;
+  String scannedUID = '';
+  bool get hasPoints =>
+      _asyncScans.values.any((e) => e.isValid && !e.isSpinner && e.points > 0);
 
-  /// GlobalKey for scanner
+  bool get hasSpinner =>
+      _asyncScans.values.any((e) => e.isValid && e.isSpinner);
+
+  bool get hasInvalid =>
+      _asyncScans.values.any((e) => !e.isValid);
+
+
+  /// Scanner key
   final GlobalKey<ReusableQRScannerState> _scannerKey =
   GlobalKey<ReusableQRScannerState>();
+
+  /// ✅ ASYNC SCAN STORAGE
+  final Map<String, AsyncScanResponse> _asyncScans = {};
+
+  int get totalPoints => _asyncScans.values
+      .where((e) => e.isProcessed && e.isValid && !e.isSpinner)
+      .fold(0, (sum, e) => sum + e.points);
+
+  int get totalSpinners => _asyncScans.values
+      .where((e) => e.isProcessed && e.isValid && e.isSpinner)
+      .length;
 
   @override
   void initState() {
@@ -39,305 +61,84 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     ));
   }
 
-  // ----------------------- Scan Result Dialog -----------------------
-  void _showScanResultDialog({
-    required bool isValid,
-    required String productName,
-    required String points,
-  }) {
-    final color = isValid ? Colors.green : Colors.redAccent;
-    final title = isValid ? "Valid Scan" : "Invalid Scan";
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AutoTranslateText(title,
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: color)),
-                const SizedBox(height: 12),
-                Icon(Icons.qr_code_2, color: color, size: 40),
-                const SizedBox(height: 20),
-
-                // ✔ Points only
-                _buildReadOnlyField("Points", points),
-                const SizedBox(height: 15),
-
-                // ✔ Product Name only
-                _buildReadOnlyField("Product Name", productName),
-
-                const SizedBox(height: 25),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: color,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _restartOuterScanner();
-                    },
-                    child: const AutoTranslateText(
-                      'Okay',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildReadOnlyField(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AutoTranslateText(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 5),
-        TextField(
-          enabled: false,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            hintText: value,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ----------------------- Outer Scan -----------------------
+  // ----------------------- OUTER SCAN -----------------------
   Future<void> _handleOuterScan(String uid) async {
-    setState(() {
-      scannedUID = uid;
-      _isLoading = true;
-    });
+    scannedUID = uid;
+    setState(() {});
 
     final token = await SharedPrefsHelper.getAccessToken();
-    if (token == null || token.isEmpty) {
-      setState(() => _isLoading = false);
-      _showScanResultDialog(
-        isValid: false,
-        productName: "Token Missing",
-        // productUID: uid,
-        points: "0",
-        // message: "Authentication token missing",
-      );
-      return;
-    }
+    if (token == null || token.isEmpty) return;
 
     final productLevelProvider =
     Provider.of<ProductLevelProvider>(context, listen: false);
 
+    setState(() => _isLoading = true);
     await productLevelProvider.checkProductLevel(
       ProductLevelRequest(uniqueCode: uid),
     );
-
     setState(() => _isLoading = false);
 
-    if (productLevelProvider.errorMessage != null) {
-      _showScanResultDialog(
-        isValid: false,
-        productName: "Error",
-        // productUID: uid,
-        points: "0",
-        // message: productLevelProvider.errorMessage!,
-      );
-      return;
-    }
-
-    final level = productLevelProvider.productLevelResponse?.level ?? '';
-    final packagingType = productLevelProvider.productLevelResponse?.packagingtype ?? 0;
+    final level =
+        productLevelProvider.productLevelResponse?.level ?? '';
+    final packagingType =
+        productLevelProvider.productLevelResponse?.packagingtype ?? 0;
 
     if (packagingType == 1) {
-      await _validateUid(token, outerCode: uid,packagingtype: packagingType);
+      await _validateUid(token, outerCode: uid, packagingtype: packagingType);
+      _restartOuterScanner();
       return;
     }
+
     if (level.toUpperCase() == 'O') {
-      // Show 1 second info messages
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: AutoTranslateText("Now scan the inner code...",style: TextStyle(color: Colors.red),),
+          content: AutoTranslateText("Now scan the inner code"),
           duration: Duration(seconds: 2),
         ),
       );
 
-      // Switch scanner to inner scan
       _scannerKey.currentState?.setOnScanned((innerUID) async {
         _scannerKey.currentState?.pauseScanning();
-        await _handleInnerScan(token, outerCode: uid, innerCode: innerUID);
+        await _handleInnerScan(
+          token,
+          outerCode: uid,
+          innerCode: innerUID,
+        );
       });
 
       _scannerKey.currentState?.resetScanner();
     } else {
       await _validateUid(token, outerCode: uid);
+      _restartOuterScanner();
     }
   }
-  Future<String?> _showCropNameDialog() async {
-    final cropProvider = Provider.of<CropProvider>(context, listen: false);
 
-    // Fetch crop list before showing dialog
-    await cropProvider.fetchCropList();
-
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        String? selectedCrop;
-
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Consumer<CropProvider>(
-              builder: (context, provider, child) {
-                if (provider.isLoading) {
-                  return const SizedBox(
-                    height: 120,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (provider.errorMessage != null) {
-                  return SizedBox(
-                    height: 150,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("Failed to load crops",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
-                        // const SizedBox(height: 10),
-                        // Text(provider.errorMessage!,
-                        //     textAlign: TextAlign.center,
-                        //     style: TextStyle(color: Colors.red)),
-                        // const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                final crops = provider.cropResponse?.data ?? [];
-
-                if (crops.isEmpty) {
-                  return SizedBox(
-                    height: 150,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text("No crops available",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Select Crop",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 15),
-
-                    // Dropdown
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      value: selectedCrop,
-                      hint: const Text("Choose Crop"),
-                      items: crops.map((crop) {
-                        return DropdownMenuItem<String>(
-                          value: crop.cropTypeName ?? "",
-                          child: Text(crop.cropTypeName ?? ""),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        selectedCrop = value;
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // OK Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.topBarColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (selectedCrop == null) return;
-                          Navigator.pop(context, selectedCrop);
-                        },
-                        child: const Text("OK",
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-
-
-  // ----------------------- Inner Scan -----------------------
+  // ----------------------- INNER SCAN -----------------------
   Future<void> _handleInnerScan(
       String token, {
         required String outerCode,
         required String innerCode,
       }) async {
     setState(() => _isLoading = true);
-    await _validateUid(token, outerCode: outerCode, innerCode: innerCode);
+    await _validateUid(
+      token,
+      outerCode: outerCode,
+      innerCode: innerCode,
+    );
     setState(() => _isLoading = false);
+    _restartOuterScanner();
+  }
+  void _resetScanSession() {
+    setState(() {
+      _asyncScans.clear();
+      scannedUID = '';
+    });
+
+    _restartOuterScanner();
   }
 
-  // ----------------------- Validate UID -----------------------
+
+  // ----------------------- VALIDATE UID (ASYNC MODE) -----------------------
   Future<void> _validateUid(
       String token, {
         required String outerCode,
@@ -350,108 +151,179 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
       isQrCodeDetected: true,
       uniqueCode: outerCode,
       innerCode: innerCode,
-      packagingtype: packagingtype
+      packagingtype: packagingtype,
     );
 
     final validateRes = await scanProvider.validateUID(token, postData);
 
-    // Handle Spinner response case
-    if (validateRes.data is String &&
-        validateRes.segments != null &&
-        validateRes.segments!.isNotEmpty) {
+    final scan = _asyncScans.putIfAbsent(
+      outerCode,
+          () => AsyncScanResponse(uid: outerCode),
+    );
 
-      // ✅ Show crop dialog + API call only for roleId 3
-      final roleId = await SharedPrefsHelper.getRoleId();
-      final userId = await SharedPrefsHelper.getUserId();
-if(validateRes.success == 1) {
-  if (roleId == 3 && userId != null) {
-    final cropName = await _showCropNameDialog();
-    if (cropName != null && cropName.isNotEmpty) {
-      final added = await Provider.of<AddPurchaseProvider>(
-          context, listen: false)
-          .addPurchaseProduct(
-          userId: userId, cropName: cropName, roleId: roleId ?? 0);
+    scan.isProcessed = true;
 
-      if (!added) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to add purchase: ${Provider
-                .of<AddPurchaseProvider>(context, listen: false)
-                .errorMessage ?? ""}"),
-          ),
-        );
-      }
-    }
-  }
-}
+    if (validateRes.success != 1) {
+      scan
+        ..isValid = false
+        ..error = validateRes.message;
 
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SpinnerWidget(
-            spinnerId: validateRes.data as String,
-            segments: validateRes.segments!,
-          ),
-        ),
-      );
-
-      _restartOuterScanner();
+      setState(() {}); // ✅ REQUIRED
       return;
     }
 
-    // ✅ Convert to SchemeData safely if data is Map
-    SchemeData? schemeData;
+    scan.isValid = true;
+
+    // 🎯 SPINNER
+    if (validateRes.data is String &&
+        validateRes.segments != null &&
+        validateRes.segments!.isNotEmpty) {
+      scan
+        ..isSpinner = true
+        ..spinnerId = validateRes.data as String
+        ..segments = validateRes.segments;
+
+      setState(() {}); // ✅ REQUIRED
+      return;
+    }
+
+    // 🎯 POINTS
     if (validateRes.data is Map<String, dynamic>) {
-      schemeData = SchemeData.fromJson(validateRes.data);
+      final scheme = SchemeData.fromJson(validateRes.data);
+      scan.points = scheme.points ?? 0;
     }
 
-    // ✅ Show crop dialog + API only for roleId 3 before showing direct reward
-    final roleId2 = await SharedPrefsHelper.getRoleId();
-    final userId2 = await SharedPrefsHelper.getUserId();
-
-    if (roleId2 == 3 && userId2 != null) {
-      final cropName = await _showCropNameDialog();
-      if (cropName != null && cropName.isNotEmpty) {
-        final added = await Provider.of<AddPurchaseProvider>(context, listen: false)
-            .addPurchaseProduct(userId: userId2, cropName: cropName, roleId: roleId2?? 0);
-
-        if (!added) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Failed to add purchase: ${Provider.of<AddPurchaseProvider>(context, listen: false).errorMessage ?? ""}"),
-            ),
-          );
-        }
-      }
-    }
-
-    // ✅ Now handle success & failure properly
-    if (validateRes.success == 1 && schemeData != null) {
-      _showScanResultDialog(
-        isValid: true,
-        productName: schemeData.productName ?? "Unknown Product",
-        // productUID: schemeData.schemeUID ?? outerCode,
-        points: (schemeData.points ?? 0).toString(),
-        // message: schemeData.message?.isNotEmpty == true
-        //     ? schemeData.message!
-        //     : validateRes.message.isNotEmpty
-        //     ? validateRes.message
-            // : "Scan successful",
-      );
-    } else {
-      _showScanResultDialog(
-        isValid: false,
-        productName: "Not Valid",
-        // productUID: outerCode,
-        points: "0",
-        // message: validateRes.message.isNotEmpty
-        //     ? validateRes.message
-        //     : "Invalid QR code",
-      );
-    }
+    setState(() {}); // ✅ REQUIRED
   }
 
-  // ----------------------- Restart scanner for outer mode -----------------------
+  // ----------------------- SUBMIT FLOW -----------------------
+  void _onSubmit() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const AutoTranslateText(
+                  "Scan Summary",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.topBarColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                Icon(
+                  hasSpinner ? Icons.casino : Icons.emoji_events,
+                  color: AppColors.topBarColor,
+                  size: 48,
+                ),
+
+                const SizedBox(height: 20),
+
+                _buildSummaryRow("Total Scans", _asyncScans.length.toString()),
+
+                if (hasPoints)
+                  _buildSummaryRow("Total Points", totalPoints.toString()),
+
+                if (hasSpinner)
+                  _buildSummaryRow("Spinner Chances", totalSpinners.toString()),
+
+                if (hasInvalid)
+                  _buildSummaryRow(
+                    "Invalid Scans",
+                    _asyncScans.values.where((e) => !e.isValid).length.toString(),
+                  ),
+
+                const SizedBox(height: 25),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.topBarColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+
+                      if (hasSpinner) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HistoryScreen(),
+                          ),
+                        ).then((_) {
+                          _resetScanSession();
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: AutoTranslateText("Points added successfully"),
+                          ),
+                        );
+                        _resetScanSession();
+                      }
+                    },
+
+
+                    child: AutoTranslateText(
+                      hasSpinner ? "Continue" : "Done",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSummaryRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AutoTranslateText(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          AutoTranslateText(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  // ----------------------- RESTART SCANNER -----------------------
   void _restartOuterScanner() {
     _scannerKey.currentState?.setOnScanned((uid) {
       Future.microtask(() => _handleOuterScan(uid));
@@ -459,49 +331,75 @@ if(validateRes.success == 1) {
     _scannerKey.currentState?.resetScanner();
   }
 
-  // ----------------------- Build UI -----------------------
+  // ----------------------- UI -----------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // allows resizing when keyboard appears
       backgroundColor: const Color(0xFFF1F1F1),
       body: Stack(
         children: [
-          SingleChildScrollView(   // <-- Added
-            child: Column(
-              children: [
-                const AppStatusBar(),
-                Container(
-                  color: Colors.white,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const AutoTranslateText(
-                        'Scan QR',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600),
+          Column(
+            children: [
+              const AppStatusBar(),
+              Container(
+                color: Colors.white,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const AutoTranslateText(
+                      'Scan QR',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
                       ),
-                      Image.asset('assets/images/trust_tags.png', height: 40),
-                    ],
+                    ),
+                    Image.asset(
+                      'assets/images/trust_tags.png',
+                      height: 40,
+                    ),
+                  ],
+                ),
+              ),
+              ReusableQRScanner(
+                key: _scannerKey,
+                onScanned: _handleOuterScan,
+              ),
+              const SizedBox(height: 16),
+              _buildScanDetails(),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _asyncScans.isEmpty ? null : _onSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.topBarColor,
+                      disabledBackgroundColor: AppColors.topBarColor.withOpacity(0.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Submit",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
+
                 ),
-                ReusableQRScanner(
-                  key: _scannerKey,
-                  onScanned: (uid) => _handleOuterScan(uid),
-                ),
-                const SizedBox(height: 20),
-                _buildScanDetails(),
-                const SizedBox(height: 30),
-              ],
-            ),
+              ),
+            ],
           ),
           if (_isLoading)
             Container(
-              color: Colors.black54,
+              color: Colors.black45,
               child: const Center(
                 child: CircularProgressIndicator(color: Colors.white),
               ),
@@ -511,39 +409,23 @@ if(validateRes.success == 1) {
     );
   }
 
-
   Widget _buildScanDetails() {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: AutoTranslateText(
-              'SCAN DETAILS',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
         ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: AutoTranslateText(
-              scannedUID.isNotEmpty
-                  ? 'Scanned UID: $scannedUID'
-                  : 'No scan yet.',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
+        child: AutoTranslateText(
+          scannedUID.isNotEmpty
+              ? 'Last Scanned UID: $scannedUID\nTotal Scans: ${_asyncScans.length}'
+              : 'No scan yet.',
+          style: const TextStyle(fontSize: 16),
         ),
-      ],
+      ),
     );
   }
 }

@@ -107,6 +107,9 @@ import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/leave_calen
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/leave_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/my_leave_list_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/provider/update_leave_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/provider/complete_demo_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/provider/demo_history_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/provider/feedback_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/all_focus_new_product_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/approve_distributor_registration_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/cfa_stock_provider.dart';
@@ -430,6 +433,10 @@ class TrustTagsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=> WeatherProvider()),
         ChangeNotifierProvider(create: (_)=> AgricultureProvider()),
         ChangeNotifierProvider(create: (_)=> RouteActivityProvider()),
+        ChangeNotifierProvider(create: (_)=> DemoHistoryProvider()),
+        ChangeNotifierProvider(create: (_)=> CompleteDemoProvider()),
+        ChangeNotifierProvider(create: (_)=> FeedbackProvider()),
+
 
 
       ],

@@ -1,4 +1,5 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +25,8 @@ class _DemoWhatsappScreenState extends State<DemoWhatsappScreen> {
   double? longitude;
   String? resolvedAddress;
   bool _isLoadingLocation = false;
+  String? userId;
+
 
   Future<void> _pickDate({required bool isDemo}) async {
     final date = await showDatePicker(
@@ -54,6 +57,12 @@ class _DemoWhatsappScreenState extends State<DemoWhatsappScreen> {
       });
     }
   }
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
 
   Future<void> _fetchCoordinatesAndAddress(String address) async {
     if (address.trim().isEmpty) {
@@ -104,12 +113,23 @@ class _DemoWhatsappScreenState extends State<DemoWhatsappScreen> {
       );
     }
   }
+  Future<void> _loadUserId() async {
+    final id = await SharedPrefsHelper.getUserId();
+    setState(() {
+      userId = id;
+    });
+  }
+
+
 
   Future<void> _sendToWhatsApp() async {
     if (latitude == null ||
         longitude == null ||
         demoDate == null ||
-        followUpDate == null) {
+        followUpDate == null||
+        userId == null)
+
+    {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please fill all details'),
@@ -121,7 +141,8 @@ class _DemoWhatsappScreenState extends State<DemoWhatsappScreen> {
     }
 
     final message = '''📍 *Demo Details*
-
+👤 *User ID*:
+$userId
 📌 *Address (Entered)*:
 ${_addressController.text}
 
@@ -420,13 +441,11 @@ ${DateFormat('dd MMM yyyy').format(followUpDate!)}''';
 
                     // WhatsApp Button
                     ElevatedButton.icon(
+                      onPressed: userId == null ? null : _sendToWhatsApp,
                       icon: const Icon(FontAwesomeIcons.whatsapp, size: 24),
                       label: const Text(
                         'Send to WhatsApp',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF25D366),
@@ -437,8 +456,8 @@ ${DateFormat('dd MMM yyyy').format(followUpDate!)}''';
                         ),
                         elevation: 3,
                       ),
-                      onPressed: _sendToWhatsApp,
                     ),
+
 
                     const SizedBox(height: 16),
                   ],

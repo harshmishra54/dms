@@ -1,11 +1,14 @@
+import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/list_farmer_details_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/product_recommendation_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/provider/feedback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_request.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,14 +38,18 @@ class _RecommendedProductsFarmerScreenState
       provider.reset();
     }
   }
-
   late FarmerDetailsProvider _provider;
+  late FeedbackProvider _feedbackProvider;
+  late ProductRecommendationProvider _recProvider;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Save provider reference once
+    // Initialize providers only once
+    if (!mounted) return;
     _provider = context.read<FarmerDetailsProvider>();
+    _recProvider = context.read<ProductRecommendationProvider>();
+    _feedbackProvider = context.read<FeedbackProvider>();
   }
 
   @override
@@ -51,6 +58,7 @@ class _RecommendedProductsFarmerScreenState
     _provider.reset(); // safe now
     super.dispose();
   }
+
   Future<void> _pickContact() async {
     try {
       // Open native contact picker
@@ -75,64 +83,33 @@ class _RecommendedProductsFarmerScreenState
   }
 
 
-  Future<void> _sendRecommendationToFarmer() async {
-    final recProvider = context.read<ProductRecommendationProvider>();
-    final farmerProvider = context.read<FarmerDetailsProvider>();
-
-    final farmer = farmerProvider.farmerDetails?.data;
+  Future<bool> _sendRecommendationToFarmer() async {
+    final farmer = _provider.farmerDetails?.data;
     if (farmer == null) {
       _showSnackBar("Please enter a valid farmer number", isError: true);
-      return;
+      return false;
     }
 
     if ((widget.recommendations ?? []).isEmpty) {
       _showSnackBar("No recommended products to send", isError: true);
-      return;
+      return false;
     }
 
     final createdBy = await SharedPrefsHelper.getUserId();
     if (createdBy == null) {
       _showSnackBar("User not logged in", isError: true);
-      return;
+      return false;
     }
 
     // ✅ Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                CircularProgressIndicator(
-                  color: Color(0xFF8E2DE2),
-                ),
-                SizedBox(height: 16),
-                AutoTranslateText(
-                  "Sending recommendation...",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xFF8E2DE2))),
     );
 
-    // ✅ Build request body
-    final request = ProductRecommendationRequestbody(
+    // ✅ Build Product Recommendation request
+    final recRequest = ProductRecommendationRequestbody(
       farmerId: farmer.id.toString(),
       createdby: createdBy.toString(),
       recommendations: (widget.recommendations ?? []).map((r) {
@@ -145,26 +122,71 @@ class _RecommendedProductsFarmerScreenState
       }).toList(),
     );
 
-    await recProvider.recommendProducts(request);
+    // ✅ 1️⃣ Call Product Recommendation API
+    await _recProvider.recommendProducts(recRequest);
 
-    // ✅ Close loading dialog
-    if (mounted) {
-      Navigator.of(context).pop();
+    if (_recProvider.errorMessage.isNotEmpty) {
+      Navigator.of(context).pop(); // close loading
+      _showSnackBar(_recProvider.errorMessage, isError: true);
+      return false;
     }
 
-    if (recProvider.errorMessage.isNotEmpty) {
-      _showSnackBar(recProvider.errorMessage, isError: true);
-    } else {
-      _showSnackBar("Recommendation sent successfully!");
+    // ✅ 2️⃣ Call Feedback API using FeedbackProvider
+    final message = _buildRecommendationMessage(
+      _provider.farmerDetails,
+      widget.recommendations ?? [],
+    );
 
-      // ✅ Wait briefly to show success message, then pop back
-      await Future.delayed(const Duration(milliseconds: 1500));
+    await _feedbackProvider.sendFeedbackRequest(
+      farmer.id.toString(),
+      message,
+    );
 
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+
+    if (_feedbackProvider.errorMessage != null) {
+      Navigator.of(context).pop(); // close loading
+      _showSnackBar(_feedbackProvider.errorMessage!, isError: true);
+      return false;
     }
+
+    Navigator.of(context).pop(); // close loading
+    _showSnackBar("Recommendation and feedback sent successfully!");
+    return true;
   }
+  String _buildRecommendationMessage(
+      dynamic farmerDetails,
+      List<Recomm> recs,
+      ) {
+    final nearest = farmerDetails.data?.nearestRetailer;
+
+    String productList = "";
+    for (int i = 0; i < recs.length; i++) {
+      final r = recs[i];
+      productList +=
+      "${i + 1}️⃣ ${r.name}\n\n"
+          "Crop: ${r.crop}\n\n"
+          "Problem: ${r.disease}\n\n"
+          "Dosage: ${r.dosage ?? 'N/A'}\n\n";
+    }
+
+    return """
+👩‍🌾 Hello ${farmerDetails.data?.name ?? 'Farmer'}!
+Your crop needs care — and we’ve picked the best solutions to help you protect your crop and boost its growth! ✨
+
+🌿 Recommended Products for You:
+
+$productList
+🏬 Buy these products from your nearest retailer:
+Retailer: ${nearest?.name ?? 'N/A'}
+📞 Phone: ${nearest?.phone ?? 'N/A'}
+📍 Distance: ${nearest?.distanceKm?.toStringAsFixed(2) ?? '0'} km away
+
+🚜 Act now to save your crop and secure a healthy harvest! 🌾
+""";
+  }
+
+
+
 
 
   @override
@@ -431,72 +453,32 @@ class _RecommendedProductsFarmerScreenState
                           Center(
                             child: SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton.icon(
+                              child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF25D366),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  elevation: 2,
-                                  shadowColor: const Color(0xFF25D366).withOpacity(0.3),
+                                  backgroundColor: AppColors.topBarColor, // change to your desired color
+                                  foregroundColor: Colors.white,  // text color
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                icon: const Icon(Icons.chat),
-                                label: const AutoTranslateText(
-                                  "Send on WhatsApp",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  final phone = farmerDetails.data?.phone ?? '';
-                                  if (phone.isNotEmpty) {
-                                    _sendWhatsAppMessage(phone, farmerDetails, recs);
-                                  } else {
-                                    _showSnackBar("Farmer phone number not found", isError: true);
+                                child: const AutoTranslateText("Send Recommendation"),
+                                onPressed: () async {
+                                  final success = await _sendRecommendationToFarmer();
+                                  if (success) {
+                                    _showSnackBar("Recommendation sent successfully");
                                   }
                                 },
                               ),
+
+
+
+
                             ),
                           ),
+
 
                         const SizedBox(height: 10),
-
-// 🟣 Send Recommendation Button (API call)
-                        if (farmerDetails != null && recs.isNotEmpty)
-                          Center(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF8E2DE2),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  elevation: 2,
-                                  shadowColor: const Color(0xFF8E2DE2).withOpacity(0.3),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.send),
-                                label: const AutoTranslateText(
-                                  "Send Recommendation",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                onPressed: _sendRecommendationToFarmer,
-                              ),
-                            ),
-                          ),
-
-
-                        const SizedBox(height: 16),
                       ],
                     ),
                   ),

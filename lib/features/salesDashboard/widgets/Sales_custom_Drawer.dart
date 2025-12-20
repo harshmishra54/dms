@@ -14,6 +14,7 @@ import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart'
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/my_leave_screen_list.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/Presentation/demo_history_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Retailer_approval.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/distributor_approval.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/meeting_history.dart';
@@ -350,7 +351,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
                           _drawerItem(context, Icons.analytics, 'Farmer Analytics', const RetargetFarmerScreen()),
                           _drawerItem(context, Icons.next_plan_outlined, 'Plan Demo', const DemoWhatsappScreen()),
-                          // _drawerItem(context, Icons.leave_bags_at_home, 'Leave Management', LeaveScreen()),
+                          _drawerItem(context, Icons.history, 'Demo History', DemoHistoryScreen()),
 
 
 

@@ -1,6 +1,7 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/farmer_advocacy_model.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/farmer_advocacy_provider.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/funnel_data_provider.dart';
@@ -48,10 +49,11 @@ class _FunnelStageDetailScreenState extends State<FunnelStageDetailScreen> {
 
     // CONSIDERATION STAGE
     if (widget.stageIndex == 1) {
-      Future.microtask(() {
+      Future.microtask(() async{
+        final userId=await SharedPrefsHelper.getUserId();
         Provider.of<FarmerConsiderationProvider>(context, listen: false)
             .fetchConsideration(
-          createdBy: "6b63eacb-0e79-4f97-a580-3f4948546921", // replace dynamically if needed
+          createdBy: userId??"", // replace dynamically if needed
         );
       });
     }

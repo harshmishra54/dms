@@ -136,6 +136,9 @@ class ApiEndpoints {
   static const String addpurchaseprod="/pwa/add-purchase-prod";
   static const String getmycategoryDIS="/pwa/get-my-category";
   static const String completeRoute="/pwa/get-complete-route";
+  static const String getdemohistory="/pwa/demo-history";
+  static const String completeDemo="/pwa/completeDemo";
+  static const String sendfarmerId="/pwa/get-feedback";
   //-------Weather API--------
   static const String getWeather ="https://api.open-meteo.com/v1/forecast";
   //-------Soil Type API--------
