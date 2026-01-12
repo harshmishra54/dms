@@ -1,14 +1,18 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/dist_retailer_list_for_rout_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/tsi_retailer_registration.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
 import 'package:TrustTags_DMS/features/orders/presentation/received_order_list_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:TrustTags_DMS/data/models/dist_retailer_rout_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RetailersScreen extends StatefulWidget {
   final String? tsiId;
@@ -26,7 +30,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
     Future.microtask(() => _initRetailersProvider());
   }
   Future<void> _initRetailersProvider() async {
-    final provider = Provider.of<TerritoryProvider>(context, listen: false);
+    final provider = legacy.Provider.of<TerritoryProvider>(context, listen: false);
     final roleId = await SharedPrefsHelper.getRoleId();
     final userId = await SharedPrefsHelper.getUserId();
 
@@ -64,7 +68,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
           const AppStatusBar(),
           Material(
             elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.1),
+            shadowColor: Colors.black,
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -92,7 +96,7 @@ class _RetailersScreenState extends State<RetailersScreen> {
             ),
           ),
           Expanded(
-            child: Consumer<TerritoryProvider>(
+            child: legacy.Consumer<TerritoryProvider>(
               builder: (context, provider, _) {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -221,85 +225,6 @@ class _RetailersScreenState extends State<RetailersScreen> {
                                   ],
                                 ),
                               ),
-
-                              // Inventory Section – Full Width
-                              // GestureDetector(
-                              //   onTap: () {
-                              //     // Navigate to retailer stock details if needed
-                              //   },
-                              //   child: Container(
-                              //     width: double.infinity, // Full width of the card
-                              //     margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                              //     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                              //     decoration: BoxDecoration(
-                              //       color: Colors.grey.shade100,
-                              //       borderRadius: BorderRadius.circular(0),
-                              //       border: Border.all(color: Colors.grey.shade300),
-                              //     ),
-                              //     child: Row(
-                              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //       crossAxisAlignment: CrossAxisAlignment.center,
-                              //       children: [
-                              //         const AutoTranslateText(
-                              //           "Inventory",
-                              //           style: TextStyle(
-                              //             fontWeight: FontWeight.w400,
-                              //             fontSize: 14,
-                              //             color: Colors.black87,
-                              //           ),
-                              //         ),
-                              //         // Focused
-                              //         Column(
-                              //           mainAxisSize: MainAxisSize.min,
-                              //           children: const [
-                              //             Row(
-                              //               mainAxisSize: MainAxisSize.min,
-                              //               children: [
-                              //                 Icon(Icons.inventory, color: Colors.brown, size: 20),
-                              //                 SizedBox(width: 4),
-                              //                 AutoTranslateText("Focused", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                              //               ],
-                              //             ),
-                              //             SizedBox(height: 2),
-                              //             AutoTranslateText("120", style: TextStyle(fontSize: 12)),
-                              //           ],
-                              //         ),
-                              //         // Seasonal
-                              //         Column(
-                              //           mainAxisSize: MainAxisSize.min,
-                              //           children: const [
-                              //             Row(
-                              //               mainAxisSize: MainAxisSize.min,
-                              //               children: [
-                              //                 Icon(Icons.local_florist, color: Colors.teal, size: 20),
-                              //                 SizedBox(width: 4),
-                              //                 AutoTranslateText("Seasonal", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                              //               ],
-                              //             ),
-                              //             SizedBox(height: 2),
-                              //             AutoTranslateText("80", style: TextStyle(fontSize: 12)),
-                              //           ],
-                              //         ),
-                              //         // Scheme
-                              //         Column(
-                              //           mainAxisSize: MainAxisSize.min,
-                              //           children: const [
-                              //             Row(
-                              //               mainAxisSize: MainAxisSize.min,
-                              //               children: [
-                              //                 Icon(Icons.star, color: Colors.amber, size: 20),
-                              //                 SizedBox(width: 4),
-                              //                 AutoTranslateText("Scheme", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                              //               ],
-                              //             ),
-                              //             SizedBox(height: 2),
-                              //             AutoTranslateText("50", style: TextStyle(fontSize: 12)),
-                              //           ],
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -314,21 +239,41 @@ class _RetailersScreenState extends State<RetailersScreen> {
       ),
 
       // Floating Action Button
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 25),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const TsiRetailerRegistration(),
-              ),
-            );
-          },
-          backgroundColor: Colors.deepPurple,
-          child: const Icon(Icons.add, size: 28, color: Colors.white),
-        ),
+      floatingActionButton: Consumer(
+        builder: (context, ref, _) {
+          final permissionState = ref.watch(permissionsProvider);
+
+          final canRegisterRetailer =
+              permissionState.data != null &&
+                  permissionState.data!.data.any(
+                        (f) =>
+                    FeatureMapper.fromId(f.featureId) ==
+                        FeatureAccess.registerRetailer &&
+                        f.permissions.create == true,
+                  );
+
+          if (!canRegisterRetailer) {
+            return const SizedBox.shrink(); // ❌ hide FAB
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 25),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TsiRetailerRegistration(),
+                  ),
+                );
+              },
+              backgroundColor: Colors.deepPurple,
+              child: const Icon(Icons.add, size: 28, color: Colors.white),
+            ),
+          );
+        },
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

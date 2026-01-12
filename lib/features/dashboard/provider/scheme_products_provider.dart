@@ -37,7 +37,7 @@ class SchemeProductsProvider extends ChangeNotifier {
       int roleId;
       String userId;
 
-      if (mainRoleId == 18) {
+      if (mainRoleId >= 18) {
         // Special case for daily role
         roleId = int.tryParse(await SharedPrefsHelper.getDailyRoleId() ?? '18') ?? 18;
         userId = await SharedPrefsHelper.getDailylocationIdKey() ?? '';

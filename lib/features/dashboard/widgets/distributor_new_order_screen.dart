@@ -506,7 +506,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                       distributorId: userId,
                       forceRefresh: true,
                     );
-                  } else if (loggedInRoleId == 18 && dailyRoleId == 1) {
+                  } else if (loggedInRoleId >= 18 && dailyRoleId == 1) {
                     await creditProvider.fetchDistributorCreditLimit(
                       roleId: "1",
                       distributorId: dailyLocationId,
@@ -524,7 +524,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
                       currentLimit = double.tryParse(creditData.currentLimit ?? "0") ?? 0;
                       shouldCheckCredit = true;
                     }
-                  } else if (loggedInRoleId == 18 && dailyRoleId == 1) {
+                  } else if (loggedInRoleId >= 18 && dailyRoleId == 1) {
                     final creditData = creditProvider.creditMap[dailyLocationId];
                     if (creditData != null) {
                       currentLimit = double.tryParse(creditData.currentLimit ?? "0") ?? 0;

@@ -9,11 +9,14 @@ import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 class RepeatPlanProvider extends ChangeNotifier {
   final DioClient _dioClient = DioClient();
 
-  bool _isLoading = false;
+  bool _isLoading = false; // keep for internal logic if needed
+  bool _isRepeating = false; // ✅ NEW FLAG
+
   String? _errorMessage;
   RepeatPlanResponse? _response;
 
   bool get isLoading => _isLoading;
+  bool get isRepeating => _isRepeating; // ✅ expose this
   String? get errorMessage => _errorMessage;
   RepeatPlanResponse? get response => _response;
 
@@ -21,8 +24,8 @@ class RepeatPlanProvider extends ChangeNotifier {
   Future<bool> repeatPlan({
     required RepeatPlanRequest request,
   }) async {
-    _isLoading = true;
-    _errorMessage = null;
+    // 🔥 THIS IS THE KEY PART
+    _isRepeating = true;
     notifyListeners();
 
     try {
@@ -45,7 +48,7 @@ class RepeatPlanProvider extends ChangeNotifier {
         _response = resData;
 
         if (resData.success == 1) {
-          _isLoading = false;
+          _isRepeating = false;
           notifyListeners();
           return true;
         } else {
@@ -58,15 +61,17 @@ class RepeatPlanProvider extends ChangeNotifier {
       _errorMessage = "Error: $e";
     }
 
-    _isLoading = false;
+    _isRepeating = false;
     notifyListeners();
     return false;
   }
 
   void clear() {
     _isLoading = false;
+    _isRepeating = false;
     _errorMessage = null;
     _response = null;
     notifyListeners();
   }
 }
+

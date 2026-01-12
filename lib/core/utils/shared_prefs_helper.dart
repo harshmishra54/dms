@@ -1,4 +1,7 @@
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 
 class SharedPrefsHelper {
   static const String _accessTokenKey = 'access_token';
@@ -29,9 +32,34 @@ class SharedPrefsHelper {
   static const String _dailyRoleIdKey = 'daily_role_id';
 
 
+  // --- Permissions ----
+  static const String _permissionsKey = 'user_permissions';
+
+
+
 
   /// Save OTP verified user data
   /// Save OTP verified user data
+  static Future<void> savePermissions(Map<String, dynamic> json) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final List data = json['data'] ?? [];
+
+    final Map<String, dynamic> accessMap = {};
+
+    for (final item in data) {
+      final int id = item['feature_id'];
+      final feature = FeatureMapper.fromId(id);
+
+      if (feature != null) {
+        accessMap[feature.name] = item['permissions'];
+      }
+    }
+
+    await prefs.setString(_permissionsKey, jsonEncode(accessMap));
+  }
+
+
   static Future<void> saveOtpUserData(Map<String, dynamic> json, {int? selectedRoleId}) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -97,6 +125,13 @@ class SharedPrefsHelper {
   }
 
   /// Getters
+  static Future<Map<String, dynamic>?> getPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(_permissionsKey);
+    if (data == null) return null;
+    return jsonDecode(data) as Map<String, dynamic>;
+  }
+
   static Future<String?> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_accessTokenKey);
@@ -173,5 +208,10 @@ class SharedPrefsHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_dailyRoleIdKey);
   }
+  static Future<void> clearPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_permissionsKey);
+  }
+
 
 }

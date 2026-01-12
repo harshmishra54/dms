@@ -9,7 +9,9 @@ import 'package:intl/intl.dart';
 import '../../../common/widgets/app_status_bar.dart';
 
 class BeatPlanScreen extends StatefulWidget {
-  const BeatPlanScreen({super.key});
+  final String? tsiId;
+  final bool canCreate;
+  const BeatPlanScreen({super.key,this.tsiId,required this.canCreate});
 
   @override
   State<BeatPlanScreen> createState() => _BeatPlanScreenState();
@@ -20,41 +22,65 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
   void initState() {
     super.initState();
     _reloadData();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<RoutProvider>(context, listen: false);
       final token = await SharedPrefsHelper.getAccessToken();
-      final userId = await SharedPrefsHelper.getUserId();
+      final userId = await _getEffectiveUserId(); // ✅ FIX
 
       if (token != null && userId != null) {
         provider.loadRoutes(token, userId);
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: AutoTranslateText("Session expired. Please login again.")),
+            const SnackBar(
+              content: AutoTranslateText(
+                "Session expired. Please login again.",
+              ),
+            ),
           );
           Navigator.pop(context);
         }
       }
     });
+
+
+
+
   }
+  Future<String?> _getEffectiveUserId() async {
+    final roleId = await SharedPrefsHelper.getRoleId();
+
+    // ✅ RSM → use selected TSI
+    if (roleId == 19 && widget.tsiId != null) {
+      return widget.tsiId;
+    }
+
+    // ✅ Normal flow
+    return await SharedPrefsHelper.getUserId();
+  }
+
 
   Future<void> _reloadData() async {
     final provider = Provider.of<RoutProvider>(context, listen: false);
     final token = await SharedPrefsHelper.getAccessToken();
-    final userId = await SharedPrefsHelper.getUserId();
+    final userId = await _getEffectiveUserId(); // ✅ FIX
 
     if (token != null && userId != null) {
       provider.loadRoutes(token, userId);
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: AutoTranslateText("Session expired. Please login again.")),
+          const SnackBar(
+            content: AutoTranslateText(
+              "Session expired. Please login again.",
+            ),
+          ),
         );
         Navigator.pop(context);
       }
     }
   }
+
 
   String formatDate(String rawDate) {
     try {
@@ -69,56 +95,42 @@ class _BeatPlanScreenState extends State<BeatPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: SafeArea(
+      floatingActionButton: widget.canCreate
+          ? SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 25.0),
           child: FloatingActionButton(
             onPressed: () async {
               final result = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const RouteSelectionScreen()),
+                MaterialPageRoute(
+                  builder: (_) =>  RouteSelectionScreen(
+                    tsiId: widget.tsiId,
+                  ),
+                ),
               );
-              if (result == true) _reloadData();
+
+              if (result == true) {
+                _reloadData();
+              }
             },
             backgroundColor: Colors.purple,
             elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.add, color: Colors.white, size: 28),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
         ),
-      ),
+      )
+          : null,
+
       body: Column(
         children: [
-          // const AppStatusBar(),
-          //
-          // // Top Bar
-          // Material(
-          //   elevation: 4,
-          //   shadowColor: Colors.black.withOpacity(0.1),
-          //   child: Container(
-          //     height: 60,
-          //     padding: const EdgeInsets.symmetric(horizontal: 16),
-          //     color: Colors.white,
-          //     child: Row(
-          //       children: [
-          //         IconButton(
-          //           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          //           onPressed: () => Navigator.pop(context),
-          //         ),
-          //         const Expanded(
-          //           child: AutoTranslateText(
-          //             'Beat Plan',
-          //             textAlign: TextAlign.center,
-          //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 18),
-          //           ),
-          //         ),
-          //         const SizedBox(width: 48),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
-          // List of Routes
           Expanded(
             child: Consumer<RoutProvider>(
               builder: (context, provider, child) {

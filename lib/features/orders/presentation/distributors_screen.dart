@@ -1,13 +1,17 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/network/dio_client.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TrustTags_DMS/data/models/dist_stock_models.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/credit_limit_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/widgets/credit_limit_update.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/all_focus_new_product_stock_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/stock_data_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/stock_details_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:TrustTags_DMS/common/app_colors.dart';
@@ -47,13 +51,13 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
 
     if (finalId != null && finalId.isNotEmpty) {
       // Fetch distributors first
-      await Provider.of<TerritoryProvider>(context, listen: false)
+      await legacy.Provider.of<TerritoryProvider>(context, listen: false)
           .fetchDistributors(finalId);
 
       // ✅ Now distributors are available
-      final distributors = Provider.of<TerritoryProvider>(context, listen: false).distributors;
-      final stockProvider = Provider.of<AllFocusNewProductStockProvider>(context, listen: false);
-      final creditProvider = Provider.of<CreditLimitProvider>(context, listen: false);
+      final distributors = legacy.Provider.of<TerritoryProvider>(context, listen: false).distributors;
+      final stockProvider = legacy.Provider.of<AllFocusNewProductStockProvider>(context, listen: false);
+      final creditProvider = legacy.Provider.of<CreditLimitProvider>(context, listen: false);
 
       for (var dist in distributors) {
         // Trigger APIs here
@@ -120,7 +124,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
             ),
           ),
           Expanded(
-            child: Consumer<TerritoryProvider>(
+            child: legacy.Consumer<TerritoryProvider>(
               builder: (context, provider, child) {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -144,7 +148,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                     final phone = dist.phone ?? "";
 
                     // trigger credit fetch for this distributor
-                    final creditProvider = Provider.of<CreditLimitProvider>(context);
+                    final creditProvider = legacy.Provider.of<CreditLimitProvider>(context);
                     final creditData = creditProvider.creditMap[dist.id];
                     final isLoadingCredit = creditProvider.loadingMap[dist.id] == true;
 
@@ -333,7 +337,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
 
                               // Inventory container
                         // Inventory container with dynamic stock values
-                        Consumer<AllFocusNewProductStockProvider>(
+                        legacy.Consumer<AllFocusNewProductStockProvider>(
                           builder: (context, stockProvider, _) {
                             final stock = stockProvider.stockMap[dist.id];
                             final isLoading = stockProvider.isLoadingMap[dist.id] ?? false;
@@ -346,7 +350,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => ChangeNotifierProvider(
+                                    builder: (_) => legacy.ChangeNotifierProvider(
                                       create: (_) => DistStockProvider(dioClient: DioClient())
                                         ..fetchDistStock(
                                           request: DistStockRequest(
@@ -443,23 +447,42 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
           ),
         ],
       ),
-      floatingActionButton: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 25),
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TsiDistributorRegistration(),
-                ),
-              );
-            },
-            backgroundColor: AppColors.topBarColor,
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
-        ),
+      floatingActionButton: Consumer(
+        builder: (context, ref, _) {
+          final permissionState = ref.watch(permissionsProvider);
+
+          final canRegister =
+              permissionState.data != null &&
+                  permissionState.data!.data.any(
+                        (f) =>
+                    FeatureMapper.fromId(f.featureId) ==
+                        FeatureAccess.registerDistributer &&
+                        f.permissions.create == true,
+                  );
+
+          if (!canRegister) return const SizedBox.shrink();
+
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 25),
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TsiDistributorRegistration(),
+                    ),
+                  );
+                },
+                backgroundColor: AppColors.topBarColor,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+            ),
+          );
+        },
       ),
+
+
     );
   }
 }

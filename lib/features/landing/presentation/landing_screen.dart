@@ -154,6 +154,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 final bool isSelected = selectedRole == title;
 
                 return GestureDetector(
+                  key: Key("role_${id}"),
                   onTap: () {
                     setState(() {
                       selectedRole = title;
@@ -214,6 +215,7 @@ class _LandingScreenState extends State<LandingScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                key: const Key("landing_next_btn"),
                 onPressed: selectedRoleId == -1
                     ? null
                     : () {

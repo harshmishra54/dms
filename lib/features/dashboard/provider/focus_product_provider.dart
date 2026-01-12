@@ -36,12 +36,18 @@ class FocusProductProvider with ChangeNotifier {
       final roleId = await SharedPrefsHelper.getRoleId();
       bool isDistributor = false;
 
-      if (roleId == 18) {
+      final intRoleId = int.tryParse(roleId?.toString() ?? '') ?? 0;
+
+
+      if (intRoleId >= 18) {
+        // Higher roles → depend on daily role
         final dailyRoleId = await SharedPrefsHelper.getDailyRoleId();
         isDistributor = dailyRoleId == "1";
-      } else if (roleId == 1) {
+      } else if (intRoleId == 1) {
+        // Distributor role
         isDistributor = true;
       }
+
 
       final response = await _dioClient.post(
         ApiEndpoints.focusProduct,

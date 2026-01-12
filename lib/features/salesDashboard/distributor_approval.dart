@@ -149,8 +149,8 @@ class _DistributorApprovalListScreenState
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                subtitle:
-                                AutoTranslateText(distributor.firmName ?? "-"),
+
+
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,

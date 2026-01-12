@@ -1,13 +1,17 @@
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/rsm_approve_update_order_model.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/order_bill_details_screen.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/orderupdate/edit_order_list.dart';
 import 'package:TrustTags_DMS/features/orders/provider/tsi_dis_retailer_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/rsm_update_order_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyScreen extends StatefulWidget {
   final String? tsiId;
@@ -31,7 +35,7 @@ class _MyScreenState extends State<MyScreen>
 
     Future.microtask(() {
       final provider =
-      Provider.of<TsiDisRetailerProvider>(context, listen: false);
+      legacy.Provider.of<TsiDisRetailerProvider>(context, listen: false);
       provider.fetchTsiDisRetailerOrders(tsiId: widget.tsiId);
     });
   }
@@ -102,7 +106,7 @@ class _MyScreenState extends State<MyScreen>
 
           // ---------- Tab Views ----------
           Expanded(
-            child: Consumer<TsiDisRetailerProvider>(
+            child: legacy.Consumer<TsiDisRetailerProvider>(
               builder: (context, provider, _) {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -211,6 +215,8 @@ class _MyScreenState extends State<MyScreen>
     final requestId = item["from_location"]?.toString() ?? "";
     final roleId = item["role_id"]?.toString() ?? "1";
     final orderId = item["id"]?.toString() ?? "";
+    final int role = int.tryParse(tsmroleId ?? '') ?? 0;
+
 
     String createdDate = "";
     if (item["createdAt"] != null) {
@@ -335,128 +341,166 @@ class _MyScreenState extends State<MyScreen>
 
 
                 // ---------- Approve / Reject / Edit Buttons (only for roleId 19) ----------
-                if (rsmApproval == null && tsmroleId == "19")
-                  Consumer2<RsmUpdateOrderProvider, TsiDisRetailerProvider>(
-                    builder: (context, rsmProvider, tsiProvider, _) {
-                      if (rsmProvider.isLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        );
-                      }
 
-                      return Row(
-                        children: [
-                          // APPROVE button
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.purple,
-                                side: const BorderSide(color: Colors.purple),
-                              ),
-                              onPressed: () async {
-                                final req = RsmApproveUpdateOrderModelRequest(
-                                  status: "approved",
-                                  roleId: roleId,
-                                  orderId: orderId,
-                                  requestId: requestId,
+                  if (rsmApproval == null && role >= 19)
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final permissionState = ref.watch(permissionsProvider);
+
+                        final canApprove =
+                            permissionState.data != null &&
+                                permissionState.data!.data.any(
+                                      (f) =>
+                                  FeatureMapper.fromId(f.featureId) ==
+                                      FeatureAccess.orderHistory &&
+                                      f.permissions.approve == true,
                                 );
-                                await rsmProvider.updateOrderByRsm(req);
 
-                                if (rsmProvider.response != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                        AutoTranslateText(rsmProvider.response!.message)),
-                                  );
-                                  tsiProvider.fetchTsiDisRetailerOrders(
-                                      tsiId: widget.tsiId);
-                                } else if (rsmProvider.errorMessage != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                        AutoTranslateText(rsmProvider.errorMessage!)),
-                                  );
-                                }
-                              },
-                              child: const AutoTranslateText("Approve"),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
+                        // ❌ No approve permission → hide everything
+                        if (!canApprove) {
+                          return const SizedBox.shrink();
+                        }
 
-                          // REJECT button
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.purple,
-                                side: const BorderSide(color: Colors.purple),
-                              ),
-                              onPressed: () async {
-                                final req = RsmApproveUpdateOrderModelRequest(
-                                  status: "rejected",
-                                  roleId: roleId,
-                                  orderId: orderId,
-                                  requestId: requestId,
-                                );
-                                await rsmProvider.updateOrderByRsm(req);
+                        return legacy.Consumer2<RsmUpdateOrderProvider, TsiDisRetailerProvider>(
+                          builder: (context, rsmProvider, tsiProvider, _) {
+                            if (rsmProvider.isLoading) {
+                              return const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              );
+                            }
 
-                                if (rsmProvider.response != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                        AutoTranslateText(rsmProvider.response!.message)),
-                                  );
-                                  tsiProvider.fetchTsiDisRetailerOrders(
-                                      tsiId: widget.tsiId);
-                                } else if (rsmProvider.errorMessage != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                        AutoTranslateText(rsmProvider.errorMessage!)),
-                                  );
-                                }
-                              },
-                              child: const AutoTranslateText("Reject"),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-
-                          // EDIT button (only if status == "pending")
-                          if ((item["status"]?.toString().toLowerCase() ?? "") ==
-                              "pending")
-                            SizedBox(
-                              width: 80,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.orange,
-                                  side: const BorderSide(color: Colors.orange),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => TSIUpdateOrderScreen(
-                                        requestId: requestId,
+                            return Row(
+                              children: [
+                                // ✅ APPROVE
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.purple,
+                                      side: const BorderSide(color: Colors.purple),
+                                    ),
+                                    onPressed: () async {
+                                      final req = RsmApproveUpdateOrderModelRequest(
+                                        status: "approved",
                                         roleId: roleId,
                                         orderId: orderId,
-                                      ),
-                                    ),
-                                  ).then((_) {
-                                    // Refresh on return
-                                    Provider.of<TsiDisRetailerProvider>(context, listen: false)
-                                        .fetchTsiDisRetailerOrders(tsiId: widget.tsiId);
-                                  });
+                                        requestId: requestId,
+                                      );
 
-                                },
-                                child: const AutoTranslateText("Edit"),
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+                                      await rsmProvider.updateOrderByRsm(req);
+
+                                      if (rsmProvider.response != null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: AutoTranslateText(
+                                              rsmProvider.response!.message,
+                                            ),
+                                          ),
+                                        );
+                                        tsiProvider.fetchTsiDisRetailerOrders(
+                                          tsiId: widget.tsiId,
+                                        );
+                                      } else if (rsmProvider.errorMessage != null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: AutoTranslateText(
+                                              rsmProvider.errorMessage!,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const AutoTranslateText("Approve"),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 4),
+
+                                // ❌ REJECT
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.purple,
+                                      side: const BorderSide(color: Colors.purple),
+                                    ),
+                                    onPressed: () async {
+                                      final req = RsmApproveUpdateOrderModelRequest(
+                                        status: "rejected",
+                                        roleId: roleId,
+                                        orderId: orderId,
+                                        requestId: requestId,
+                                      );
+
+                                      await rsmProvider.updateOrderByRsm(req);
+
+                                      if (rsmProvider.response != null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: AutoTranslateText(
+                                              rsmProvider.response!.message,
+                                            ),
+                                          ),
+                                        );
+                                        tsiProvider.fetchTsiDisRetailerOrders(
+                                          tsiId: widget.tsiId,
+                                        );
+                                      } else if (rsmProvider.errorMessage != null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: AutoTranslateText(
+                                              rsmProvider.errorMessage!,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const AutoTranslateText("Reject"),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 8),
+
+                                // ✏️ EDIT (still only when status = pending)
+                                if ((item["status"]?.toString().toLowerCase() ?? "") ==
+                                    "pending")
+                                  SizedBox(
+                                    width: 80,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: Colors.orange,
+                                        side: const BorderSide(color: Colors.orange),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => TSIUpdateOrderScreen(
+                                              requestId: requestId,
+                                              roleId: roleId,
+                                              orderId: orderId,
+                                            ),
+                                          ),
+                                        ).then((_) {
+                                          legacy.Provider.of<TsiDisRetailerProvider>(
+                                            context,
+                                            listen: false,
+                                          ).fetchTsiDisRetailerOrders(
+                                            tsiId: widget.tsiId,
+                                          );
+                                        });
+                                      },
+                                      child: const AutoTranslateText("Edit"),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+
               ],
             ),
           ),

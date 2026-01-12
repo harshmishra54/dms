@@ -10,7 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class RouteSelectionScreen extends StatefulWidget {
-  const RouteSelectionScreen({super.key});
+  final String? tsiId;
+
+  const RouteSelectionScreen({super.key, this.tsiId});
 
   @override
   State<RouteSelectionScreen> createState() => _RouteSelectionScreenState();
@@ -41,13 +43,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
   Future<void> _loadData() async {
     final provider = Provider.of<TerritoryProvider>(context, listen: false);
-    final userId = await SharedPrefsHelper.getUserId();
+
+    // ✅ Prefer tsiId if passed
+    final String? userId =
+        widget.tsiId ?? await SharedPrefsHelper.getUserId();
 
     if (userId != null && userId.isNotEmpty) {
       await provider.fetchDistributors(userId);
+      await provider.fetchRetailers(userId);
     }
-    await provider.fetchRetailers(userId ?? "");
   }
+
 
   @override
   void dispose() {

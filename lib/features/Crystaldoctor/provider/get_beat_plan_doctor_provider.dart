@@ -10,29 +10,41 @@ class GetBeatPlanDoctorProvider extends ChangeNotifier {
   String? _errorMessage;
   GetBeatPlanDoctorResponse? _beatPlanDoctorResponse;
 
+  // ✅ SINGLE SOURCE OF TRUTH
+  String? _activeUserId;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   GetBeatPlanDoctorResponse? get beatPlanDoctorResponse =>
       _beatPlanDoctorResponse;
 
   /// ✅ Fetch Beat Plan Doctor Data
-  Future<void> fetchBeatPlanDoctor() async {
+  Future<void> fetchBeatPlanDoctor({String? userId}) async {
     _isLoading = true;
     _errorMessage = null;
-
-    // 🔹 Clear old data before fetching (important!)
     _beatPlanDoctorResponse = null;
+
+    // 🔥 LOCK USER ID (ONLY ON FIRST VALID INPUT)
+    if (userId != null && userId.isNotEmpty) {
+      _activeUserId = userId;
+    }
+
     notifyListeners();
 
     try {
-      final userId = await SharedPrefsHelper.getUserId();
-      if (userId == null || userId.isEmpty) {
-        throw Exception("User ID not found in SharedPrefs");
+      // ❌ NO GUESSING ANYMORE
+      final finalUserId =
+          _activeUserId ?? await SharedPrefsHelper.getUserId();
+
+      if (finalUserId == null || finalUserId.isEmpty) {
+        throw Exception("User ID not available");
       }
 
       final token = await SharedPrefsHelper.getAccessToken();
 
-      final request = GetBeatPlanDoctorRequest(userId: userId);
+      final request = GetBeatPlanDoctorRequest(
+        userId: finalUserId,
+      );
 
       final response = await DioClient().post(
         ApiEndpoints.showbeatplan,
@@ -53,9 +65,8 @@ class GetBeatPlanDoctorProvider extends ChangeNotifier {
         if (parsedResponse.success == 1) {
           _beatPlanDoctorResponse = parsedResponse;
         } else {
-          // 🔹 If API says no records, explicitly set empty list
-          _beatPlanDoctorResponse = GetBeatPlanDoctorResponse(data: []);
-          _errorMessage = null; // No error in this case
+          _beatPlanDoctorResponse =
+              GetBeatPlanDoctorResponse(data: []);
         }
       } else {
         _errorMessage =
@@ -63,21 +74,32 @@ class GetBeatPlanDoctorProvider extends ChangeNotifier {
       }
     } catch (e, stack) {
       if (kDebugMode) {
-        print("❌ Error in GetBeatPlanDoctorProvider: $e");
+        print("❌ GetBeatPlanDoctorProvider error: $e");
         print(stack);
       }
       _errorMessage = e.toString();
-      _beatPlanDoctorResponse = GetBeatPlanDoctorResponse(data: []); // safe fallback
+      _beatPlanDoctorResponse =
+          GetBeatPlanDoctorResponse(data: []);
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  /// ✅ Manual refresh (forces reload)
+  /// ✅ Manual refresh (USES SAME USER ALWAYS)
   Future<void> refreshBeatPlanDoctor() async {
     _beatPlanDoctorResponse = null;
     _errorMessage = null;
     await fetchBeatPlanDoctor();
   }
+
+  /// ✅ Reset when screen is disposed / role changes
+  void clear() {
+    _activeUserId = null;
+    _beatPlanDoctorResponse = null;
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+  }
 }
+

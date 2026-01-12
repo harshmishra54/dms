@@ -1,42 +1,48 @@
-import 'dart:convert';
+
 import 'package:TrustTags_DMS/common/provider/logout_provider.dart';
-import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
-import 'package:TrustTags_DMS/data/models/get_tsi_list_for_rsm_model.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/fill_details_form.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/doctor_history_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_details_and_location.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/farmer_list_screen.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/meeting_qr_screen.dart';
-import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/targetfarmer.dart';
 import 'package:TrustTags_DMS/features/authentication/provider/profile_provider.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/my_screen.dart';
 import 'package:TrustTags_DMS/features/landing/presentation/landing_screen.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Attendance/punch_out.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/my_leave_screen_list.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/ProductDemo/Presentation/demo_history_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Retailer_approval.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/distributor_approval.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/meeting_history.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/get_childs_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/sales_dashboard_screen.dart';
 import 'package:TrustTags_DMS/features/home/presentation/profile_screen.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/widgets/demand_prediction.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/whatsapp_product_demo_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as legacy;
+
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import '../../../../common/app_colors.dart';
 
-class SalesCustomDrawer extends StatefulWidget {
+class SalesCustomDrawer extends ConsumerStatefulWidget
+ {
   const SalesCustomDrawer({super.key});
 
   @override
-  State<SalesCustomDrawer> createState() => _SalesCustomDrawerState();
-}
+  ConsumerState<SalesCustomDrawer> createState() =>
+      _SalesCustomDrawerState();
 
-class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
+ }
+
+class _SalesCustomDrawerState extends ConsumerState<SalesCustomDrawer>
+ {
   String userName = "Guest User";
+
+
+
 
   @override
   void initState() {
@@ -44,13 +50,29 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
     _loadUserName();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final profileProvider =
-      Provider.of<ProfileProvider>(context, listen: false);
+      final userId = await SharedPrefsHelper.getUserId();
+      if (userId != null) {
+        ref.read(getChildsProvider.notifier).fetchChilds(id: userId);
+      }
 
+      final profileProvider =
+      legacy.Provider.of<ProfileProvider>(context, listen: false);
       await profileProvider.fetchCustomerDetails("");
     });
   }
 
+
+  bool canView(FeatureAccess feature) {
+    final notifier = ref.read(permissionsProvider.notifier);
+    return notifier.hasPermission(feature, view: true);
+  }
+
+
+  void safePop(BuildContext ctx) {
+    if (Navigator.canPop(ctx)) {
+      Navigator.pop(ctx);
+    }
+  }
 
   Future<void> _loadUserName() async {
     final name = await SharedPrefsHelper.getUserName();
@@ -61,14 +83,16 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
     }
   }
 
+
+
   Future<void> _handleLogout(BuildContext context) async {
-    final logoutProvider = Provider.of<LogoutProvider>(context, listen: false);
+    final logoutProvider = legacy.Provider.of<LogoutProvider>(context, listen: false);
 
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
-        return Consumer<LogoutProvider>(
+        return legacy.Consumer<LogoutProvider>(
           builder: (context, provider, _) {
             return AlertDialog(
               title: const Text("Logout"),
@@ -120,100 +144,124 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
       },
     );
   }
-
-  /// Reusable TSI selection dialog
-  Future<TsiUser?> _selectTsi(String userId) async {
-    final provider = TsiListProvider();
-    await provider.fetchTsiList(userId);
-
-    if (provider.tsiUsers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No TSI found for your account")),
+  void _navigateAfterClose(Widget page) {
+    Future.microtask(() {
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(builder: (_) => page),
       );
-      return null;
-    }
+    });
+  }
 
-    final selectedTsi = await showDialog<TsiUser>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Select TSI"),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: provider.tsiUsers.length,
-              itemBuilder: (context, index) {
-                final tsi = provider.tsiUsers[index];
-                return ListTile(
-                  title: Text(tsi.name ?? "Unnamed TSI"),
-                  onTap: () => Navigator.pop(context, tsi),
-                );
-              },
-            ),
+  Future<void> _handleSelfOrChildNavigation({
+    required BuildContext context,
+    required FeatureAccess selfFeature,
+    required FeatureAccess childFeature,
+    required Widget Function({String? childId}) onNavigate,
+  }) async {
+    final state = ref.read(getChildsProvider);
+
+    state.when(
+      loading: () {},
+      error: (e, _) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      },
+      data: (childs) {
+        // 🔹 NO CHILDS → SELF
+        if (childs.isEmpty) {
+          if (!canView(selfFeature)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("You don't have permission to access this"),
+              ),
+            );
+            return;
+          }
+
+          safePop(context); // close drawer IF open
+          _navigateAfterClose(onNavigate());
+          return;
+        }
+
+        // 🔹 CHILDS EXIST
+        showModalBottomSheet(
+          context: context,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
+          builder: (sheetContext) {
+            return SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  // SELF
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const Text("Self"),
+                    onTap: () {
+                      Navigator.pop(sheetContext); // close sheet
+                      safePop(context);            // close drawer ONLY if exists
+
+                      if (!canView(selfFeature)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("You don't have permission to access this"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      _navigateAfterClose(onNavigate());
+                    },
+                  ),
+
+                  const Divider(),
+
+                  // CHILDS
+                  ...childs.map(
+                        (child) => ListTile(
+                      leading: const Icon(Icons.person_outline),
+                      title: Text(child.name),
+                      onTap: () {
+                        Navigator.pop(sheetContext); // close sheet
+                        safePop(context);            // safe drawer pop
+
+                        if (!canView(childFeature)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("You don't have permission to access this"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        _navigateAfterClose(
+                          onNavigate(childId: child.id),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
-
-    return selectedTsi;
   }
 
-  /// Order History Tap Logic
-  Future<void> _onOrderHistoryTap(BuildContext context) async {
-    final roleId = await SharedPrefsHelper.getRoleId();
-    final userId = await SharedPrefsHelper.getUserId();
 
-    if (roleId == 19 && userId != null) {
-      final selectedTsi = await _selectTsi(userId);
-      if (selectedTsi != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyScreen(tsiId: selectedTsi.id),
-          ),
-        );
-      }
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MyScreen()),
-      );
-    }
-  }
-
-  /// Meeting History Tap Logic
-  Future<void> _onMeetingHistoryTap(BuildContext context) async {
-    final roleId = await SharedPrefsHelper.getRoleId();
-    final userId = await SharedPrefsHelper.getUserId();
-
-    if (roleId == 19 && userId != null) {
-      final selectedTsi = await _selectTsi(userId);
-      if (selectedTsi != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MeetingHistory(tsiId: selectedTsi.id),
-          ),
-        );
-      }
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MeetingHistory()),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     const bottomNavHeight = 70.0;
+    final childsState = ref.watch(getChildsProvider);
 
-    return FutureBuilder<int?>(
-      future: SharedPrefsHelper.getRoleId(),
-      builder: (context, snapshot) {
-        final roleId = snapshot.data;
+    final bool hasChilds = childsState.maybeWhen(
+      data: (childs) => childs.isNotEmpty,
+      orElse: () => false,
+    );
 
         return SafeArea(
           child: Align(
@@ -254,7 +302,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                                         MaterialPageRoute(builder: (context) => const ProfileScreen()),
                                       );
                                     },
-                                    child: Consumer<ProfileProvider>(
+                                    child: legacy.Consumer<ProfileProvider>(
                                       builder: (context, profileProvider, _) {
                                         final imageUrl = profileProvider.decryptedCustomerData?.profilepicture;
                                         final hasImage = imageUrl != null && imageUrl.isNotEmpty;
@@ -299,62 +347,200 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
                           _drawerItem(context, Icons.dashboard, 'Dashboard', SalesDashboardScreen()),
                           _drawerItem(context, Icons.timer_off, 'Punch Out', PunchOut()),
 
-                          _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
-                          // _drawerItem(context, Icons.qr_code, 'Demand Prediction', const FarmerDemandDashboard()),
-
-
-                          ListTile(
-                            leading: const Icon(Icons.shopping_cart, color: Colors.black),
-                            title: const Text('Order History', style: TextStyle(fontSize: 15)),
-                            onTap: () => _onOrderHistoryTap(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.meeting_room_outlined, color: Colors.black),
-                            title: const Text('Meeting History', style: TextStyle(fontSize: 15)),
-                            onTap: () => _onMeetingHistoryTap(context),
-                          ),
-
-                          if (roleId == 19)
+                          // _drawerItem(context, Icons.qr_code, 'View Meeting QR', const MeetingQrScreen()),
+                          if (canView(FeatureAccess.meeting))
                             ListTile(
-                              leading: const Icon(Icons.verified_user, color: Colors.black),
-                              title: const Text('Approve Distributor', style: TextStyle(fontSize: 15)),
+                              leading: const Icon(Icons.qr_code),
+                              title: const Text('View Meeting QR'),
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DistributorApprovalListScreen()));
+                                Navigator.pop(context);
+
+                                // ✅ SELF ONLY — no child logic
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const MeetingQrScreen(),
+                                  ),
+                                );
                               },
                             ),
-                          if (roleId == 19)
+
+
+                          if (canView(FeatureAccess.orderHistory))
                             ListTile(
-                              leading: const Icon(Icons.verified_user, color: Colors.black),
-                              title: const Text('Approve Retailer', style: TextStyle(fontSize: 15)),
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => RetailerApprovalScren()));
+                              leading: const Icon(Icons.shopping_cart),
+                              title: const Text(
+                                'Order History',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                                onTap: () async {
+                                  await _handleSelfOrChildNavigation(
+                                    context: context,
+                                    selfFeature: FeatureAccess.orderHistory,
+                                    childFeature: FeatureAccess.orderHistory,
+                                    onNavigate: ({String? childId}) {
+                                      return MyScreen(tsiId: childId);
+                                    },
+                                  );
+                                }
+
+
+                            ),
+
+
+                          if (canView(FeatureAccess.meeting))
+                            ListTile(
+                              leading: const Icon(Icons.meeting_room_outlined),
+                              title: const Text('Meeting History'),
+                              onTap: () async {
+                                await _handleSelfOrChildNavigation(
+                                  context: context,
+                                  selfFeature: FeatureAccess.meeting,
+                                  childFeature: FeatureAccess.meeting,
+                                  onNavigate: ({String? childId}) {
+                                    return MeetingHistory(tsiId: childId);
+                                  },
+                                );
                               },
                             ),
-                          if (roleId == 19)
+
+
+
+                          if (hasChilds)
+                            ListTile(
+                              leading: const Icon(Icons.verified_user, color: Colors.black),
+                              title: const Text(
+                                'Approve Distributor',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DistributorApprovalListScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+
+                          if (hasChilds)
+                            ListTile(
+                              leading: const Icon(Icons.verified_user, color: Colors.black),
+                              title: const Text(
+                                'Approve Retailer',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => RetailerApprovalScren(),
+                                  ),
+                                );
+                              },
+                            ),
+
+                          if (hasChilds)
                             ListTile(
                               leading: const Icon(Icons.work_off, color: Colors.black),
-                              title: const Text('Approve Leaves', style: TextStyle(fontSize: 15)),
+                              title: const Text(
+                                'Approve Leaves',
+                                style: TextStyle(fontSize: 15),
+                              ),
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MyLeaveScreen()));
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => MyLeaveScreen(),
+                                  ),
+                                );
                               },
                             ),
+
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
                             child: Text('Farmer', style: TextStyle(fontSize: 16)),
                           ),
-                          _drawerItem(context, Icons.location_on, 'Farmer Onboarding', const FillDetailsForm()),
+                          if (canView(FeatureAccess.registerFarmer))
+                            ListTile(
+                              leading: const Icon(Icons.location_on, color: Colors.black),
+                              title: const Text(
+                                'Farmer Onboarding',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const FillDetailsForm(),
+                                  ),
+                                );
+                              },
+                            ),
+
+
                           _drawerItem(context, Icons.location_on, 'Farmer Location', const PhoneLocationScreen()),
                           _drawerItem(context, Icons.agriculture, 'Farmers Details', const FarmerListScreen()),
                           /// 👇 Show Approve Distributor only for roleId 1
 
-                          _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
-                          _drawerItem(context, Icons.analytics, 'Farmer Analytics', const RetargetFarmerScreen()),
-                          _drawerItem(context, Icons.next_plan_outlined, 'Plan Demo', const DemoWhatsappScreen()),
-                          _drawerItem(context, Icons.history, 'Demo History', DemoHistoryScreen()),
+                          // _drawerItem(context, Icons.recommend, 'Recommendation History', const DoctorHistoryScreen()),
+                          if (canView(FeatureAccess.productRecommendation))
+                            ListTile(
+                              leading: const Icon(Icons.recommend, color: Colors.black),
+                              title: const Text(
+                                'Recommendation History',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DoctorHistoryScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          if (canView(FeatureAccess.planProductDemo))
+                            ListTile(
+                              leading: const Icon(Icons.next_plan_outlined, color: Colors.black),
+                              title: const Text(
+                                'Plan Demo',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DemoWhatsappScreen(),
+                                  ),
+                                );
+                              },
+                            ),
 
-
-
+                          if (canView(FeatureAccess.planProductDemo))
+                            ListTile(
+                              leading: const Icon(Icons.next_plan_outlined, color: Colors.black),
+                              title: const Text(
+                                'Demo History',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DemoHistoryScreen(),
+                                  ),
+                                );
+                              },
+                            ),
                           const Divider(height: 32),
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
@@ -388,8 +574,7 @@ class _SalesCustomDrawerState extends State<SalesCustomDrawer> {
             ),
           ),
         );
-      },
-    );
+
   }
 
   static Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? destination) {

@@ -31,14 +31,16 @@ class DioClient {
     _dio = Dio(options);
 
     if (kDebugMode) {
-      _dio.interceptors.add(LogInterceptor(
-        request: true,
-        requestBody: true,
-        requestHeader: true,
-        responseBody: true,
-        responseHeader: false,
-        error: true,
-      ));
+      _dio.interceptors.add(
+        LogInterceptor(
+          request: true,
+          requestBody: true,
+          requestHeader: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+        ),
+      );
     }
 
     // ✅ Added: Global 401 interceptor
@@ -56,12 +58,11 @@ class DioClient {
             });
           }
           if ((error.type == DioExceptionType.receiveTimeout ||
-              error.type == DioExceptionType.connectionTimeout ||
-              error.type == DioExceptionType.sendTimeout ||
-              error.type == DioExceptionType.connectionError ||
-              error.type == DioExceptionType.unknown) &&
-              !_isDialogShowing)
-          {
+                  error.type == DioExceptionType.connectionTimeout ||
+                  error.type == DioExceptionType.sendTimeout ||
+                  error.type == DioExceptionType.connectionError ||
+                  error.type == DioExceptionType.unknown) &&
+              !_isDialogShowing) {
             debugPrint("🌐 Network Timeout/Error — Showing No Internet Screen");
 
             _isDialogShowing = true;
@@ -70,7 +71,6 @@ class DioClient {
               _showNoInternetScreen();
             });
           }
-
 
           handler.next(error);
         },
@@ -85,16 +85,19 @@ class DioClient {
   }
 
   Future<Response> get(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     final online = await _hasInternet();
 
     try {
       if (online) {
-        final response = await _dio.get(path,
-            queryParameters: queryParameters, options: options);
+        final response = await _dio.get(
+          path,
+          queryParameters: queryParameters,
+          options: options,
+        );
         await OfflineCacheService.cacheResponse(path, response.data);
         return response;
       } else {
@@ -126,11 +129,11 @@ class DioClient {
   }
 
   Future<Response> post(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     final online = await _hasInternet();
 
     if (!online) {
@@ -152,7 +155,8 @@ class DioClient {
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options ??
+        options:
+            options ??
             Options(
               headers: {
                 "Content-Type": "application/json",
@@ -172,28 +176,14 @@ class DioClient {
 
         isOfflineError =
             e.type == DioExceptionType.connectionError ||
-                e.type == DioExceptionType.unknown ||
-                e.type == DioExceptionType.receiveTimeout ||
-                e.type == DioExceptionType.sendTimeout ||
-                e.type == DioExceptionType.connectionTimeout ||
-                e.error is SocketException ||
-                e.error is HandshakeException ||
-                (e.error is OSError &&
-                    (msg.contains("Failed host lookup") ||
-                        msg.contains("No address associated")));
-
-        if (isOfflineError) {
-          debugPrint("📶 Network/DNS failure detected — saving POST to queue: $path");
-          await OfflineCacheService.savePendingRequest("POST", path, data);
-          return Response(
-            requestOptions: RequestOptions(path: path),
-            data: {
-              "message": "Saved offline (network issue). Will sync later.",
-              "offline": true,
-            },
-            statusCode: 200,
-          );
-        }
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.connectionTimeout ||
+            e.error is SocketException ||
+            e.error is HandshakeException ||
+            (e.error is OSError &&
+                (msg.contains("Failed host lookup") ||
+                    msg.contains("No address associated")));
 
         // ✅ Modified: Removed separate 401 handling (now handled by interceptor)
         if (e.response?.statusCode == 401) {
@@ -201,36 +191,32 @@ class DioClient {
         }
       }
 
-      if (!isOfflineError) {
-        try {
-          if (e is SocketException || e.toString().contains("SocketException")) {
-            debugPrint("⚡ SocketException fallback — saving POST request: $path");
-            await OfflineCacheService.savePendingRequest("POST", path, data);
-            return Response(
-              requestOptions: RequestOptions(path: path),
-              data: {"message": "Saved offline (fallback)."},
-              statusCode: 200,
-            );
-          }
-        } catch (_) {}
+      if (isOfflineError) {
+        debugPrint(
+          "📶 Network/DNS failure detected — saving POST to queue: $path",
+        );
+        await OfflineCacheService.savePendingRequest("POST", path, data);
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {
+            "message": "Saved offline (network issue). Will sync later.",
+            "offline": true,
+          },
+          statusCode: 200,
+        );
       }
 
-      debugPrint("🛑 Unknown error, still queueing POST request: $path");
-      await OfflineCacheService.savePendingRequest("POST", path, data);
-      return Response(
-        requestOptions: RequestOptions(path: path),
-        data: {"message": "Saved offline (safe fallback)."},
-        statusCode: 200,
-      );
+      // ❌ server / validation / auth error → offline save NAHI
+      throw _handleError(e);
     }
   }
 
   Future<Response> put(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     final online = await _hasInternet();
 
     try {
@@ -254,8 +240,7 @@ class DioClient {
     } catch (e) {
       if (e is DioException &&
           (e.error is SocketException ||
-              e.type == DioExceptionType.connectionError ||
-              e.type == DioExceptionType.unknown)) {
+              e.type == DioExceptionType.connectionError)) {
         debugPrint("⚠️ Network error — saving PUT to pending: $path");
         await OfflineCacheService.savePendingRequest("PUT", path, data);
         return Response(
@@ -269,10 +254,10 @@ class DioClient {
   }
 
   Future<Response> delete(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     final online = await _hasInternet();
 
     try {
@@ -295,8 +280,7 @@ class DioClient {
     } catch (e) {
       if (e is DioException &&
           (e.error is SocketException ||
-              e.type == DioExceptionType.connectionError ||
-              e.type == DioExceptionType.unknown)) {
+              e.type == DioExceptionType.connectionError)) {
         debugPrint("⚠️ Network error — saving DELETE to pending: $path");
         await OfflineCacheService.savePendingRequest("DELETE", path, data);
         return Response(
@@ -320,7 +304,7 @@ class DioClient {
           case 400:
             return "Bad request.";
           case 401:
-          // ✅ Modified: Don't call _handleUnauthorized here (interceptor handles it)
+            // ✅ Modified: Don't call _handleUnauthorized here (interceptor handles it)
             return "Unauthorized. Please login again.";
           case 403:
             return "Access forbidden.";
@@ -352,15 +336,13 @@ class DioClient {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => NoInternetScreen(
-          message: "Please check your internet connection.",
-        ),
+        builder: (_) =>
+            NoInternetScreen(message: "Please check your internet connection."),
       ),
     ).then((_) {
       _isDialogShowing = false;
     });
   }
-
 
   void _handleUnauthorized() {
     final context = navigatorKey.currentContext;
@@ -396,19 +378,16 @@ class DioClient {
                 Navigator.of(ctx).pop();
                 await SharedPrefsHelper.clearAll();
                 if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                        (route) => false,
-                  );
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
                 }
               },
               child: const Text("OK"),
             ),
           ],
         ),
-
       ),
-
     );
   }
 }

@@ -1,10 +1,14 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
 import 'package:TrustTags_DMS/data/models/to_location_response.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/returns/provider/return_order_details_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/widgets/visit_helpers.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as legacy;
 import 'package:TrustTags_DMS/features/authentication/provider/distributor_provider.dart';
 import 'package:TrustTags_DMS/features/returns/Add_return_order.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
@@ -48,7 +52,7 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
 
   Future<void> _fetchReturnOrderDetails() async {
     final provider =
-    Provider.of<ReturnOrderDetailsProvider>(context, listen: false);
+    legacy.Provider.of<ReturnOrderDetailsProvider>(context, listen: false);
 
     final roleId = await SharedPrefsHelper.getDailyRoleId();
     final requestId = await SharedPrefsHelper.getDailylocationId();
@@ -60,9 +64,10 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
     );
   }
 
+
   void _showDistributorDialog(BuildContext context) async {
     final distributorProvider =
-    Provider.of<DistributorProviders>(context, listen: false);
+    legacy.Provider.of<DistributorProviders>(context, listen: false);
 
     final dailyRoleId = await SharedPrefsHelper.getDailyRoleId();
 
@@ -154,15 +159,80 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReturnOrderDetailsProvider>(
+    return legacy.Consumer<ReturnOrderDetailsProvider>(
       builder: (context, provider, _) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildSectionHeader("Raise Return Claim", () {
-              _showDistributorDialog(context);
-            }),
+            // ================== HEADER ==================
+            buildSectionHeader(
+              "Raise Return Claim",
+                  () async {
+                final rawRoleId = await SharedPrefsHelper.getDailyRoleId();
+                final int dailyRoleId =
+                    int.tryParse(rawRoleId.toString()) ?? -1;
+
+                FeatureAccess? requiredFeature;
+
+                // 🔑 Decide feature by DAILY role
+                if (dailyRoleId == 1) {
+                  requiredFeature = FeatureAccess.distributerReturn;
+                } else if (dailyRoleId == 3) {
+                  requiredFeature = FeatureAccess.retailerReturn;
+                }
+
+                if (requiredFeature == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: AutoTranslateText(
+                        "You are not allowed to raise return",
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                final permissionState =
+                ProviderScope.containerOf(context)
+                    .read(permissionsProvider);
+
+                if (permissionState.data == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: AutoTranslateText(
+                        "Permissions not loaded yet",
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                final canCreate = permissionState.data!.data.any(
+                      (f) =>
+                  FeatureMapper.fromId(f.featureId) ==
+                      requiredFeature &&
+                      f.permissions.create == true,
+                );
+
+                if (!canCreate) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: AutoTranslateText(
+                        "You don't have permission to create return",
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                // ✅ Permission OK
+                _showDistributorDialog(context);
+              },
+            ),
+
             const SizedBox(height: 8),
+
+            // ================== RETURN DETAILS ==================
             if (widget.returnOrderId != null)
               provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -194,4 +264,5 @@ class _RaiseReturnClaimSectionState extends State<RaiseReturnClaimSection> {
       },
     );
   }
+
 }

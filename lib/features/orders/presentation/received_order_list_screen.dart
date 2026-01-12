@@ -1,11 +1,15 @@
 import 'package:TrustTags_DMS/common/app_colors.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_mapper.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/order_provider.dart';
 import 'package:TrustTags_DMS/features/dashboard/provider/tsi_approve_order_provider.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/orderupdate/edit_order_list.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'order_bill_details_screen.dart';
@@ -143,7 +147,7 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
   }
 
   Future<void> _refreshOrders() async {
-    final provider = Provider.of<OrderProvider>(context, listen: false);
+    final provider = legacy.Provider.of<OrderProvider>(context, listen: false);
 
     await provider.fetchOrdersForDistributor(widget.distributorId, widget.roleId);
 
@@ -159,8 +163,8 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orderProvider = Provider.of<OrderProvider>(context);
-    final tsiProvider = Provider.of<TsiApproveOrderProvider>(context);
+    final orderProvider = legacy.Provider.of<OrderProvider>(context);
+    final tsiProvider = legacy.Provider.of<TsiApproveOrderProvider>(context);
 
     // Filter out rejected orders
     final visibleOrders = orderProvider.orders
@@ -294,85 +298,113 @@ class _ReceivedOrderListScreenState extends State<ReceivedOrderListScreen> {
 
 
                           // Action buttons
-                          Row(
-                            children: [
-                              // APPROVE button
-                              if (order.roleId == 1 && order.isApprove?.toLowerCase() == "pending")
-                                SizedBox(
-                                  width: 90, // fixed width to prevent wrapping
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.purple,
-                                      side: const BorderSide(color: Colors.purple),
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        _approveOrder(context, order.id, order.fromLocation),
-                                    child: const AutoTranslateText(
-                                      "Approve",
-                                      textAlign: TextAlign.center, // ensures text is centered
-                                    ),
-                                  ),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final permissionState = ref.watch(permissionsProvider);
+
+                      final canApprove =
+                          permissionState.data != null &&
+                              permissionState.data!.data.any(
+                                    (f) =>
+                                FeatureMapper.fromId(f.featureId) ==
+                                    FeatureAccess.DistributerOrder &&
+                                    f.permissions.approve == true,
+                              );
+
+                      // ❌ If no permission → hide everything
+                      if (!canApprove) return const SizedBox.shrink();
+
+                      final isPendingApproval =
+                          order.isApprove?.toLowerCase() == "pending";
+                      final isPendingStatus =
+                          order.status?.toLowerCase() == "pending";
+
+                      return Row(
+                        children: [
+                          // ✅ APPROVE
+                          if (order.roleId == 1 && isPendingApproval)
+                            SizedBox(
+                              width: 90,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.purple,
+                                  side: const BorderSide(color: Colors.purple),
+                                  padding:
+                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 ),
-                              if (order.roleId == 1 && order.isApprove?.toLowerCase() == "pending")
-                                const SizedBox(width: 8),
-
-                              // REJECT button
-                              if (order.roleId == 1 && order.isApprove?.toLowerCase() == "pending")
-                                SizedBox(
-                                  width: 90, // same width for consistency
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.purple,
-                                      side: const BorderSide(color: Colors.purple),
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        _rejectOrder(context, order.id, order.fromLocation),
-                                    child: const AutoTranslateText(
-                                      "Reject",
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                                onPressed: () =>
+                                    _approveOrder(context, order.id, order.fromLocation),
+                                child: const AutoTranslateText(
+                                  "Approve",
+                                  textAlign: TextAlign.center,
                                 ),
-                              if (order.roleId == 1 && order.isApprove?.toLowerCase() == "pending")
-                                const SizedBox(width: 8),
+                              ),
+                            ),
 
-                              // EDIT button
-                              if (order.status?.toLowerCase() == "pending")
-                                SizedBox(
-                                  width: 80,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.orange,
-                                      side: const BorderSide(color: Colors.orange),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => TSIUpdateOrderScreen(
-                                            orderId: order.id,
-                                            roleId: order.roleId.toString(),
-                                            requestId: order.fromLocation,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: const AutoTranslateText(
-                                      "Edit",
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                          if (order.roleId == 1 && isPendingApproval)
+                            const SizedBox(width: 8),
+
+                          // ❌ REJECT
+                          if (order.roleId == 1 && isPendingApproval)
+                            SizedBox(
+                              width: 90,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.purple,
+                                  side: const BorderSide(color: Colors.purple),
+                                  padding:
+                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 ),
-                            ],
-                          ),
+                                onPressed: () =>
+                                    _rejectOrder(context, order.id, order.fromLocation),
+                                child: const AutoTranslateText(
+                                  "Reject",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
 
+                          if (order.roleId == 1 && isPendingApproval)
+                            const SizedBox(width: 8),
 
+                          // ✏️ EDIT
+                          if (order.roleId == 1 && isPendingStatus)
+                            SizedBox(
+                              width: 80,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.orange,
+                                  side: const BorderSide(color: Colors.orange),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => TSIUpdateOrderScreen(
+                                        orderId: order.id,
+                                        roleId: order.roleId.toString(),
+                                        requestId: order.fromLocation,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const AutoTranslateText(
+                                  "Edit",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
                         ],
+                      );
+                    },
+                  ),
+
+
+
+                  ],
                       ),
                     ),
                   ),

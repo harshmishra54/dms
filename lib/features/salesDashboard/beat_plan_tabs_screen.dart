@@ -1,20 +1,38 @@
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_plan_doctor_screen.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Beat_Plan.dart';
 import 'package:flutter/material.dart';
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-class BeatPlanTabsScreen extends StatefulWidget {
-  const BeatPlanTabsScreen({super.key});
+class BeatPlanTabsScreen extends ConsumerStatefulWidget {
+  final String? tsiId;
+
+  const BeatPlanTabsScreen({super.key, this.tsiId});
 
   @override
-  State<BeatPlanTabsScreen> createState() => _BeatPlanTabsScreenState();
+  ConsumerState<BeatPlanTabsScreen> createState() =>
+      _BeatPlanTabsScreenState();
 }
 
-class _BeatPlanTabsScreenState extends State<BeatPlanTabsScreen>
-    with SingleTickerProviderStateMixin {
+
+class _BeatPlanTabsScreenState
+    extends ConsumerState<BeatPlanTabsScreen>
+    with SingleTickerProviderStateMixin
+{
   late TabController _tabController;
+  bool canCreateBeatPlan() {
+    return ref
+        .read(permissionsProvider.notifier)
+        .hasPermission(
+      FeatureAccess.beatPlan,
+      create: true,
+    );
+  }
+
 
   @override
   void initState() {
@@ -84,9 +102,11 @@ class _BeatPlanTabsScreenState extends State<BeatPlanTabsScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                BeatPlanScreen(),
-                BeatPlanDoctorScreen(),
+              children:  [
+                BeatPlanScreen(tsiId: widget.tsiId,
+                  canCreate: canCreateBeatPlan(),),
+                BeatPlanDoctorScreen(tsiId: widget.tsiId,
+                  canCreate: canCreateBeatPlan(),),
               ],
             ),
           ),

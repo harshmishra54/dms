@@ -29,14 +29,20 @@ class MyLeaveRequest {
 /// =====================
 /// RESPONSE MODEL
 /// =====================
+
+
 class MyLeaveResponse {
   final int success;
   final String message;
+  final int count;
+  final int subordinateUsersCount;
   final List<MyLeave> data;
 
   MyLeaveResponse({
     required this.success,
     required this.message,
+    required this.count,
+    required this.subordinateUsersCount,
     required this.data,
   });
 
@@ -44,6 +50,8 @@ class MyLeaveResponse {
     return MyLeaveResponse(
       success: json['success'] ?? 0,
       message: json['message'] ?? '',
+      count: json['count'] ?? 0,
+      subordinateUsersCount: json['subordinate_users_count'] ?? 0,
       data: (json['data'] as List<dynamic>?)
           ?.map((e) => MyLeave.fromJson(e))
           .toList() ??
@@ -51,87 +59,71 @@ class MyLeaveResponse {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'data': data.map((e) => e.toJson()).toList(),
-    };
-  }
-
-  static MyLeaveResponse fromRawJson(String str) =>
-      MyLeaveResponse.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => {
+    'success': success,
+    'message': message,
+    'count': count,
+    'subordinate_users_count': subordinateUsersCount,
+    'data': data.map((e) => e.toJson()).toList(),
+  };
 }
+
 
 /// =====================
 /// LEAVE DATA MODEL
 /// =====================
+
+
 class MyLeave {
   final String id;
-  final int roleId;
   final String locationId;
-  final int leaveType;
-  final String reason;
   final String startDate;
   final String endDate;
-  final String startPeriod;
-  final String endPeriod;
-  final int totalDays;
+  final String reason;
   final String status;
   final String createdAt;
-  final String updatedAt;
+  final String userName;
+  final String? userPhone;
+  final int userRoleId;
 
   MyLeave({
     required this.id,
-    required this.roleId,
     required this.locationId,
-    required this.leaveType,
-    required this.reason,
     required this.startDate,
     required this.endDate,
-    required this.startPeriod,
-    required this.endPeriod,
-    required this.totalDays,
+    required this.reason,
     required this.status,
     required this.createdAt,
-    required this.updatedAt,
+    required this.userName,
+    this.userPhone,
+    required this.userRoleId,
   });
 
   factory MyLeave.fromJson(Map<String, dynamic> json) {
     return MyLeave(
       id: json['id'] ?? '',
-      roleId: json['role_id'] ?? 0,
       locationId: json['location_id'] ?? '',
-      leaveType: json['leave_type'] ?? 0,
-      reason: json['reason'] ?? '',
       startDate: json['start_date'] ?? '',
       endDate: json['end_date'] ?? '',
-      startPeriod: json['start_period'] ?? '',
-      endPeriod: json['end_period'] ?? '',
-      totalDays: json['total_days'] ?? 0,
+      reason: json['reason'] ?? '',
       status: json['status'] ?? '',
       createdAt: json['createdAt'] ?? '',
-      updatedAt: json['updatedAt'] ?? '',
+      userName: json['user_name'] ?? '',
+      userPhone: json['user_phone'],
+      userRoleId: json['user_role_id'] ?? 0,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'role_id': roleId,
-      'location_id': locationId,
-      'leave_type': leaveType,
-      'reason': reason,
-      'start_date': startDate,
-      'end_date': endDate,
-      'start_period': startPeriod,
-      'end_period': endPeriod,
-      'total_days': totalDays,
-      'status': status,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'location_id': locationId,
+    'start_date': startDate,
+    'end_date': endDate,
+    'reason': reason,
+    'status': status,
+    'createdAt': createdAt,
+    'user_name': userName,
+    'user_phone': userPhone,
+    'user_role_id': userRoleId,
+  };
 }

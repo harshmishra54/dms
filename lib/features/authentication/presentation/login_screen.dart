@@ -177,6 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: IntlPhoneField(
+                      key: const Key("phone_field"),
                       controller: phoneController,
                       initialCountryCode: 'IN',
                       inputFormatters: [
@@ -200,6 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 52,
                       child: ElevatedButton(
+                        key: const Key("get_otp_btn"),
                         onPressed: !isLoading ? _handleGetOtp : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryPurple,

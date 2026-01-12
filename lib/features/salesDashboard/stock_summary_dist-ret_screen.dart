@@ -173,7 +173,7 @@ class _DistributorRetailerScreenState extends State<DistributorRetailerScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) =>
-                                              ChangeNotifierProvider(
+                                             ChangeNotifierProvider(
                                                 create: (_) => DistStockProvider(
                                                     dioClient:
                                                     DioClient())

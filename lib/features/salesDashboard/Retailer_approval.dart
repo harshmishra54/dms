@@ -146,6 +146,7 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                     final isLoading = _buttonLoading[distributor.id] ?? false;
 
                     return Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -183,13 +184,6 @@ class _RetailerApprovalScrenState extends State<RetailerApprovalScren> {
                                         ),
                                       ),
                                       const SizedBox(height: 4),
-                                      AutoTranslateText(
-                                        distributor.firmName ?? "No address",
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),

@@ -153,7 +153,9 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as legacy;
+
 
 import 'features/splash/presentation/splash_screen.dart';
 
@@ -209,40 +211,44 @@ void main() async {
   final String savedLangCode = prefs.getString('app_lang') ?? 'en';
 
   // 7️⃣ Run app
+
   runApp(
-    EasyLocalization(
-      supportedLocales: const [
-        Locale('en'), // English
-        Locale('hi'), // Hindi
-        Locale('bn'), // Bengali
-        Locale('te'), // Telugu
-        Locale('mr'), // Marathi
-        Locale('ta'), // Tamil
-        Locale('or'), // Odia
-        Locale('gu'), // Gujarati
-        Locale('kn'), // Kannada
-        Locale('ml'), // Malayalam
-        Locale('pa'), // Punjabi
-        Locale('as'), // Assamese
-        Locale('sa'), // Sanskrit
-        Locale('mai'), // Maithili
-        Locale('kok'), // Konkani
-        Locale('sat'), // Santali
-        Locale('ks'), // Kashmiri
-        Locale('ne'), // Nepali
-        Locale('doi'), // Dogri
-        Locale('mni'), // Manipuri (Meitei)
-        Locale('brx'), // Bodo
-      ],
-      path: 'assets/translations', // Path to your translation JSONs
-      fallbackLocale: const Locale('en'),
-      startLocale: Locale(savedLangCode),
-      child: TrustTagsApp(
-        dioClient: dioClient,
-        profileRepository: profileRepository,
+    ProviderScope( // 👈 ADD THIS (Riverpod root)
+      child: EasyLocalization(
+        supportedLocales: const [
+          Locale('en'),
+          Locale('hi'),
+          Locale('bn'),
+          Locale('te'),
+          Locale('mr'),
+          Locale('ta'),
+          Locale('or'),
+          Locale('gu'),
+          Locale('kn'),
+          Locale('ml'),
+          Locale('pa'),
+          Locale('as'),
+          Locale('sa'),
+          Locale('mai'),
+          Locale('kok'),
+          Locale('sat'),
+          Locale('ks'),
+          Locale('ne'),
+          Locale('doi'),
+          Locale('mni'),
+          Locale('brx'),
+        ],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en'),
+        startLocale: Locale(savedLangCode),
+        child: TrustTagsApp(
+          dioClient: dioClient,
+          profileRepository: profileRepository,
+        ),
       ),
     ),
   );
+
 }
 
 class TrustTagsApp extends StatelessWidget {
@@ -257,185 +263,185 @@ class TrustTagsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return legacy.MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => OtpProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => AuthProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => OtpProvider()),
 
         // Profile provider
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(
           create: (_) => ProfileProvider(repository: profileRepository),
         ),
 
         // Route-related providers
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(
           create: (_) => RoutProvider(RoutRepository(DioClient())),
         ),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(
           create: (_) => RouteDetailsProvider(
             RouteUserListRepository(DioClient()),
           ),
         ),
 
         // Scan / dashboard / notifications
-        ChangeNotifierProvider(create: (_) => ScanProvider()),
-        ChangeNotifierProvider(create: (_) => ChannelPerformanceProvider()),
-        ChangeNotifierProvider(create: (_) => DashboardProvider()),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_) => ScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => ChannelPerformanceProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => DashboardProvider()),
+        legacy.ChangeNotifierProvider(
           create: (_) => NotificationProvider(dioClient: dioClient),
         ),
 
         // Points / schemes
-        ChangeNotifierProvider(create: (_) => PointsProvider()),
-        ChangeNotifierProvider(create: (_) => SchemeProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => PointsProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => SchemeProvider()),
         // Leave Provider
-        ChangeNotifierProvider(create: (_) => LeaveProvider()),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_) => LeaveProvider()),
+        legacy.ChangeNotifierProvider(
           create: (_) => DistributorProvider(),
         ),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(
           create: (_) => TsiRetailerProvider()..fetchRetailers(),
           child: RetailersScreen(),
         ),
-        ChangeNotifierProvider(create: (_) => MilestoneProvider()),
-        ChangeNotifierProvider(create: (_) => OrderProvider()),
-        ChangeNotifierProvider(create: (_) => InwardProvider()),
-        ChangeNotifierProvider(create: (_) => CreditUpdateProvider()),
-        ChangeNotifierProvider(create: (_) => CreditLimitProvider()),
-        ChangeNotifierProvider(create: (_) => RouteDetailsProviders()),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_) => MilestoneProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => OrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => InwardProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => CreditUpdateProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => CreditLimitProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => RouteDetailsProviders()),
+        legacy.ChangeNotifierProvider(
           create: (_) => RouteUpdateStatusProvider(dioClient: DioClient()),
         ),
-        ChangeNotifierProvider(create: (_) => RouteVisitProvider()),
-        ChangeNotifierProvider(create: (_) => OrderProductProvider()),
-        ChangeNotifierProvider(create: (_) => DistributorProviders()),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_) => RouteVisitProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => OrderProductProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => DistributorProviders()),
+        legacy.ChangeNotifierProvider(
           create: (_) => AddOrderProvider(),
           child: PlaceNewOrderScreen(),
         ),
-        ChangeNotifierProvider(create: (_) => OrderDetailsProvider()),
-        ChangeNotifierProvider(create: (_)=> TsiDisRetailerProvider()),
-        ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_) => OrderDetailsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TsiDisRetailerProvider()),
+        legacy.ChangeNotifierProvider(
           create: (_) => IptOrderListProvider(DioClient()),
           child: DistributorIpt(),
         ),
-        ChangeNotifierProvider(create: (_)=> IptDistributorProvider()),
-    ChangeNotifierProvider(
+        legacy.ChangeNotifierProvider(create: (_)=> IptDistributorProvider()),
+    legacy.ChangeNotifierProvider(
     create: (_) => ReceiveReturnClaimProvider(),
     child: DistributorReceivedReturnOrder(),
     ),
-        ChangeNotifierProvider(create: (_)=> TsiOrderProvider()),
-        ChangeNotifierProvider(create: (_) => TsiApproveOrderProvider()),
-        ChangeNotifierProvider(create: (_) => MeetingProvider()),
-        ChangeNotifierProvider(create: (_)=> OrderListProvider()),
-        ChangeNotifierProvider(create: (_)=> OrderUpdateProvider()),
-        ChangeNotifierProvider(create: (_)=> PartiallyOrderUpdateProvider()),
-        ChangeNotifierProxyProvider<OrderProductProvider, FocusProductProvider>(
+        legacy.ChangeNotifierProvider(create: (_)=> TsiOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => TsiApproveOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_) => MeetingProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> OrderListProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> OrderUpdateProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> PartiallyOrderUpdateProvider()),
+        legacy.ChangeNotifierProxyProvider<OrderProductProvider, FocusProductProvider>(
           create: (_) => FocusProductProvider(OrderProductProvider()),
           update: (_, orderProductProvider, previous) =>
               FocusProductProvider(orderProductProvider),
         ),
 
-        ChangeNotifierProvider(create: (_)=> TsiReturnOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> ReturnOrderDetailsProvider()),
-        ChangeNotifierProvider(create: (_)=> TsiReturnApproveOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> ChildCodeScanProvider()),
-        ChangeNotifierProvider(create: (_)=> DeleteScanProvider()),
-        ChangeNotifierProvider(create: (_)=>InwardScanProvider()),
-        ChangeNotifierProvider(create: (_)=> SubmitScanProvider()),
-        ChangeNotifierProvider(create: (_)=> AttendanceProvider()),
-        ChangeNotifierProvider(create: (_)=> AttendanceSubmitProvider()),
-        ChangeNotifierProvider(create: (_)=> TerritoryProvider()),
-        ChangeNotifierProvider(create: (_)=> TsiDistributorProvider()),
-        ChangeNotifierProvider(create: (_)=> RouteAsmProvider()),
-        ChangeNotifierProvider(create: (_)=> ZrtProvider()),
-        ChangeNotifierProvider(create: (_)=> DistributorByIdProvider()),
-        ChangeNotifierProvider(create: (_)=> TalukaProvider()),
-        ChangeNotifierProvider(create: (_)=> RetailerProvider()),
-        ChangeNotifierProvider(create: (_)=> RecieveReturnOrderListProvider()),
-        ChangeNotifierProvider(create: (_)=> ReturnClaimOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> CancelUpdateOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> ReturnOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> AddReturnClaimProvider()),
-        ChangeNotifierProvider(create: (_)=> OfferPointProvider()),
-        ChangeNotifierProvider(create: (_)=> RouteMeetingProvider()),
-        ChangeNotifierProvider(create: (_)=> SchemeRunningProvider()),
-        ChangeNotifierProvider(create: (_)=> GetMyRewardProvider()),
-        ChangeNotifierProvider(create: (_)=> RewardClaimHistoryProvider()),
-        ChangeNotifierProvider(create: (_)=> RouteProvider()),
-        ChangeNotifierProvider(create: (_)=> ThemeProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> TsiListProvider()),
-        ChangeNotifierProvider(create: (_)=> RejectTsiOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> DiscardAllItemsProvider()),
-        ChangeNotifierProvider(create: (_)=> AcceptAllItemsProvider()),
-        ChangeNotifierProvider(create: (_)=> RsmUpdateOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> ExpenseProvider()),
-        ChangeNotifierProvider(create: (_)=> PartialAcceptOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> TodayRouteScheduleProvider()),
-        ChangeNotifierProvider(create: (_)=> CreditLimitHistoryProvider()),
-        ChangeNotifierProvider(create: (_)=> ProductLevelProvider()),
-        ChangeNotifierProvider(create: (_)=> AllFocusNewProductStockProvider()),
-        ChangeNotifierProvider(create: (_)=> PunchOutProvider()),
-        ChangeNotifierProvider(create: (_)=> IptOrderUpdateProvider()),
-        ChangeNotifierProvider(create: (_)=> IPTScanProvider()),
-        ChangeNotifierProvider(create: (_)=> LogoutProvider()),
-        ChangeNotifierProvider(create: (_)=> AddIPTOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> IptOrderDetailsProvider()),
-        ChangeNotifierProvider(create: (_)=> RetailRsmProvider()),
-        ChangeNotifierProvider(create: (_)=> DistributorRsmProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateRetailerRsmProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateDistributorProvider()),
-        ChangeNotifierProvider(create: (_)=> ExpenseListProvider()),
-        ChangeNotifierProvider(create: (_)=> LeaveCalendarProvider()),
-        ChangeNotifierProvider(create: (_)=> MyLeaveProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateLeaveStatusProvider()),
-        ChangeNotifierProvider(create: (_)=> FarmerQueryProvider()),
-        ChangeNotifierProvider(create: (_)=> ListFarmerQueryProvider()),
-        ChangeNotifierProvider(create: (_)=> FarmerDetailsProvider()),
-        ChangeNotifierProvider(create: (_)=> ReorderProvider()),
-        ChangeNotifierProvider(create: (_)=> CropProvider()),
-        ChangeNotifierProvider(create: (_)=> AddFarmerProvider()),
-        ChangeNotifierProvider(create: (_)=> FarmerFormDetailsProvider()),
-        ChangeNotifierProvider(create: (_)=> RecommendedProductsProvider()),
-        ChangeNotifierProvider(create: (_)=> DoctorHistoryProvider()),
-        ChangeNotifierProvider(create: (_)=> CompleteReturnOrderProvider()),
-        ChangeNotifierProvider(create: (_)=> RecommendationProvider()),
-        ChangeNotifierProvider(create: (_)=> SmartRecommendationProvider()),
-        ChangeNotifierProvider(create: (_)=> SmartProductRecommendationProvider()),
-        ChangeNotifierProvider(create: (_)=> SchemeProductsProvider()),
-        ChangeNotifierProvider(create: (_)=> AddProductPriceProvider()),
-        ChangeNotifierProvider(create: (_)=> ProductRecommendationProvider()),
-        ChangeNotifierProvider(create: (_)=> FarmerFunnelProvider()),
-        ChangeNotifierProvider(create: (_)=> PurchaseDataProvider()),
-        ChangeNotifierProvider(create: (_)=> GetMyFarmersProvider()),
-        ChangeNotifierProvider(create: (_)=> AddBeatPlanDoctorProvider()),
-        ChangeNotifierProvider(create: (_)=> GetBeatPlanDoctorProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorIndividualProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorProvider()),
-        ChangeNotifierProvider(create: (_)=> GetActivityTimelineProvider()),
-        ChangeNotifierProvider(create: (_)=> ProductCatalogueProvider()),
-        ChangeNotifierProvider(create: (_)=> SpinnerRewardProvider()),
-        ChangeNotifierProvider(create: (_)=> RetargetFarmerNewProvider()),
-        ChangeNotifierProvider(create: (_)=> RetargetGapFarmerProvider()),
-        ChangeNotifierProvider(create: (_)=> NotifyFarmer()),
-        ChangeNotifierProvider(create: (_)=> AddFarmerPointsProvider()),
-        ChangeNotifierProvider(create: (_)=> InviteEarnProvider()),
-        ChangeNotifierProvider(create: (_)=> SpinnerHistoryProvider()),
-        ChangeNotifierProvider(create: (_)=> AdvocacyProvider()),
-        ChangeNotifierProvider(create: (_)=> RouteByPincodeProvider()),
-        ChangeNotifierProvider(create: (_)=> RepeatPlanProvider()),
-        ChangeNotifierProvider(create: (_)=> UpdateRecommendationProvider()),
-        ChangeNotifierProvider(create: (_)=> FarmerConsiderationProvider()),
-        ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
-        ChangeNotifierProvider(create: (_)=> AddPurchaseProvider()),
-        ChangeNotifierProvider(create: (_)=> MyCategoryProvider()),
-        ChangeNotifierProvider(create: (_)=> WeatherProvider()),
-        ChangeNotifierProvider(create: (_)=> AgricultureProvider()),
-        ChangeNotifierProvider(create: (_)=> RouteActivityProvider()),
-        ChangeNotifierProvider(create: (_)=> DemoHistoryProvider()),
-        ChangeNotifierProvider(create: (_)=> CompleteDemoProvider()),
-        ChangeNotifierProvider(create: (_)=> FeedbackProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TsiReturnOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ReturnOrderDetailsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TsiReturnApproveOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ChildCodeScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DeleteScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=>InwardScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SubmitScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AttendanceProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AttendanceSubmitProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TerritoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TsiDistributorProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RouteAsmProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ZrtProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DistributorByIdProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TalukaProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RetailerProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RecieveReturnOrderListProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ReturnClaimOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CancelUpdateOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ReturnOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddReturnClaimProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> OfferPointProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RouteMeetingProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SchemeRunningProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> GetMyRewardProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RewardClaimHistoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RouteProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ThemeProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TsiListProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RejectTsiOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DiscardAllItemsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AcceptAllItemsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RsmUpdateOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ExpenseProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> PartialAcceptOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> TodayRouteScheduleProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CreditLimitHistoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ProductLevelProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AllFocusNewProductStockProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> PunchOutProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> IptOrderUpdateProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> IPTScanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> LogoutProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddIPTOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> IptOrderDetailsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RetailRsmProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DistributorRsmProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateRetailerRsmProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateDistributorProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ExpenseListProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> LeaveCalendarProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> MyLeaveProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateLeaveStatusProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FarmerQueryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ListFarmerQueryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FarmerDetailsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ReorderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CropProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddFarmerProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FarmerFormDetailsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RecommendedProductsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DoctorHistoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CompleteReturnOrderProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RecommendationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SmartRecommendationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SmartProductRecommendationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SchemeProductsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddProductPriceProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ProductRecommendationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FarmerFunnelProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> PurchaseDataProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> GetMyFarmersProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddBeatPlanDoctorProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> GetBeatPlanDoctorProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorIndividualProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateBeatPlanDoctorProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> GetActivityTimelineProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> ProductCatalogueProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SpinnerRewardProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RetargetFarmerNewProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RetargetGapFarmerProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> NotifyFarmer()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddFarmerPointsProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> InviteEarnProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> SpinnerHistoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AdvocacyProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RouteByPincodeProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RepeatPlanProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> UpdateRecommendationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FarmerConsiderationProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CfaStockProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AddPurchaseProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> MyCategoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> WeatherProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> AgricultureProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> RouteActivityProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> DemoHistoryProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> CompleteDemoProvider()),
+        legacy.ChangeNotifierProvider(create: (_)=> FeedbackProvider()),
 
 
 

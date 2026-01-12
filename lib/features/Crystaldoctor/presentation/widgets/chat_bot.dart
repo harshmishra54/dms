@@ -1,22 +1,29 @@
 import 'package:TrustTags_DMS/common/provider/recommend_product_query_provider.dart';
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'package:TrustTags_DMS/data/models/general_query_request.dart';
 import 'package:TrustTags_DMS/data/models/product_recommendation_request.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/suggest_product_to_farmer_widgets.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/provider/crop_provider.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as legacy;
 import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
 
-class RecommendationScreen extends StatefulWidget {
+class RecommendationScreen extends ConsumerStatefulWidget {
   const RecommendationScreen({Key? key}) : super(key: key);
 
   @override
-  State<RecommendationScreen> createState() => _RecommendationScreenState();
+  ConsumerState<RecommendationScreen> createState() =>
+      _RecommendationScreenState();
 }
 
-class _RecommendationScreenState extends State<RecommendationScreen>
+
+class _RecommendationScreenState
+    extends ConsumerState<RecommendationScreen>
+
     with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _queryController = TextEditingController();
@@ -53,12 +60,17 @@ class _RecommendationScreenState extends State<RecommendationScreen>
     _showWelcomeMessage();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CropProvider>(context, listen: false).fetchCropList();
+      legacy.Provider.of<CropProvider>(context, listen: false).fetchCropList();
     });
   }
   Future<int?> _getRoleId() async {
     return await SharedPrefsHelper.getRoleId();
   }
+  bool canView(FeatureAccess feature) {
+    final notifier = ref.read(permissionsProvider.notifier);
+    return notifier.hasPermission(feature, view: true);
+  }
+
 
   @override
   void dispose() {
@@ -183,7 +195,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
     });
     _scrollToBottom();
 
-    final provider = Provider.of<SmartProductRecommendationProvider>(
+    final provider = legacy.Provider.of<SmartProductRecommendationProvider>(
       context,
       listen: false,
     );
@@ -262,7 +274,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
     _queryController.clear();
     _scrollToBottom();
 
-    final provider = Provider.of<SmartProductRecommendationProvider>(
+    final provider = legacy.Provider.of<SmartProductRecommendationProvider>(
       context,
       listen: false,
     );
@@ -336,7 +348,7 @@ class _RecommendationScreenState extends State<RecommendationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final cropProvider = Provider.of<CropProvider>(context);
+    final cropProvider = legacy.Provider.of<CropProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -407,28 +419,25 @@ class _RecommendationScreenState extends State<RecommendationScreen>
             ),
           ),
           // ✅ Conditionally show icon button only for roleId 23
-          FutureBuilder<int?>(
-            future: _getRoleId(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data == 18) {
-                return IconButton(
-                  icon: const Icon(Icons.recommend, color: Color(0xFF8E2DE2)),
-                  tooltip: "View Recommended Products",
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => RecommendedProductsFarmerScreen(
-                          recommendations: _getAllRecommendations(),
-                        ),
-                      ),
-                    );
-                  },
+          if (canView(FeatureAccess.productRecommendation))
+            IconButton(
+              icon: const Icon(
+                Icons.recommend,
+                color: Color(0xFF8E2DE2),
+              ),
+              tooltip: "View Recommended Products",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RecommendedProductsFarmerScreen(
+                      recommendations: _getAllRecommendations(),
+                    ),
+                  ),
                 );
-              }
-              return const SizedBox.shrink(); // Hide button if roleId is not 23
-            },
-          ),
+              },
+            ),
+
           Container(
             width: 8,
             height: 8,

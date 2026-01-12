@@ -32,7 +32,7 @@ class DistributorProviders with ChangeNotifier {
 
       debugPrint('Role ID from shared prefs: $roleId');
 
-      if (roleId == 18) {
+      if (roleId >= 18) {
         // If role is TSI (18), use saved location ID from shared preferences
         requestId = await SharedPrefsHelper.getDailylocationIdKey() ?? '';
         debugPrint('Location ID from shared prefs: $requestId');

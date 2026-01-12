@@ -1,4 +1,4 @@
-import 'package:TrustTags_DMS/common/widgets/app_status_bar.dart';
+
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/data/models/repeat_beat_plan.dart';
 import 'package:TrustTags_DMS/features/Crystaldoctor/presentation/widgets/beat_plan_doctor_details_screen.dart';
@@ -10,20 +10,27 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class BeatPlanDoctorScreen extends StatefulWidget {
-  const BeatPlanDoctorScreen({super.key});
+  final String? tsiId;
+  final bool canCreate;
+  const BeatPlanDoctorScreen({super.key,this.tsiId,this.canCreate=false});
 
   @override
   State<BeatPlanDoctorScreen> createState() => _BeatPlanDoctorScreenState();
 }
 
 class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
+  bool isRepeating = false;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<GetBeatPlanDoctorProvider>().fetchBeatPlanDoctor();
+      context.read<GetBeatPlanDoctorProvider>().fetchBeatPlanDoctor(
+        userId: widget.tsiId, // 👈 pass from UI
+      );
     });
   }
+
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -69,7 +76,8 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7FA),
-      floatingActionButton: SafeArea(
+      floatingActionButton: widget.canCreate
+          ? SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 25.0),
           child: FloatingActionButton(
@@ -77,10 +85,18 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const AddBeatPlanDoctorScreen()),
+                  builder: (_) => AddBeatPlanDoctorScreen(
+                    tsiId: widget.tsiId,
+                  ),
+                ),
               );
+
               if (result == true) {
-                context.read<GetBeatPlanDoctorProvider>().fetchBeatPlanDoctor();
+                context
+                    .read<GetBeatPlanDoctorProvider>()
+                    .fetchBeatPlanDoctor(
+                  userId: widget.tsiId,
+                );
               }
             },
             backgroundColor: Colors.purple,
@@ -91,42 +107,13 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
             child: const Icon(Icons.add, color: Colors.white, size: 28),
           ),
         ),
-      ),
+      )
+          : null,
+
       body: Stack(
         children: [
           Column(
             children: [
-              // const AppStatusBar(),
-              // // ✅ Custom AppBar
-              // Material(
-              //   elevation: 2,
-              //   child: Container(
-              //     height: 60,
-              //     padding: const EdgeInsets.symmetric(horizontal: 16),
-              //     child: Row(
-              //       children: [
-              //         IconButton(
-              //           icon: const Icon(Icons.arrow_back, color: Colors.black),
-              //           onPressed: () => Navigator.pop(context),
-              //         ),
-              //         const Expanded(
-              //           child: AutoTranslateText(
-              //             'Beat Plan',
-              //             textAlign: TextAlign.center,
-              //             style: TextStyle(
-              //               color: Colors.black,
-              //               fontWeight: FontWeight.w600,
-              //               fontSize: 18,
-              //             ),
-              //           ),
-              //         ),
-              //         const SizedBox(width: 48),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-
-              // ✅ Beat Plan Cards List
               Expanded(
                 child: Consumer<GetBeatPlanDoctorProvider>(
                   builder: (context, provider, _) {
@@ -157,7 +144,8 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
                     }
 
                     return RefreshIndicator(
-                      onRefresh: provider.refreshBeatPlanDoctor,
+                      onRefresh: () => provider.refreshBeatPlanDoctor(
+                      ),
                       child: ListView.builder(
                         padding: const EdgeInsets.all(14),
                         itemCount: data.length,
@@ -392,13 +380,19 @@ class _BeatPlanDoctorScreenState extends State<BeatPlanDoctorScreen> {
           ),
 
           // ✅ Loader overlay when repeat plan API is running
-          if (repeatProvider.isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.25),
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.purple),
+          if (repeatProvider.isRepeating)
+            Positioned.fill(
+              child: AbsorbPointer(
+                absorbing: true,
+                child: Container(
+                  color: Colors.black.withOpacity(0.25),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.purple),
+                  ),
+                ),
               ),
             ),
+
         ],
       ),
     );

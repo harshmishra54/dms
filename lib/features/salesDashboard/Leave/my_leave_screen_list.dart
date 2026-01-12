@@ -34,6 +34,7 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
           children: [
             const AppStatusBar(),
 
+            /// App Bar
             Material(
               elevation: 4,
               shadowColor: Colors.black.withOpacity(0.1),
@@ -73,11 +74,15 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                   }
 
                   if (provider.errorMessage != null) {
-                    return Center(child: AutoTranslateText(provider.errorMessage!));
+                    return Center(
+                      child: AutoTranslateText(provider.errorMessage!),
+                    );
                   }
 
                   if (provider.leaves.isEmpty) {
-                    return const Center(child: AutoTranslateText("No leaves found"));
+                    return const Center(
+                      child: AutoTranslateText("No leaves found"),
+                    );
                   }
 
                   return ListView.builder(
@@ -85,34 +90,38 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                     itemCount: provider.leaves.length,
                     itemBuilder: (context, index) {
                       final leave = provider.leaves[index];
+
                       return Card(
                         color: Colors.white,
+                        elevation: 3,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 3,
-                        margin: const EdgeInsets.symmetric(vertical: 8),
                         child: Padding(
-                          padding: const EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              /// Row: Reason + Status
+                              /// Reason + Status
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: AutoTranslateText(
-                                      leave.reason,
+                                      "Reason: ${leave.reason}",
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
                                         fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: _getStatusColor(leave.status),
                                       borderRadius: BorderRadius.circular(8),
@@ -128,13 +137,27 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                 ],
                               ),
 
-                              const SizedBox(height: 4),
-                              AutoTranslateText(
-                                "${leave.startDate} → ${leave.endDate}\nTotal Days: ${leave.totalDays}",
-                              ),
                               const SizedBox(height: 8),
 
-                              /// Approve / Reject buttons
+                              /// Requested By
+                              AutoTranslateText(
+                                "Requested by: ${leave.userName}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              /// Date Range
+                              AutoTranslateText(
+                                "${leave.startDate} → ${leave.endDate}",
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              /// Approve / Reject Buttons
                               if (leave.status.toLowerCase() == "pending")
                                 Consumer<UpdateLeaveStatusProvider>(
                                   builder: (context, updateProvider, _) {
@@ -142,17 +165,19 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                       children: [
                                         OutlinedButton(
                                           style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(color: Colors.purple),
-                                            backgroundColor: Colors.white,
+                                            side: const BorderSide(
+                                                color: Colors.green),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                              BorderRadius.circular(20),
                                             ),
                                           ),
-                                          onPressed: updateProvider.isLoading
+                                          onPressed:
+                                          updateProvider.isLoading
                                               ? null
                                               : () => _updateStatus(
                                             "Accepted",
-                                            leave.id, // ✅ leave.id is String
+                                            leave.id,
                                             provider,
                                             updateProvider,
                                           ),
@@ -160,30 +185,33 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                               ? const SizedBox(
                                             width: 16,
                                             height: 14,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.purple,
+                                            child:
+                                            CircularProgressIndicator(
                                               strokeWidth: 2,
                                             ),
                                           )
                                               : const AutoTranslateText(
                                             "Approve",
-                                            style: TextStyle(color: Colors.purple),
+                                            style: TextStyle(
+                                                color: Colors.green),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
                                         OutlinedButton(
                                           style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(color: Colors.purple),
-                                            backgroundColor: Colors.white,
+                                            side: const BorderSide(
+                                                color: Colors.red),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                              BorderRadius.circular(20),
                                             ),
                                           ),
-                                          onPressed: updateProvider.isLoading
+                                          onPressed:
+                                          updateProvider.isLoading
                                               ? null
                                               : () => _updateStatus(
                                             "Rejected",
-                                            leave.id, // ✅ leave.id is String
+                                            leave.id,
                                             provider,
                                             updateProvider,
                                           ),
@@ -191,21 +219,21 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
                                               ? const SizedBox(
                                             width: 16,
                                             height: 14,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.purple,
+                                            child:
+                                            CircularProgressIndicator(
                                               strokeWidth: 2,
                                             ),
                                           )
                                               : const AutoTranslateText(
                                             "Reject",
-                                            style: TextStyle(color: Colors.purple),
+                                            style: TextStyle(
+                                                color: Colors.red),
                                           ),
                                         ),
                                       ],
                                     );
                                   },
                                 ),
-
                             ],
                           ),
                         ),
@@ -221,34 +249,38 @@ class _MyLeaveScreenState extends State<MyLeaveScreen> {
     );
   }
 
-  /// Update leave status using leaveId (String)
-  void _updateStatus(
+  /// Update Leave Status
+  Future<void> _updateStatus(
       String status,
-      String leaveId, // ✅ String
+      String leaveId,
       MyLeaveProvider myLeaveProvider,
       UpdateLeaveStatusProvider updateProvider,
       ) async {
     final request = UpdateLeaveStatusRequest(
-      id: leaveId, // ✅ send as String
+      id: leaveId,
       status: status,
     );
 
     await updateProvider.updateLeaveStatus(request);
 
-    if (updateProvider.response != null &&
-        updateProvider.response!.success == 1) {
+    if (updateProvider.response?.success == 1) {
       myLeaveProvider.fetchMyLeaves();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: AutoTranslateText("Leave ${status.toLowerCase()} successfully")),
+        SnackBar(
+          content:
+          AutoTranslateText("Leave ${status.toLowerCase()} successfully"),
+        ),
       );
     } else if (updateProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: AutoTranslateText(updateProvider.errorMessage!)),
+        SnackBar(
+          content: AutoTranslateText(updateProvider.errorMessage!),
+        ),
       );
     }
   }
 
-  /// Helper for status colors
+  /// Status Color Helper
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "accepted":

@@ -37,6 +37,7 @@ class RouteMeetingData {
   final String? routeId;
   final String uId;
   final String routeName;
+  bool? successfull;
   final String meetingName;
   final DateTime meetingTime;
   final List<String> meetingPhotos;
@@ -63,6 +64,7 @@ class RouteMeetingData {
     this.routeId,
     required this.uId,
     required this.routeName,
+    this.successfull,
     required this.meetingName,
     required this.meetingTime,
     required this.meetingPhotos,
@@ -91,6 +93,7 @@ class RouteMeetingData {
       routeId: json['route_id'],
       uId: json['u_id'],
       routeName: json['route_name'],
+      successfull: json['successfull'],
       meetingName: json['meeting_name'],
       meetingTime: DateTime.parse(json['meeting_time']),
       meetingPhotos: json['meeting_photos'] != null
@@ -131,6 +134,7 @@ class RouteMeetingData {
       'route_id': routeId,
       'u_id': uId,
       'route_name': routeName,
+      'successfull' : successfull,
       'meeting_name': meetingName,
       'meeting_time': meetingTime.toIso8601String(),
       'meeting_photos': meetingPhotos,

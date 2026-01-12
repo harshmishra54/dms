@@ -20,21 +20,24 @@ class AddBeatPlanDoctorProvider extends ChangeNotifier {
     required List<String> farmerIds,
     required String date,
     required String routName,
+    String? userId, // 👈 ADD THIS
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final userId = await SharedPrefsHelper.getUserId();
+      // ✅ Prefer passed userId, fallback to SharedPrefs
+      final finalUserId =
+          userId ?? await SharedPrefsHelper.getUserId();
 
-      if (userId == null || userId.isEmpty) {
+      if (finalUserId == null || finalUserId.isEmpty) {
         throw Exception("User ID not found. Please login again.");
       }
 
       final request = AddBeatPlanDoctorRequest(
-        userId: userId,
-        farmerIds: farmerIds,
+        userId: finalUserId, // ✅ USE CORRECT USER
+        farmerIds: farmerIds, // ❌ untouched
         date: date,
         routName: routName,
       );
@@ -44,11 +47,11 @@ class AddBeatPlanDoctorProvider extends ChangeNotifier {
         data: request.toJson(),
       );
 
-      // Handle offline save case
       if (response.data["offline"] == true) {
         _response = AddBeatPlanDoctorResponse(
           success: 1,
-          message: response.data["message"] ?? "Saved offline. Will sync later.",
+          message:
+          response.data["message"] ?? "Saved offline. Will sync later.",
           data: null,
         );
       } else {
@@ -62,7 +65,6 @@ class AddBeatPlanDoctorProvider extends ChangeNotifier {
     }
   }
 
-  /// 🔄 Reset the state (useful after success or navigation)
   void reset() {
     _isLoading = false;
     _errorMessage = null;
@@ -70,3 +72,4 @@ class AddBeatPlanDoctorProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+

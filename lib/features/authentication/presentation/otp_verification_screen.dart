@@ -6,6 +6,7 @@ import 'package:TrustTags_DMS/features/dashboard/distributor_home_navigation.dar
 import 'package:TrustTags_DMS/features/farmer/dashboard/farmer_dashboard_homenavigation.dart';
 import 'package:TrustTags_DMS/features/farmer/registration/farmer_registration.dart';
 import 'package:TrustTags_DMS/features/home/presentation/home_navigation.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/registration/screens/sales_registration_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/sales_dashboard_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,12 +18,12 @@ import '../../registration/screens/registration_screen.dart';
 import '../../registration/screens/distributor_registration_screen.dart';
 import '../../../../widgets/contact_us_button.dart';
 import '../../../../data/models/verify_otp_request.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
 import '../provider/auth_provider.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -75,9 +76,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
   Future<void> _getFcmToken() async {
-    _fcmToken = await FirebaseMessaging.instance.getToken();
-    print("FCM Token: $_fcmToken");
+    try {
+      // ✅ integration_test / widget test me APNS token nahi hota (iOS)
+      if (const bool.fromEnvironment('FLUTTER_TEST')) {
+        _fcmToken = "TEST_FCM_TOKEN";
+        return;
+      }
+
+      // ✅ iOS: wait for APNS token
+      final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      if (apnsToken == null) {
+        debugPrint("APNS token not set yet, skipping FCM token for now");
+        _fcmToken = null;
+        return;
+      }
+
+      _fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint("FCM Token: $_fcmToken");
+    } catch (e) {
+      debugPrint("FCM Token error: $e");
+      _fcmToken = null;
+    }
   }
+
 
   @override
   void dispose() {
@@ -115,6 +136,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               }
             },
             child: TextFormField(
+              key: Key("otp_$index"),
               controller: controllers[index],
               focusNode: focusNodes[index],
               textAlign: TextAlign.center,
@@ -157,8 +179,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-
-
   Future<void> _handleVerifyOtp() async {
     if (!isChecked) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,7 +200,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       isVerifying = true;
     });
 
-    final otpProvider = Provider.of<OtpProvider>(context, listen: false);
+    final otpProvider = legacy.Provider.of<OtpProvider>(context, listen: false);
 
     final request = VerifyOtpRequest(
       phone: widget.phoneNumber,
@@ -221,6 +241,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             tokenData,
             selectedRoleId: widget.selectedRoleId,
           );
+          final container = ProviderScope.containerOf(context, listen: false);
+          await container.read(permissionsProvider.notifier).loadPermissions();
+
         } catch (e) {
           debugPrint("Error decrypting/parsing token: $e");
         }
@@ -306,7 +329,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       isResending = true;
     });
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider =legacy.Provider.of<AuthProvider>(context, listen: false);
     final result = await authProvider.sendOtp(
       phone: widget.phoneNumber,
       context: context,
@@ -414,6 +437,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     Row(
                       children: [
                         Checkbox(
+                          key: const Key("terms_checkbox"),
                           value: isChecked,
                           activeColor: AppColors.primaryPurple,
                           onChanged: (val) {
@@ -473,6 +497,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
+                        key: const Key("verify_otp_btn"),
                         onPressed: isVerifying ? null : _handleVerifyOtp,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.topBarColor,

@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+
 class OfflineCacheService {
   static Isar? _isar;
 

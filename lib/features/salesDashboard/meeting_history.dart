@@ -1,10 +1,13 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
+import 'package:TrustTags_DMS/data/models/meeting_update_model.dart';
 import 'package:TrustTags_DMS/data/models/rout_meeting_list_model.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/provider/route_meeting_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/update_meeting_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as legacy;
 import '../../../common/widgets/app_status_bar.dart';
 
 class MeetingHistory extends StatelessWidget {
@@ -41,7 +44,7 @@ class MeetingHistory extends StatelessWidget {
 
         final requestBody = snapshot.data!;
 
-        return ChangeNotifierProvider(
+        return legacy.ChangeNotifierProvider(
           create: (_) => RouteMeetingProvider()
             ..fetchRouteMeetings(requestBody: requestBody),
           child: Scaffold(
@@ -80,7 +83,7 @@ class MeetingHistory extends StatelessWidget {
 
                 // Body
                 Expanded(
-                  child: Consumer<RouteMeetingProvider>(
+                  child: legacy.Consumer<RouteMeetingProvider>(
                     builder: (context, provider, _) {
                       if (provider.isLoading) {
                         return const Center(child: CircularProgressIndicator());
@@ -181,20 +184,42 @@ class MeetingHistory extends StatelessWidget {
   }
 }
 
-class MeetingDetailsPage extends StatefulWidget {
+class MeetingDetailsPage extends ConsumerStatefulWidget {
   final RouteMeetingData meeting;
   const MeetingDetailsPage(this.meeting, {super.key});
 
   @override
-  State<MeetingDetailsPage> createState() => _MeetingDetailsPageState();
+  ConsumerState<MeetingDetailsPage> createState() =>
+      _MeetingDetailsPageState();
 }
 
-class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
+
+class _MeetingDetailsPageState
+    extends ConsumerState<MeetingDetailsPage> {
+
   final PageController _pageController = PageController();
   int _currentPhoto = 0;
+  bool? _selectedSuccess;
 
   String formatDate(DateTime dateTime) {
     return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
+  }
+  Future<void> _submitMeetingStatus(bool success) async {
+    final meeting = widget.meeting;
+
+
+        ref.read(updateMeetingStatusProvider.notifier)
+        .updateMeetingStatus(
+      UpdateMeetingStatusRequest(
+        userId: meeting.tsiId, // ✅ tsi_id
+        id: meeting.id,        // ✅ route_meeting id
+        successfull: success,  // ✅ true / false
+      ),
+    );
+
+    setState(() {
+      _selectedSuccess = success;
+    });
   }
 
   @override
@@ -383,6 +408,89 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           subtitle: AutoTranslateText(member.phone),
                         );
                       },
+                    ),
+                  ),
+                ],
+                if (meeting.meetingMembers.isNotEmpty && meeting.successfull == null) ...[
+                  const SizedBox(height: 20),
+
+                  Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      child: Column(
+                        children: [
+                          const AutoTranslateText(
+                            "Was this meeting successful?",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // 👍 LIKE
+                              IconButton(
+                                iconSize: 32,
+                                icon: Icon(
+                                  Icons.thumb_up,
+                                  color: _selectedSuccess == true
+                                      ? Colors.green
+                                      : Colors.grey,
+                                ),
+                                onPressed: () => _submitMeetingStatus(true),
+                              ),
+
+                              const SizedBox(width: 24),
+
+                              // 👎 DISLIKE
+                              IconButton(
+                                iconSize: 32,
+                                icon: Icon(
+                                  Icons.thumb_down,
+                                  color: _selectedSuccess == false
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                                onPressed: () => _submitMeetingStatus(false),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // API STATE FEEDBACK
+                          ref.watch(updateMeetingStatusProvider).when(
+                            data: (res) => res == null
+                                ? const SizedBox()
+                                : AutoTranslateText(
+                              res.message,
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 12,
+                              ),
+                            ),
+                            loading: () => const Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            error: (e, _) => Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: AutoTranslateText(
+                                e.toString(),
+                                style: const TextStyle(color: Colors.red, fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

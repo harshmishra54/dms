@@ -32,10 +32,13 @@ class OrderProductProvider extends ChangeNotifier {
 
       if (requestId == null) {
         // keep old behavior if no override is passed
-        if (roleId == "18") {
+        final intRoleId = int.tryParse(roleId) ?? 0;
+
+        if (intRoleId >= 18) {
           requestId = await SharedPrefsHelper.getDailylocationIdKey();
-          debugPrint("TSI User detected, requestId = $requestId");
-        } else if (roleId == "3") {
+          debugPrint("TSI or Higher Role detected (roleId=$intRoleId), requestId = $requestId");
+        }
+        else if (roleId == "3") {
           requestId = distributorId;
           debugPrint("Distributor User detected, requestId = $requestId");
         } else {

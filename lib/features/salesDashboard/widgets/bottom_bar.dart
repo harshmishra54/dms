@@ -1,29 +1,201 @@
 import 'package:TrustTags_DMS/common/widgets/auto_translate_text.dart';
+import 'package:TrustTags_DMS/core/permissions/feature_access.dart';
+import 'package:TrustTags_DMS/features/permissions/permissions_provider.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/beat_plan_tabs_screen.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/provider/tsi_list_for_rsm_provider.dart';
+import 'package:TrustTags_DMS/features/salesDashboard/provider/get_childs_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/distributors_screen.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/my_screen.dart';
 import 'package:TrustTags_DMS/features/orders/presentation/retailers_screen.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Add_meeting.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/stock_summary_dist-ret_screen.dart';
-import 'package:TrustTags_DMS/features/salesDashboard/Beat_Plan.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Expense/Expense_Management.dart';
 import 'package:TrustTags_DMS/features/salesDashboard/Leave/Leave_Management.dart';
-
 import 'package:TrustTags_DMS/core/utils/shared_prefs_helper.dart';
 
-class BottomBar extends StatefulWidget {
+class BottomBar extends ConsumerStatefulWidget {
   const BottomBar({super.key});
 
   @override
-  State<BottomBar> createState() => _BottomBarState();
+  ConsumerState<BottomBar> createState() => _BottomBarState();
 }
 
-class _BottomBarState extends State<BottomBar> {
+class _BottomBarState extends ConsumerState<BottomBar> {
+
   bool _isExpanded = false;
+
+
+
+  FeatureAccess? featureFromLabel(String label) {
+    switch (label) {
+      case "Beat Plan":
+        return FeatureAccess.beatPlan;
+      case "Meeting":
+        return FeatureAccess.meeting;
+      case "Stock Summary":
+        return FeatureAccess.viewStockOfDistributer;
+      case "Expense":
+        return FeatureAccess.expense;
+      case "Distributor":
+        return FeatureAccess.DistributerOrder;
+      case "Retailer":
+        return FeatureAccess.RetailerOrder;
+      case "Order":
+        return FeatureAccess.placeOrderOnBehalfOfDistributer;
+      case "Leave":
+        return FeatureAccess.leaveManagement;
+      default:
+        return null;
+    }
+  }
+
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+  bool canView(FeatureAccess feature) {
+    return ref
+        .read(permissionsProvider.notifier)
+        .hasPermission(feature, view: true);
+  }
+
+  bool canCreate(FeatureAccess feature) {
+    return ref
+        .read(permissionsProvider.notifier)
+        .hasPermission(feature, create: true);
+  }
+  Future<void> _handleSelfOrChildNavigation({
+    required BuildContext context,
+    required FeatureAccess selfFeature,
+    required FeatureAccess childFeature,
+    required Widget Function({String? childId}) onNavigate,
+  }) async {
+    final userId = await SharedPrefsHelper.getUserId();
+    if (userId == null) return;
+
+    // 🔥 Fetch childs
+    await ref.read(getChildsProvider.notifier).fetchChilds(id: userId);
+
+    final state = ref.read(getChildsProvider);
+
+    state.when(
+      loading: () {},
+      error: (e, _) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      },
+      data: (childs) {
+        // =====================
+        // 🔹 NO CHILDS → SELF
+        // =====================
+        if (childs.isEmpty) {
+          if (!canView(selfFeature)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to access this",
+                ),
+              ),
+            );
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => onNavigate(),
+            ),
+          );
+          return;
+        }
+
+        // =====================
+        // 🔹 CHILDS EXIST
+        // =====================
+        showModalBottomSheet(
+          context: context,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (_) {
+            return SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  /// 🔹 SELF
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const AutoTranslateText("Self"),
+                    onTap: () {
+                      Navigator.pop(context);
+
+                      if (!canView(selfFeature)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: AutoTranslateText(
+                              "You don't have permission to access this",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => onNavigate(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const Divider(),
+
+                  /// 🔹 CHILDS
+                  ...childs.map(
+                        (child) => ListTile(
+                      leading: const Icon(Icons.person_outline),
+                      title: AutoTranslateText(child.name),
+                      onTap: () {
+                        Navigator.pop(context);
+
+                        if (!canView(childFeature)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: AutoTranslateText(
+                                "You don't have permission to access this",
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                onNavigate(childId: child.id),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,20 +249,19 @@ class _BottomBarState extends State<BottomBar> {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 0.85,
                   children: [
-                    // ✅ FIRST ROW (always visible)
-                    _buildSchemeIcon(context, "Beat Plan", Icons.local_shipping),
-                    _buildSchemeIcon(context, "Meeting", Icons.meeting_room_rounded),
-                    _buildSchemeIcon(context, "Stock Summary", Icons.assignment_turned_in),
-                    _buildSchemeIcon(context, "Expense", Icons.account_balance_wallet),
+                    buildFeatureIcon(context, "Beat Plan", Icons.local_shipping),
+                    buildFeatureIcon(context, "Meeting", Icons.meeting_room_rounded),
+                    buildFeatureIcon(context, "Stock Summary", Icons.assignment_turned_in),
+                    buildFeatureIcon(context, "Expense", Icons.account_balance_wallet),
 
-                    // ✅ SECOND ROW (only when expanded)
                     if (_isExpanded) ...[
-                      _buildSchemeIcon(context, "Distributor", Icons.fact_check),
-                      _buildSchemeIcon(context, "Retailer", Icons.storefront),
-                      _buildSchemeIcon(context, "Order", Icons.phone_android),
-                      _buildSchemeIcon(context, "Leave", Icons.event_available),
+                      buildFeatureIcon(context, "Distributor", Icons.fact_check),
+                      buildFeatureIcon(context, "Retailer", Icons.storefront),
+                      buildFeatureIcon(context, "Order", Icons.phone_android),
+                      buildFeatureIcon(context, "Leave", Icons.event_available),
                     ],
                   ],
+
                 ),
               ),
             ),
@@ -103,259 +274,167 @@ class _BottomBarState extends State<BottomBar> {
   // ===========================
   // EVERYTHING BELOW IS UNCHANGED
   // ===========================
+  Widget buildFeatureIcon(
+      BuildContext context,
+      String label,
+      IconData icon,
+      ) {
+    // ✅ Always show icon
+    return _buildSchemeIcon(context, label, icon);
+  }
+
+
   Widget _buildSchemeIcon(BuildContext context, String label, IconData icon) {
     return GestureDetector(
       onTap: () async {
         if (label == "Beat Plan") {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const BeatPlanTabsScreen()));
+          await _handleSelfOrChildNavigation(
+            context: context,
+            selfFeature: FeatureAccess.beatPlanSelf, // 501
+            childFeature: FeatureAccess.beatPlan,    // 406
+            onNavigate: ({String? childId}) {
+              return BeatPlanTabsScreen(tsiId: childId);
+            },
+          );
         }
         if (label == "Leave") {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const LeaveScreen()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const LeaveScreen()));
         }
         if (label == "Expense") {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpensesDetailScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ExpensesDetailScreen()));
         }
         if (label == "Order") {
-          final roleId = await SharedPrefsHelper.getRoleId();
-          final userId = await SharedPrefsHelper.getUserId();
-
-          if (roleId == 19 && userId != null) {
-            final provider = Provider.of<TsiListProvider>(context, listen: false);
-            await provider.fetchTsiList(userId);
-
-            if (provider.tsiUsers.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: AutoTranslateText("No TSI found")),
-              );
-              return;
-            }
-
-            showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          // 🔐 ORDER HISTORY VIEW permission (UNCHANGED)
+          if (!canView(FeatureAccess.orderHistory)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to view orders",
+                ),
               ),
-              builder: (_) {
-                return Consumer<TsiListProvider>(
-                  builder: (ctx, provider, _) {
-                    if (provider.isLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: provider.tsiUsers.length,
-                      itemBuilder: (ctx, index) {
-                        final tsi = provider.tsiUsers[index];
-                        return ListTile(
-                          title: AutoTranslateText(tsi.name ?? "Unknown"),
-                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => MyScreen(tsiId: tsi.id),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
             );
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const MyScreen()));
+            return;
           }
-        }
 
+          // ✅ NEW FLOW: Parent–Child (NO roleId, NO TSI)
+          await _handleSelfOrChildNavigation(
+            context: context,
+            selfFeature: FeatureAccess.orderHistory,  // SAME permission
+            childFeature: FeatureAccess.orderHistory, // SAME permission
+            onNavigate: ({String? childId}) {
+              return MyScreen(tsiId: childId);
+            },
+          );
+        }
         if (label == "Distributor") {
-          final roleId = await SharedPrefsHelper.getRoleId();
-          final userId = await SharedPrefsHelper.getUserId();
-
-          if (roleId == 19 && userId != null) {
-            final provider = Provider.of<TsiListProvider>(context, listen: false);
-            await provider.fetchTsiList(userId);
-
-            if (provider.tsiUsers.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: AutoTranslateText("No TSI found")),
-              );
-              return;
-            }
-
-            showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          // 🔐 PERMISSION (UNCHANGED)
+          if (!canView(FeatureAccess.approveDistributer)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to view Distributor orders",
+                ),
               ),
-              builder: (_) {
-                return Consumer<TsiListProvider>(
-                  builder: (ctx, provider, _) {
-                    if (provider.isLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: provider.tsiUsers.length,
-                      itemBuilder: (ctx, index) {
-                        final tsi = provider.tsiUsers[index];
-                        return ListTile(
-                          title: AutoTranslateText(tsi.name ?? "Unknown"),
-                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DistributorsScreen(tsiId: tsi.id),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
             );
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const DistributorsScreen()));
+            return;
           }
-        }
 
+          // ✅ NEW FLOW: Parent–Child (NO roleId, NO TSI)
+          await _handleSelfOrChildNavigation(
+            context: context,
+            selfFeature: FeatureAccess.approveDistributer,
+            childFeature: FeatureAccess.approveDistributer,
+            onNavigate: ({String? childId}) {
+              return DistributorsScreen(tsiId: childId);
+            },
+          );
+        }
         if (label == "Stock Summary") {
-          final roleId = await SharedPrefsHelper.getRoleId();
-          final userId = await SharedPrefsHelper.getUserId();
-
-          if (roleId == 19 && userId != null) {
-            final provider = Provider.of<TsiListProvider>(context, listen: false);
-            await provider.fetchTsiList(userId);
-
-            if (provider.tsiUsers.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: AutoTranslateText("No TSI found")),
-              );
-              return;
-            }
-
-            showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          // 🔐 PERMISSION (UNCHANGED)
+          if (!canView(FeatureAccess.viewStockOfCfa)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to view Stocks",
+                ),
               ),
-              builder: (_) {
-                return Consumer<TsiListProvider>(
-                  builder: (ctx, provider, _) {
-                    if (provider.isLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: provider.tsiUsers.length,
-                      itemBuilder: (ctx, index) {
-                        final tsi = provider.tsiUsers[index];
-                        return ListTile(
-                          title: AutoTranslateText(tsi.name ?? "Unknown"),
-                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DistributorRetailerScreen(tsiId: tsi.id),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
             );
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const DistributorRetailerScreen()));
+            return;
           }
+
+          // ✅ NEW FLOW: Parent–Child (NO roleId, NO TSI)
+          await _handleSelfOrChildNavigation(
+            context: context,
+            selfFeature: FeatureAccess.viewStockOfCfa,
+            childFeature: FeatureAccess.viewStockOfCfa,
+            onNavigate: ({String? childId}) {
+              return DistributorRetailerScreen(tsiId: childId);
+            },
+          );
         }
+
+
 
         if (label == "Retailer") {
-          final roleId = await SharedPrefsHelper.getRoleId();
-          final userId = await SharedPrefsHelper.getUserId();
-
-          if (roleId == 19 && userId != null) {
-            final provider = Provider.of<TsiListProvider>(context, listen: false);
-            await provider.fetchTsiList(userId);
-
-            if (provider.tsiUsers.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: AutoTranslateText("No TSI found")),
-              );
-              return;
-            }
-
-            showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          // 🔐 PERMISSION (UNCHANGED)
+          if (!canView(FeatureAccess.RetailerOrder)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to view Retailer orders",
+                ),
               ),
-              builder: (_) {
-                return Consumer<TsiListProvider>(
-                  builder: (ctx, provider, _) {
-                    if (provider.isLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: provider.tsiUsers.length,
-                      itemBuilder: (ctx, index) {
-                        final tsi = provider.tsiUsers[index];
-                        return ListTile(
-                          title: AutoTranslateText(tsi.name ?? "Unknown"),
-                          subtitle: AutoTranslateText(tsi.mobileNo ?? ""),
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RetailersScreen(tsiId: tsi.id),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
             );
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const RetailersScreen()));
+            return;
           }
+
+          // ✅ NEW FLOW: Parent–Child (NO roleId, NO TSI)
+          await _handleSelfOrChildNavigation(
+            context: context,
+            selfFeature: FeatureAccess.RetailerOrder,
+            childFeature: FeatureAccess.RetailerOrder,
+            onNavigate: ({String? childId}) {
+              return RetailersScreen(tsiId: childId);
+            },
+          );
         }
+
 
         if (label == "Meeting") {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const AddMeetingScreen()));
+          final feature = FeatureAccess.meeting;
+
+          if (!canView(feature)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to view this",
+                ),
+              ),
+            );
+            return;
+          }
+
+          if (!canCreate(feature)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: AutoTranslateText(
+                  "You don't have permission to create meeting",
+                ),
+              ),
+            );
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddMeetingScreen()),
+          );
         }
+
       },
-      child: Column(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

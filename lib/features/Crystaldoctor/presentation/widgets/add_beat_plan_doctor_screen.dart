@@ -14,7 +14,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geocoding/geocoding.dart';
 
 class AddBeatPlanDoctorScreen extends StatefulWidget {
-  const AddBeatPlanDoctorScreen({super.key});
+  final String? tsiId;
+  const AddBeatPlanDoctorScreen({super.key,this.tsiId});
 
   @override
   State<AddBeatPlanDoctorScreen> createState() =>
@@ -103,10 +104,11 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                MakeRouteTab(),
-                ByPincodeTab(),
+              children: [
+                MakeRouteTab(tsiId: widget.tsiId),
+                const ByPincodeTab(),
               ],
+
             ),
           ),
         ],
@@ -119,7 +121,9 @@ class _AddBeatPlanDoctorScreenState extends State<AddBeatPlanDoctorScreen>
 // 🔹 TAB 1: Make Route
 // ============================================
 class MakeRouteTab extends StatefulWidget {
-  const MakeRouteTab({super.key});
+  final String? tsiId;
+
+  const MakeRouteTab({super.key, this.tsiId});
 
   @override
   State<MakeRouteTab> createState() => _MakeRouteTabState();
@@ -135,11 +139,19 @@ class _MakeRouteTabState extends State<MakeRouteTab> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      context.read<GetMyFarmersProvider>().fetchMyFarmers();
-      await context.read<GetBeatPlanDoctorProvider>().fetchBeatPlanDoctor();
+      context.read<GetMyFarmersProvider>().fetchMyFarmers(
+        userId: widget.tsiId,
+      );
+
+      context.read<GetBeatPlanDoctorProvider>().fetchBeatPlanDoctor(
+        userId: widget.tsiId,
+      );
     });
-    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    _dateController.text =
+        DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
+
 
   void _toggleFarmerSelection(String farmerId) {
     setState(() {
@@ -210,6 +222,7 @@ class _MakeRouteTabState extends State<MakeRouteTab> {
         farmerIds: _selectedFarmerIds,
         date: selectedDate,
         routName: routeName,
+        userId: widget.tsiId,
       );
 
       if (addProvider.errorMessage != null) {
