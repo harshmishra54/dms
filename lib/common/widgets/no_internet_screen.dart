@@ -15,10 +15,12 @@ class NoInternetScreen extends StatefulWidget {
   State<NoInternetScreen> createState() => _NoInternetScreenState();
 }
 
+enum PlayerAction { running, jumping, sliding }
+
 class _NoInternetScreenState extends State<NoInternetScreen>
     with TickerProviderStateMixin {
   late AnimationController _iconController;
-  late AnimationController _legController;
+  late AnimationController _runController;
   final Random _random = Random();
 
   // Game state
@@ -26,20 +28,26 @@ class _NoInternetScreenState extends State<NoInternetScreen>
   bool gameOver = false;
   int score = 0;
   int highScore = 0;
+  int coins = 0;
+  int combo = 0;
 
   // Player
   double playerY = 0;
   double velocity = 0;
-  bool isJumping = false;
-  bool isDucking = false;
+  PlayerAction currentAction = PlayerAction.running;
+  bool canDoubleJump = false;
+  bool hasDoubleJumped = false;
 
-  // Obstacles
-  List<Obstacle> obstacles = [];
-  double gameSpeed = 5.0;
+  // Game objects
+  List<GameObject> gameObjects = [];
+  List<Particle> particles = [];
+  double gameSpeed = 7.0;
   int frameCount = 0;
 
-  // Clouds for background
-  List<Cloud> clouds = [];
+  // Background
+  List<Building> buildings = [];
+  List<CloudObj> clouds = [];
+  double parallaxOffset = 0;
 
   @override
   void initState() {
@@ -50,21 +58,30 @@ class _NoInternetScreenState extends State<NoInternetScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _legController = AnimationController(
+    _runController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 120),
+    )..repeat();
 
-    // Initialize clouds
-    for (int i = 0; i < 5; i++) {
-      clouds.add(Cloud(
-        x: _random.nextDouble() * 400,
-        y: _random.nextDouble() * 100 + 50,
-        speed: 0.3 + _random.nextDouble() * 0.5,
+    // Initialize background
+    for (int i = 0; i < 4; i++) {
+      buildings.add(Building(
+        x: i * 200.0,
+        height: 100 + _random.nextDouble() * 80,
+        width: 120 + _random.nextDouble() * 80,
       ));
     }
 
-    // Game loop - 60 FPS
+    for (int i = 0; i < 5; i++) {
+      clouds.add(CloudObj(
+        x: _random.nextDouble() * 400,
+        y: _random.nextDouble() * 60 + 20,
+        speed: 0.15 + _random.nextDouble() * 0.25,
+        size: 50 + _random.nextDouble() * 40,
+      ));
+    }
+
+    // Game loop
     Future.doWhile(() async {
       await Future.delayed(const Duration(milliseconds: 16));
       if (mounted && gameStarted && !gameOver) {
@@ -77,124 +94,252 @@ class _NoInternetScreenState extends State<NoInternetScreen>
   @override
   void dispose() {
     _iconController.dispose();
-    _legController.dispose();
+    _runController.dispose();
     super.dispose();
   }
 
   void _updateGame() {
     setState(() {
       frameCount++;
+      parallaxOffset += gameSpeed * 0.3;
 
       // Update clouds
       for (var cloud in clouds) {
         cloud.x -= cloud.speed;
-        if (cloud.x < -100) {
-          cloud.x = 400;
-          cloud.y = _random.nextDouble() * 100 + 50;
+        if (cloud.x < -cloud.size * 2) {
+          cloud.x = 420;
+          cloud.y = _random.nextDouble() * 60 + 20;
         }
       }
 
-      // Gravity and jumping
-      if (isJumping || playerY < 0) {
-        velocity += 0.9; // Gravity
+      // Update buildings
+      for (var building in buildings) {
+        building.x -= gameSpeed * 0.5;
+        if (building.x < -building.width - 50) {
+          building.x = buildings.map((b) => b.x).reduce(max) + 150;
+          building.height = 100 + _random.nextDouble() * 80;
+          building.width = 120 + _random.nextDouble() * 80;
+        }
+      }
+
+      // Physics
+      if (currentAction == PlayerAction.jumping || playerY < 0) {
+        velocity += 1.1; // Gravity
         playerY += velocity;
 
         if (playerY >= 0) {
           playerY = 0;
           velocity = 0;
-          isJumping = false;
+          currentAction = PlayerAction.running;
+          hasDoubleJumped = false;
+          canDoubleJump = false;
+          _createLandingParticles();
         }
       }
 
-      // Spawn obstacles with varied spacing
-      if (frameCount % (70 + _random.nextInt(40)) == 0) {
-        int obstacleType = _random.nextInt(100);
-        if (obstacleType < 50) {
-          obstacles.add(Obstacle(x: 400, type: 0)); // Small cactus
-        } else if (obstacleType < 75) {
-          obstacles.add(Obstacle(x: 400, type: 1)); // Large cactus
-        } else if (obstacleType < 90) {
-          obstacles.add(Obstacle(x: 400, type: 2)); // Bird
-        } else {
-          // Double cactus
-          obstacles.add(Obstacle(x: 400, type: 0));
-          obstacles.add(Obstacle(x: 440, type: 0));
+      // Spawn obstacles
+      if (frameCount % (60 + _random.nextInt(50)) == 0) {
+        _spawnObstacle();
+      }
+
+      // Spawn coins
+      if (frameCount % 80 == 0 && _random.nextDouble() > 0.3) {
+        gameObjects.add(GameObject(
+          x: 420,
+          y: -(_random.nextDouble() * 80 + 40),
+          type: GameObjectType.coin,
+        ));
+      }
+
+      // Move objects
+      for (var obj in gameObjects) {
+        obj.x -= gameSpeed;
+        if (obj.type == GameObjectType.coin) {
+          obj.rotation += 0.15;
         }
       }
 
-      // Move obstacles
-      for (var obstacle in obstacles) {
-        obstacle.x -= gameSpeed;
+      // Update particles
+      for (var particle in particles) {
+        particle.update();
       }
+      particles.removeWhere((p) => p.lifetime <= 0);
 
-      // Remove off-screen obstacles and increase score
-      obstacles.removeWhere((obstacle) {
-        if (obstacle.x < -50 && !obstacle.scored) {
-          obstacle.scored = true;
-          score++;
-          if (score > highScore) highScore = score;
-
-          // Gradual speed increase
-          if (score % 10 == 0) {
-            gameSpeed += 0.5;
+      // Collision & scoring
+      gameObjects.removeWhere((obj) {
+        if (obj.x < -50) {
+          if (!obj.passed && obj.type != GameObjectType.coin) {
+            score += 10;
+            combo++;
+            if (combo > 5) score += combo;
+            if (score > highScore) highScore = score;
           }
-          return false;
+          return true;
         }
-        return obstacle.x < -50;
+
+        // Coin collection
+        if (obj.type == GameObjectType.coin && !obj.collected) {
+          if (_checkCoinCollision(obj)) {
+            obj.collected = true;
+            coins += 1;
+            score += 5;
+            _createCoinParticles(obj.x, obj.y);
+            return true;
+          }
+        }
+
+        // Obstacle collision
+        if (obj.type != GameObjectType.coin && _checkCollision(obj)) {
+          gameOver = true;
+          combo = 0;
+        }
+
+        return false;
       });
 
-      // Collision detection
-      for (var obstacle in obstacles) {
-        if (_checkCollision(obstacle)) {
-          gameOver = true;
-          break;
-        }
+      // Speed increase
+      if (score > 0 && score % 100 == 0 && frameCount % 60 == 0) {
+        gameSpeed = min(gameSpeed + 0.3, 12.0);
       }
     });
   }
 
-  bool _checkCollision(Obstacle obstacle) {
-    // More precise hitbox
-    double playerLeft = 50;
-    double playerRight = 90;
-    double playerBottom = isDucking ? 20 : 0;
-    double playerTop = isDucking ? -25 : -40;
-
-    double obstacleLeft = obstacle.x;
-    double obstacleRight = obstacle.x + 30;
-
-    if (obstacleRight < playerLeft || obstacleLeft > playerRight) {
-      return false;
-    }
-
-    if (obstacle.type == 0) {
-      // Small cactus
-      return playerY + playerBottom >= -15;
-    } else if (obstacle.type == 1) {
-      // Large cactus
-      return playerY + playerBottom >= -35;
+  void _spawnObstacle() {
+    int obstacleType = _random.nextInt(100);
+    if (obstacleType < 40) {
+      gameObjects.add(GameObject(x: 420, y: 0, type: GameObjectType.barrier));
+    } else if (obstacleType < 70) {
+      gameObjects.add(GameObject(x: 420, y: 0, type: GameObjectType.box));
+    } else if (obstacleType < 85) {
+      gameObjects.add(GameObject(x: 420, y: -90, type: GameObjectType.drone));
     } else {
-      // Flying bird (at height)
-      double birdBottom = -70;
-      double birdTop = -95;
-      return playerY + playerTop <= birdTop && playerY + playerBottom >= birdBottom;
+      // Double obstacle
+      gameObjects.add(GameObject(x: 420, y: 0, type: GameObjectType.barrier));
+      gameObjects.add(GameObject(x: 420, y: -90, type: GameObjectType.drone));
     }
+  }
+
+  bool _checkCollision(GameObject obj) {
+    double playerLeft = 70;
+    double playerRight = 105;
+    double playerBottom = currentAction == PlayerAction.sliding ? 20 : 0;
+    double playerTop = currentAction == PlayerAction.sliding ? -30 : -50;
+
+    double objLeft = obj.x;
+    double objRight = obj.x + obj.width;
+
+    if (objRight < playerLeft || objLeft > playerRight) return false;
+
+    if (obj.type == GameObjectType.barrier || obj.type == GameObjectType.box) {
+      return playerY + playerBottom >= obj.y - obj.height;
+    } else if (obj.type == GameObjectType.drone) {
+      double droneBottom = obj.y;
+      double droneTop = obj.y - obj.height;
+      return playerY + playerTop <= droneTop && playerY + playerBottom >= droneBottom;
+    }
+
+    return false;
+  }
+
+  bool _checkCoinCollision(GameObject coin) {
+    double playerLeft = 70;
+    double playerRight = 105;
+    double playerTop = currentAction == PlayerAction.sliding ? -30 : -50;
+    double playerBottom = 10;
+
+    double coinLeft = coin.x;
+    double coinRight = coin.x + 25;
+    double coinTop = coin.y - 25;
+    double coinBottom = coin.y;
+
+    return !(coinRight < playerLeft ||
+        coinLeft > playerRight ||
+        coinBottom < playerY + playerTop ||
+        coinTop > playerY + playerBottom);
   }
 
   void _jump() {
-    if (!isJumping && playerY == 0 && !gameOver && !isDucking) {
+    if (currentAction == PlayerAction.running && playerY == 0) {
       setState(() {
-        isJumping = true;
+        currentAction = PlayerAction.jumping;
+        velocity = -18;
+        canDoubleJump = true;
+        combo++;
+      });
+      _createJumpParticles();
+    } else if (canDoubleJump && !hasDoubleJumped && currentAction == PlayerAction.jumping) {
+      setState(() {
         velocity = -16;
+        hasDoubleJumped = true;
+        canDoubleJump = false;
+        combo++;
+      });
+      _createDoubleJumpParticles();
+    }
+  }
+
+  void _slide(bool shouldSlide) {
+    if (shouldSlide && !gameOver && playerY == 0) {
+      setState(() {
+        currentAction = PlayerAction.sliding;
+        combo++;
+      });
+    } else if (!shouldSlide && currentAction == PlayerAction.sliding) {
+      setState(() {
+        currentAction = PlayerAction.running;
       });
     }
   }
 
-  void _duck(bool duck) {
-    if (!isJumping && !gameOver) {
-      setState(() {
-        isDucking = duck;
-      });
+  void _createJumpParticles() {
+    for (int i = 0; i < 5; i++) {
+      particles.add(Particle(
+        x: 85 + _random.nextDouble() * 20,
+        y: -5,
+        vx: -2 - _random.nextDouble() * 3,
+        vy: -_random.nextDouble() * 2,
+        color: const Color(0xFFB39DDB),
+        size: 3 + _random.nextDouble() * 3,
+      ));
+    }
+  }
+
+  void _createDoubleJumpParticles() {
+    for (int i = 0; i < 8; i++) {
+      particles.add(Particle(
+        x: 90,
+        y: playerY - 25,
+        vx: (_random.nextDouble() - 0.5) * 6,
+        vy: (_random.nextDouble() - 0.5) * 6,
+        color: const Color(0xFF7E57C2),
+        size: 4 + _random.nextDouble() * 4,
+      ));
+    }
+  }
+
+  void _createLandingParticles() {
+    for (int i = 0; i < 6; i++) {
+      particles.add(Particle(
+        x: 85 + _random.nextDouble() * 20,
+        y: -2,
+        vx: (_random.nextDouble() - 0.5) * 4,
+        vy: -_random.nextDouble() * 3,
+        color: const Color(0xFF9575CD),
+        size: 2 + _random.nextDouble() * 2,
+      ));
+    }
+  }
+
+  void _createCoinParticles(double x, double y) {
+    for (int i = 0; i < 10; i++) {
+      particles.add(Particle(
+        x: x,
+        y: y,
+        vx: (_random.nextDouble() - 0.5) * 8,
+        vy: (_random.nextDouble() - 0.5) * 8,
+        color: const Color(0xFFFFC107),
+        size: 3 + _random.nextDouble() * 3,
+      ));
     }
   }
 
@@ -203,18 +348,18 @@ class _NoInternetScreenState extends State<NoInternetScreen>
       gameStarted = true;
       gameOver = false;
       score = 0;
+      coins = 0;
       playerY = 0;
       velocity = 0;
-      isJumping = false;
-      isDucking = false;
-      obstacles.clear();
-      gameSpeed = 5.0;
+      currentAction = PlayerAction.running;
+      hasDoubleJumped = false;
+      canDoubleJump = false;
+      gameObjects.clear();
+      particles.clear();
+      gameSpeed = 7.0;
       frameCount = 0;
+      combo = 0;
     });
-  }
-
-  void _restartGame() {
-    _startGame();
   }
 
   @override
@@ -225,26 +370,27 @@ class _NoInternetScreenState extends State<NoInternetScreen>
           if (!gameStarted) {
             _startGame();
           } else if (gameOver) {
-            _restartGame();
+            _startGame();
           } else {
             _jump();
           }
         },
-        onLongPressStart: (_) => _duck(true),
-        onLongPressEnd: (_) => _duck(false),
+        onLongPressStart: (_) => _slide(true),
+        onLongPressEnd: (_) => _slide(false),
         child: Stack(
           children: [
-            // Purple Gradient Background
+            // Gradient Sky
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFA259FF),
-                    Color(0xFF673AB7),
-                    Color(0xFFE1BEE7),
+                    const Color(0xFF5E35B1),
+                    const Color(0xFF7E57C2),
+                    const Color(0xFF9575CD),
+                    const Color(0xFFB39DDB).withOpacity(0.8),
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),
@@ -252,31 +398,39 @@ class _NoInternetScreenState extends State<NoInternetScreen>
             Column(
               children: [
                 const AppStatusBar(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 25),
 
                 // WiFi Icon & Title
                 ScaleTransition(
-                  scale: Tween(begin: 0.9, end: 1.1).animate(
+                  scale: Tween(begin: 0.92, end: 1.08).animate(
                     CurvedAnimation(
                       parent: _iconController,
                       curve: Curves.easeInOut,
                     ),
                   ),
-                  child: const Icon(
-                    Icons.wifi_off_rounded,
-                    size: 70,
-                    color: Colors.white,
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.15),
+                    ),
+                    child: const Icon(
+                      Icons.wifi_off_rounded,
+                      size: 50,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 12),
 
                 const Text(
-                  "No Internet",
+                  "No Internet Connection",
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
 
@@ -286,8 +440,8 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                   widget.message,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white.withOpacity(0.95),
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
 
@@ -296,30 +450,34 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                 // Game Area
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1A237E), Color(0xFF283593)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 20,
-                          spreadRadius: 0,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       child: Stack(
                         children: [
-                          // Desert gradient background
+                          // Sky gradient
                           Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFFFFF8DC),
-                                  Color(0xFFFFF0C9),
+                                  Color(0xFF303F9F),
+                                  Color(0xFF3949AB),
+                                  Color(0xFF5C6BC0),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
@@ -327,324 +485,439 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                             ),
                           ),
 
-                          // Sun in background
-                          Positioned(
-                            top: 30,
-                            right: 40,
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.orange.shade200.withOpacity(0.4),
+                          // Stars
+                          ...List.generate(15, (i) {
+                            return Positioned(
+                              top: _random.nextDouble() * 100 + 10,
+                              left: _random.nextDouble() * 400,
+                              child: Container(
+                                width: 2,
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.6),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
 
-                          // Distant mountains
-                          Positioned(
-                            bottom: 100,
-                            left: 0,
-                            right: 0,
-                            child: CustomPaint(
-                              size: const Size(double.infinity, 60),
-                              painter: MountainPainter(),
-                            ),
-                          ),
                           // Clouds
                           ...clouds.map((cloud) {
                             return Positioned(
                               top: cloud.y,
                               left: cloud.x,
                               child: CustomPaint(
-                                size: const Size(60, 30),
-                                painter: CloudPainter(),
+                                size: Size(cloud.size, cloud.size * 0.5),
+                                painter: ModernCloudPainter(),
                               ),
                             );
-                          }).toList(),
+                          }),
 
-                          // Ground with shadow
+                          // Buildings
+                          ...buildings.map((building) {
+                            return Positioned(
+                              bottom: 70,
+                              left: building.x,
+                              child: CustomPaint(
+                                size: Size(building.width, building.height),
+                                painter: BuildingPainter(),
+                              ),
+                            );
+                          }),
+
+                          // Ground platform
                           Positioned(
-                            bottom: 60,
+                            bottom: 65,
                             left: 0,
                             right: 0,
                             child: Container(
-                              height: 4,
+                              height: 5,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF8B7355),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF7E57C2),
+                                    Color(0xFF9575CD),
+                                  ],
+                                ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                                    color: const Color(0xFF7E57C2).withOpacity(0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
                             ),
                           ),
 
-                          // Sand texture below ground
+                          // Ground base
                           Positioned(
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            height: 60,
+                            height: 65,
                             child: Container(
-                              color: const Color(0xFFD2B48C),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFF1A237E), Color(0xFF0D1642)],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
                             ),
                           ),
 
-                          // Ground texture (moving dashes with better spacing)
+                          // Moving ground pattern
                           if (gameStarted && !gameOver)
-                            ...List.generate(20, (index) {
-                              double dashX = ((frameCount * gameSpeed * 0.8) % 600) - (index * 30);
+                            ...List.generate(25, (i) {
+                              double dashX = ((frameCount * gameSpeed * 0.6) % 500) - (i * 20);
                               return Positioned(
-                                bottom: 58,
+                                bottom: 63,
                                 left: dashX,
                                 child: Container(
-                                  width: 15,
-                                  height: 3,
+                                  width: 10,
+                                  height: 2,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF6B5345),
+                                    color: const Color(0xFF9575CD).withOpacity(0.4),
                                     borderRadius: BorderRadius.circular(1),
                                   ),
                                 ),
                               );
                             }),
 
-                          // Player (Dinosaur) with shadow
-                          Positioned(
-                            bottom: 60 - playerY,
-                            left: 50,
-                            child: Stack(
-                              children: [
-                                // Shadow
-                                if (!isDucking)
-                                  Positioned(
-                                    top: 47,
-                                    left: 5,
-                                    child: Container(
-                                      width: 35,
-                                      height: 5,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                          // Particles
+                          ...particles.map((particle) {
+                            return Positioned(
+                              bottom: 65 - particle.y,
+                              left: particle.x,
+                              child: Container(
+                                width: particle.size,
+                                height: particle.size,
+                                decoration: BoxDecoration(
+                                  color: particle.color.withOpacity(particle.opacity),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: particle.color.withOpacity(0.3),
+                                      blurRadius: 4,
                                     ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+
+                          // Player
+                          Positioned(
+                            bottom: 65 - playerY,
+                            left: 70,
+                            child: AnimatedBuilder(
+                              animation: _runController,
+                              builder: (context, child) {
+                                return CustomPaint(
+                                  size: Size(
+                                    currentAction == PlayerAction.sliding ? 50 : 35,
+                                    currentAction == PlayerAction.sliding ? 30 : 50,
                                   ),
-                                _buildPlayer(),
-                              ],
+                                  painter: RunnerPainter(
+                                    action: currentAction,
+                                    animValue: _runController.value,
+                                  ),
+                                );
+                              },
                             ),
                           ),
 
-                          // Obstacles with shadows
-                          ...obstacles.map((obstacle) {
+                          // Game Objects
+                          ...gameObjects.map((obj) {
                             return Positioned(
-                              bottom: obstacle.type == 2 ? 120 : 60,
-                              left: obstacle.x,
-                              child: Stack(
+                              bottom: 65 - obj.y,
+                              left: obj.x,
+                              child: _buildGameObject(obj),
+                            );
+                          }),
+
+                          // HUD - Score
+                          Positioned(
+                            top: 15,
+                            right: 15,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withOpacity(0.2),
+                                    Colors.white.withOpacity(0.1),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Shadow for ground obstacles
-                                  if (obstacle.type != 2)
-                                    Positioned(
-                                      top: obstacle.type == 0 ? 35 : 50,
-                                      left: 2,
-                                      child: Container(
-                                        width: obstacle.type == 0 ? 15 : 23,
-                                        height: 4,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(10),
+                                  const Icon(Icons.star, color: Color(0xFFFFC107), size: 18),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    score.toString().padLeft(5, '0'),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Coins
+                          Positioned(
+                            top: 15,
+                            left: 15,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFFFFC107).withOpacity(0.3),
+                                    const Color(0xFFFFB300).withOpacity(0.2),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFFFFC107).withOpacity(0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFC107),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        '◎',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
-                                  _buildObstacle(obstacle),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-
-                          // Score with better styling
-                          Positioned(
-                            top: 20,
-                            right: 20,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    coins.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFFFC107),
+                                    ),
                                   ),
                                 ],
-                              ),
-                              child: Text(
-                                score.toString().padLeft(5, '0'),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.topBarColor,
-                                  fontFamily: 'monospace',
-                                  letterSpacing: 2,
-                                ),
                               ),
                             ),
                           ),
 
-                          // High Score indicator with better styling
+                          // High Score
                           if (highScore > 0)
                             Positioned(
-                              top: 20,
-                              left: 20,
+                              top: 55,
+                              right: 15,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.amber.shade100.withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.orange.withOpacity(0.2),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.emoji_events,
-                                      size: 16,
-                                      color: Colors.orange,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      highScore.toString().padLeft(5, '0'),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange,
-                                        fontFamily: 'monospace',
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  'Best: ${highScore.toString()}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
 
-                          // Start/Game Over overlay with glass effect
+                          // Combo indicator
+                          if (combo > 3 && !gameOver)
+                            Positioned(
+                              top: 100,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFFF6F00), Color(0xFFFF9800)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFFF6F00).withOpacity(0.5),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    '${combo}x COMBO!',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          // Game Over / Start Overlay
                           if (!gameStarted || gameOver)
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.95),
-                                backgroundBlendMode: BlendMode.overlay,
+                                color: const Color(0xFF1A237E).withOpacity(0.92),
                               ),
                               child: Center(
                                 child: Container(
-                                  padding: const EdgeInsets.all(30),
+                                  padding: const EdgeInsets.all(32),
+                                  margin: const EdgeInsets.symmetric(horizontal: 20),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(24),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                      ),
-                                    ],
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white.withOpacity(0.15),
+                                        Colors.white.withOpacity(0.05),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(28),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.2),
+                                      width: 2,
+                                    ),
                                   ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (!gameStarted)
-                                        Container(
-                                          padding: const EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                            color: Colors.green.shade50,
-                                            shape: BoxShape.circle,
+                                      Container(
+                                        padding: const EdgeInsets.all(18),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: gameOver
+                                                ? [const Color(0xFFE53935), const Color(0xFFD32F2F)]
+                                                : [const Color(0xFF7E57C2), const Color(0xFF9575CD)],
                                           ),
-                                          child: const Icon(
-                                            Icons.sports_esports,
-                                            size: 60,
-                                            color: AppColors.topBarColor,
-                                          ),
-                                        )
-                                      else
-                                        Container(
-                                          padding: const EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red.shade50,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.cancel_rounded,
-                                            size: 60,
-                                            color: Colors.red,
-                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: (gameOver ? Colors.red : const Color(0xFF7E57C2))
+                                                  .withOpacity(0.4),
+                                              blurRadius: 20,
+                                              spreadRadius: 5,
+                                            ),
+                                          ],
                                         ),
-                                      const SizedBox(height: 20),
-                                      Text(
-                                        gameOver ? "GAME OVER" : "DINO RUN",
-                                        style: const TextStyle(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF535353),
-                                          letterSpacing: 3,
+                                        child: Icon(
+                                          gameOver ? Icons.sports_esports_outlined : Icons.play_arrow_rounded,
+                                          size: 48,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(height: 15),
-                                      if (gameOver)
+                                      const SizedBox(height: 24),
+                                      Text(
+                                        gameOver ? "GAME OVER" : "PARKOUR RUNNER",
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 2,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      if (gameOver) ...[
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                            vertical: 10,
-                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                           decoration: BoxDecoration(
-                                            color: Colors.orange.shade100,
-                                            borderRadius: BorderRadius.circular(15),
+                                            color: Colors.white.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(16),
                                           ),
-                                          child: Text(
-                                            "Score: $score",
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                        )
-                                      else
-                                        const Text(
-                                          "TAP TO START",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF535353),
-                                            letterSpacing: 1,
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.star, color: Color(0xFFFFC107), size: 20),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    'Score: $score',
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Text('◎', style: TextStyle(color: Color(0xFFFFC107), fontSize: 18)),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    'Coins: $coins',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFFFFC107),
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      const SizedBox(height: 15),
+                                        const SizedBox(height: 16),
+                                      ],
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
-                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade100,
+                                          color: Colors.white.withOpacity(0.08),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
-                                          gameOver
-                                              ? "Tap Anywhere to Restart"
-                                              : "Tap: Jump • Hold: Duck",
+                                          gameOver ? "TAP TO RESTART" : "TAP TO START",
                                           style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 1,
                                           ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        "Tap: Jump (Double Jump) • Hold: Slide",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.6),
                                         ),
                                       ),
                                     ],
@@ -660,31 +933,42 @@ class _NoInternetScreenState extends State<NoInternetScreen>
 
                 const SizedBox(height: 18),
 
-                // Retry Connection Button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF673AB7),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 13,
-                    ),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                // Retry Button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.refresh, size: 20),
-                  label: const Text(
-                    "Retry Connection",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF5E35B1),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    icon: const Icon(Icons.refresh_rounded, size: 22),
+                    label: const Text(
+                      "Retry Connection",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 24),
               ],
             ),
           ],
@@ -693,384 +977,420 @@ class _NoInternetScreenState extends State<NoInternetScreen>
     );
   }
 
-  Widget _buildPlayer() {
-    return AnimatedBuilder(
-      animation: _legController,
-      builder: (context, child) {
+  Widget _buildGameObject(GameObject obj) {
+    switch (obj.type) {
+      case GameObjectType.barrier:
         return CustomPaint(
-          size: const Size(44, 47),
-          painter: DinosaurPainter(
-            isRunning: !isJumping && !isDucking,
-            isDucking: isDucking,
-            legFrame: _legController.value,
+          size: Size(obj.width, obj.height),
+          painter: BarrierPainter(),
+        );
+      case GameObjectType.box:
+        return CustomPaint(
+          size: Size(obj.width, obj.height),
+          painter: BoxPainter(),
+        );
+      case GameObjectType.drone:
+        return CustomPaint(
+          size: Size(obj.width, obj.height),
+          painter: DronePainter(),
+        );
+      case GameObjectType.coin:
+        return Transform.rotate(
+          angle: obj.rotation,
+          child: CustomPaint(
+            size: const Size(25, 25),
+            painter: CoinPainter(),
           ),
         );
-      },
-    );
-  }
-
-  Widget _buildObstacle(Obstacle obstacle) {
-    if (obstacle.type == 0) {
-      // Small cactus
-      return CustomPaint(
-        size: const Size(17, 35),
-        painter: CactusPainter(isSmall: true),
-      );
-    } else if (obstacle.type == 1) {
-      // Large cactus
-      return CustomPaint(
-        size: const Size(25, 50),
-        painter: CactusPainter(isSmall: false),
-      );
-    } else {
-      // Flying bird
-      return AnimatedBuilder(
-        animation: _legController,
-        builder: (context, child) {
-          return CustomPaint(
-            size: const Size(46, 40),
-            painter: BirdPainter(wingUp: _legController.value > 0.5),
-          );
-        },
-      );
     }
   }
 }
 
-// Custom Painters for realistic graphics
-class DinosaurPainter extends CustomPainter {
-  final bool isRunning;
-  final bool isDucking;
-  final double legFrame;
+// Game Objects
+enum GameObjectType { barrier, box, drone, coin }
 
-  DinosaurPainter({
-    required this.isRunning,
-    required this.isDucking,
-    required this.legFrame,
+class GameObject {
+  double x;
+  double y;
+  GameObjectType type;
+  bool passed = false;
+  bool collected = false;
+  double rotation = 0;
+
+  double get width {
+    switch (type) {
+      case GameObjectType.barrier:
+        return 15;
+      case GameObjectType.box:
+        return 35;
+      case GameObjectType.drone:
+        return 45;
+      case GameObjectType.coin:
+        return 25;
+    }
+  }
+
+  double get height {
+    switch (type) {
+      case GameObjectType.barrier:
+        return 40;
+      case GameObjectType.box:
+        return 35;
+      case GameObjectType.drone:
+        return 25;
+      case GameObjectType.coin:
+        return 25;
+    }
+  }
+
+  GameObject({required this.x, required this.y, required this.type});
+}
+
+// Particle System
+class Particle {
+  double x;
+  double y;
+  double vx;
+  double vy;
+  Color color;
+  double size;
+  int lifetime = 30;
+  double opacity = 1.0;
+
+  Particle({
+    required this.x,
+    required this.y,
+    required this.vx,
+    required this.vy,
+    required this.color,
+    required this.size,
   });
+
+  void update() {
+    x += vx;
+    y += vy;
+    vy += 0.3; // Gravity
+    lifetime--;
+    opacity = lifetime / 30.0;
+  }
+}
+
+// Background Objects
+class Building {
+  double x;
+  double height;
+  double width;
+
+  Building({required this.x, required this.height, required this.width});
+}
+
+class CloudObj {
+  double x;
+  double y;
+  double speed;
+  double size;
+
+  CloudObj({
+    required this.x,
+    required this.y,
+    required this.speed,
+    required this.size,
+  });
+}
+
+// Custom Painters
+class RunnerPainter extends CustomPainter {
+  final PlayerAction action;
+  final double animValue;
+
+  RunnerPainter({required this.action, required this.animValue});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF535353)
-      ..style = PaintingStyle.fill;
-
-    // Add slight gradient effect
     final bodyGradient = Paint()
       ..shader = const LinearGradient(
-        colors: [Color(0xFFA259FF), Color(0xFF673AB7)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(const Rect.fromLTWH(0, 0, 44, 47));
+        colors: [Color(0xFF7E57C2), Color(0xFF9575CD)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    if (isDucking) {
-      // Ducking dino (simplified body)
+    final accentPaint = Paint()
+      ..color = const Color(0xFFB39DDB)
+      ..style = PaintingStyle.fill;
+
+    if (action == PlayerAction.sliding) {
+      // Sliding pose
       canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(10, 25, 34, 15),
-          topLeft: const Radius.circular(2),
-          topRight: const Radius.circular(2),
-          bottomLeft: const Radius.circular(2),
-          bottomRight: const Radius.circular(2),
-        ),
-        bodyGradient,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(0, 30, 12, 10),
-          topLeft: const Radius.circular(2),
-          bottomLeft: const Radius.circular(2),
-        ),
-        bodyGradient,
-      );
-      // Eye
-      canvas.drawCircle(const Offset(42, 32), 3, paint);
-      canvas.drawCircle(const Offset(43, 31), 1, Paint()..color = Colors.white);
-    } else {
-      // Body with rounded corners
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(18, 15, 22, 25),
-          topLeft: const Radius.circular(3),
-          topRight: const Radius.circular(3),
-          bottomLeft: const Radius.circular(2),
-          bottomRight: const Radius.circular(2),
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(5, size.height - 20, 40, 18),
+          const Radius.circular(4),
         ),
         bodyGradient,
       );
       // Head
+      canvas.drawCircle(Offset(size.width - 8, size.height - 10), 8, bodyGradient);
+      canvas.drawCircle(Offset(size.width - 5, size.height - 12), 2, Paint()..color = Colors.white);
+    } else {
+      // Body
       canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(26, 0, 18, 18),
-          topLeft: const Radius.circular(4),
-          topRight: const Radius.circular(4),
-          bottomLeft: const Radius.circular(2),
-          bottomRight: const Radius.circular(2),
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(8, 15, 20, 28),
+          const Radius.circular(5),
         ),
         bodyGradient,
       );
-      // Eye with shine
-      canvas.drawCircle(const Offset(38, 8), 3, paint);
-      canvas.drawCircle(const Offset(39, 7), 1.5, Paint()..color = Colors.white);
 
-      // Tail with rounded end
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(10, 20, 10, 8),
-          topLeft: const Radius.circular(2),
-          bottomLeft: const Radius.circular(3),
-        ),
-        bodyGradient,
-      );
+      // Head
+      canvas.drawCircle(const Offset(18, 10), 10, bodyGradient);
+      // Eye
+      canvas.drawCircle(const Offset(22, 8), 2.5, Paint()..color = Colors.white);
+      canvas.drawCircle(const Offset(23, 7.5), 1.5, Paint()..color = const Color(0xFF1A237E));
+
       // Arms
+      double armSwing = sin(animValue * 2 * pi) * 5;
       canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(20, 25, 5, 10),
-          bottomLeft: const Radius.circular(2),
-          bottomRight: const Radius.circular(2),
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(6, 20 + armSwing, 4, 15),
+          const Radius.circular(2),
         ),
-        paint,
+        accentPaint,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(22, 20 - armSwing, 4, 15),
+          const Radius.circular(2),
+        ),
+        accentPaint,
       );
 
-      // Legs with rounded corners (running animation)
-      if (isRunning) {
-        double leftLegY = 40 + (legFrame > 0.5 ? 3 : 0);
-        double rightLegY = 40 + (legFrame > 0.5 ? 0 : 3);
-        canvas.drawRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(22, leftLegY, 6, 7),
-            bottomLeft: const Radius.circular(2),
-            bottomRight: const Radius.circular(2),
+      // Legs with running animation
+      double legSwing = sin(animValue * 2 * pi) * 8;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(10, 43 + legSwing, 5, 7),
+          const Radius.circular(2),
+        ),
+        bodyGradient,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(17, 43 - legSwing, 5, 7),
+          const Radius.circular(2),
+        ),
+        bodyGradient,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(RunnerPainter oldDelegate) =>
+      animValue != oldDelegate.animValue || action != oldDelegate.action;
+}
+
+class BarrierPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFE53935), Color(0xFFC62828)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final stripePaint = Paint()
+      ..color = const Color(0xFFFDD835)
+      ..style = PaintingStyle.fill;
+
+    // Main barrier
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(3),
+      ),
+      paint,
+    );
+
+    // Warning stripes
+    for (int i = 0; i < 3; i++) {
+      canvas.drawRect(
+        Rect.fromLTWH(2, i * 15.0, size.width - 4, 5),
+        stripePaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class BoxPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFF6D4C41), Color(0xFF5D4037)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final highlightPaint = Paint()
+      ..color = const Color(0xFF8D6E63)
+      ..style = PaintingStyle.fill;
+
+    // Box body
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(4),
+      ),
+      paint,
+    );
+
+    // Highlight
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(3, 3, 8, size.height - 6),
+        const Radius.circular(2),
+      ),
+      highlightPaint,
+    );
+
+    // Details
+    canvas.drawLine(
+      Offset(size.width / 2, 5),
+      Offset(size.width / 2, size.height - 5),
+      Paint()
+        ..color = const Color(0xFF4E342E)
+        ..strokeWidth = 2,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class DronePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bodyPaint = Paint()
+      ..color = const Color(0xFF37474F)
+      ..style = PaintingStyle.fill;
+
+    final propellerPaint = Paint()
+      ..color = const Color(0xFF607D8B)
+      ..style = PaintingStyle.fill;
+
+    final glowPaint = Paint()
+      ..color = const Color(0xFF00BCD4)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+
+    // Body
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.3, size.height * 0.3, size.width * 0.4, size.height * 0.4),
+        const Radius.circular(3),
+      ),
+      bodyPaint,
+    );
+
+    // Propellers
+    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.2), 8, propellerPaint);
+    canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.2), 8, propellerPaint);
+
+    // Glow light
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.5), 3, glowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class CoinPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader = const RadialGradient(
+        colors: [Color(0xFFFFC107), Color(0xFFFF9800), Color(0xFFF57C00)],
+      ).createShader(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: size.width / 2));
+
+    final innerPaint = Paint()
+      ..color = const Color(0xFFFFD54F)
+      ..style = PaintingStyle.fill;
+
+    // Outer circle
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 2, paint);
+
+    // Inner circle
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 3, innerPaint);
+
+    // Symbol
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: '◎',
+        style: TextStyle(
+          fontSize: 14,
+          color: Color(0xFFFF9800),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(size.width / 2 - 7, size.height / 2 - 9));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class ModernCloudPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.15)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(size.width * 0.3, size.height * 0.6), size.height * 0.5, paint);
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.5), size.height * 0.6, paint);
+    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.6), size.height * 0.5, paint);
+    canvas.drawRect(
+      Rect.fromLTWH(size.width * 0.3, size.height * 0.6, size.width * 0.4, size.height * 0.3),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class BuildingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF1A237E).withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+
+    final windowPaint = Paint()
+      ..color = const Color(0xFFFFC107).withOpacity(0.3)
+      ..style = PaintingStyle.fill;
+
+    // Building body
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+    // Windows
+    for (int row = 0; row < (size.height / 20).floor(); row++) {
+      for (int col = 0; col < 3; col++) {
+        canvas.drawRect(
+          Rect.fromLTWH(
+            col * (size.width / 4) + 8,
+            row * 20.0 + 5,
+            8,
+            10,
           ),
-          paint,
-        );
-        canvas.drawRRect(
-          RRect.fromRectAndCorners(
-            Rect.fromLTWH(30, rightLegY, 6, 7),
-            bottomLeft: const Radius.circular(2),
-            bottomRight: const Radius.circular(2),
-          ),
-          paint,
-        );
-      } else {
-        canvas.drawRRect(
-          RRect.fromRectAndCorners(
-            const Rect.fromLTWH(22, 40, 6, 7),
-            bottomLeft: const Radius.circular(2),
-            bottomRight: const Radius.circular(2),
-          ),
-          paint,
-        );
-        canvas.drawRRect(
-          RRect.fromRectAndCorners(
-            const Rect.fromLTWH(30, 40, 6, 7),
-            bottomLeft: const Radius.circular(2),
-            bottomRight: const Radius.circular(2),
-          ),
-          paint,
+          windowPaint,
         );
       }
     }
-  }
-
-  @override
-  bool shouldRepaint(covariant DinosaurPainter oldDelegate) =>
-      legFrame != oldDelegate.legFrame || isDucking != oldDelegate.isDucking;
-}
-
-class CactusPainter extends CustomPainter {
-  final bool isSmall;
-
-  CactusPainter({required this.isSmall});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF2D5016)
-      ..style = PaintingStyle.fill;
-
-    final highlightPaint = Paint()
-      ..color = const Color(0xFF3A6B1F)
-      ..style = PaintingStyle.fill;
-
-    if (isSmall) {
-      // Main trunk with gradient effect
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(5, 10, 7, 25),
-          topLeft: const Radius.circular(3),
-          topRight: const Radius.circular(3),
-          bottomLeft: const Radius.circular(1),
-          bottomRight: const Radius.circular(1),
-        ),
-        paint,
-      );
-      // Highlight
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(6, 10, 2, 25),
-          topLeft: const Radius.circular(2),
-        ),
-        highlightPaint,
-      );
-      // Arms
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(0, 15, 5, 8),
-          topLeft: const Radius.circular(2),
-          bottomLeft: const Radius.circular(2),
-        ),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(12, 18, 5, 8),
-          topRight: const Radius.circular(2),
-          bottomRight: const Radius.circular(2),
-        ),
-        paint,
-      );
-    } else {
-      // Large cactus
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(8, 5, 9, 45),
-          topLeft: const Radius.circular(4),
-          topRight: const Radius.circular(4),
-        ),
-        paint,
-      );
-      // Highlight on main trunk
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(9, 5, 2, 45),
-          topLeft: const Radius.circular(2),
-        ),
-        highlightPaint,
-      );
-      // Arms with rounded edges
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(0, 15, 8, 12),
-          topLeft: const Radius.circular(3),
-          bottomLeft: const Radius.circular(3),
-        ),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(17, 20, 8, 12),
-          topRight: const Radius.circular(3),
-          bottomRight: const Radius.circular(3),
-        ),
-        paint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          const Rect.fromLTWH(2, 10, 6, 10),
-          topLeft: const Radius.circular(2),
-        ),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class BirdPainter extends CustomPainter {
-  final bool wingUp;
-
-  BirdPainter({required this.wingUp});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF535353)
-      ..style = PaintingStyle.fill;
-
-    // Body
-    canvas.drawOval(const Rect.fromLTWH(15, 15, 20, 12), paint);
-    // Head
-    canvas.drawCircle(const Offset(35, 18), 6, paint);
-    // Beak
-    canvas.drawRect(const Rect.fromLTWH(40, 17, 4, 2), paint);
-
-    // Wings
-    if (wingUp) {
-      canvas.drawRect(const Rect.fromLTWH(18, 8, 15, 8), paint);
-    } else {
-      canvas.drawRect(const Rect.fromLTWH(18, 22, 15, 8), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant BirdPainter oldDelegate) =>
-      wingUp != oldDelegate.wingUp;
-}
-
-class CloudPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.6)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(const Offset(15, 20), 12, paint);
-    canvas.drawCircle(const Offset(30, 18), 14, paint);
-    canvas.drawCircle(const Offset(45, 20), 12, paint);
-    canvas.drawRect(const Rect.fromLTWH(15, 20, 30, 10), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class Obstacle {
-  double x;
-  int type;
-  bool scored;
-
-  Obstacle({
-    required this.x,
-    required this.type,
-    this.scored = false,
-  });
-}
-
-class Cloud {
-  double x;
-  double y;
-  double speed;
-
-  Cloud({
-    required this.x,
-    required this.y,
-    required this.speed,
-  });
-}
-
-// Mountain painter for background
-class MountainPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFD2B48C).withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(0, size.height);
-    path.lineTo(size.width * 0.2, size.height * 0.4);
-    path.lineTo(size.width * 0.35, size.height * 0.6);
-    path.lineTo(size.width * 0.5, size.height * 0.2);
-    path.lineTo(size.width * 0.7, size.height * 0.5);
-    path.lineTo(size.width * 0.85, size.height * 0.3);
-    path.lineTo(size.width, size.height * 0.7);
-    path.lineTo(size.width, size.height);
-    path.close();
-
-    canvas.drawPath(path, paint);
   }
 
   @override

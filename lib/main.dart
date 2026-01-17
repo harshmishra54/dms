@@ -461,7 +461,7 @@ class TrustTagsApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.purpleAccent),
               scaffoldBackgroundColor: Colors.white,
             ),
             localizationsDelegates: context.localizationDelegates,

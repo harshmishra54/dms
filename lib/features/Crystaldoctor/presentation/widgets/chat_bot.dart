@@ -30,6 +30,8 @@ class _RecommendationScreenState
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _cropSearchController = TextEditingController();
   late AnimationController _animationController;
+  int? _roleId;
+
 
   // Conversation state
   final List<ChatMessage> _messages = [];
@@ -58,6 +60,7 @@ class _RecommendationScreenState
       duration: const Duration(milliseconds: 300),
     );
     _showWelcomeMessage();
+    _initRoleId();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       legacy.Provider.of<CropProvider>(context, listen: false).fetchCropList();
@@ -69,6 +72,13 @@ class _RecommendationScreenState
   bool canView(FeatureAccess feature) {
     final notifier = ref.read(permissionsProvider.notifier);
     return notifier.hasPermission(feature, view: true);
+  }
+  Future<void> _initRoleId() async {
+    final id = await _getRoleId(); // ✅ uses your existing function
+    if (!mounted) return;
+    setState(() {
+      _roleId = id;
+    });
   }
 
 
@@ -373,6 +383,9 @@ class _RecommendationScreenState
   }
 
   Widget _buildAppBar() {
+    final hideForRoles = _roleId == 0 || _roleId == 1 || _roleId == 3;
+    final canShowRecommendationIcon =
+        canView(FeatureAccess.productRecommendation) && !hideForRoles;
     return Container(
       height: 60,
       color: Colors.white,
@@ -419,7 +432,9 @@ class _RecommendationScreenState
             ),
           ),
           // ✅ Conditionally show icon button only for roleId 23
-          if (canView(FeatureAccess.productRecommendation))
+
+          if (canView(FeatureAccess.productRecommendation) &&
+              !(_roleId == null || _roleId == 0 || _roleId == 1 || _roleId == 3))
             IconButton(
               icon: const Icon(
                 Icons.recommend,

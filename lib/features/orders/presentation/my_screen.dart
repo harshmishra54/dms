@@ -234,6 +234,7 @@ class _MyScreenState extends State<MyScreen>
     double totalValue = price + gst;
 
     final rsmApproval = item["rsm_approval"];
+    final status=item["status"];
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -342,7 +343,7 @@ class _MyScreenState extends State<MyScreen>
 
                 // ---------- Approve / Reject / Edit Buttons (only for roleId 19) ----------
 
-                  if (rsmApproval == null && role >= 19)
+                  if (rsmApproval == null && role >= 19 && status =='pending')
                     Consumer(
                       builder: (context, ref, _) {
                         final permissionState = ref.watch(permissionsProvider);
