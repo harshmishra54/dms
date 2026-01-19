@@ -534,7 +534,7 @@ class _PlaceNewOrderScreenState extends State<PlaceNewOrderScreen> {
 
                   bool proceedWithOrder = true;
 
-                  if (shouldCheckCredit && currentLimit > 0 && finalTotal > currentLimit) {
+                  if (shouldCheckCredit  && finalTotal > currentLimit) {
                     final diff = finalTotal - currentLimit;
 
                     // 🔹 Show dialog for credit exceed

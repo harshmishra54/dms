@@ -243,6 +243,33 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                     _asyncScans.values.where((e) => !e.isValid).length.toString(),
                   ),
 
+                const SizedBox(height: 20),
+
+                // ✅ NEW: Detailed scan breakdown
+                if (_asyncScans.isNotEmpty) ...[
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  const AutoTranslateText(
+                    "Scan Details",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.topBarColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: _asyncScans.entries.map((entry) {
+                          return _buildScanDetailItem(entry.value);
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 25),
 
                 SizedBox(
@@ -293,6 +320,78 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
           ),
         );
       },
+    );
+  }
+
+  // ✅ NEW: Build individual scan detail item
+  Widget _buildScanDetailItem(AsyncScanResponse scan) {
+    IconData icon;
+    Color color;
+    String status;
+
+    if (!scan.isValid) {
+      icon = Icons.cancel;
+      color = Colors.red;
+      status = "Invalid";
+    } else if (scan.isSpinner) {
+      icon = Icons.casino;
+      color = Colors.purple;
+      status = "Spinner";
+    } else {
+      icon = Icons.check_circle;
+      color = Colors.green;
+      status = "${scan.points} pts";
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  scan.uid,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (!scan.isValid && scan.error != null)
+                  Text(
+                    scan.error!,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.red.shade700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          AutoTranslateText(
+            status,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -362,37 +461,45 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
                   ],
                 ),
               ),
-              ReusableQRScanner(
-                key: _scannerKey,
-                onScanned: _handleOuterScan,
-              ),
-              const SizedBox(height: 16),
-              _buildScanDetails(),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _asyncScans.isEmpty ? null : _onSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.topBarColor,
-                      disabledBackgroundColor: AppColors.topBarColor.withOpacity(0.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ReusableQRScanner(
+                        key: _scannerKey,
+                        onScanned: _handleOuterScan,
                       ),
-                    ),
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 16),
+                      _buildScanDetails(),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _asyncScans.isEmpty ? null : _onSubmit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.topBarColor,
+                              disabledBackgroundColor: AppColors.topBarColor.withOpacity(0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "Submit",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 20), // Extra padding at bottom
+                    ],
                   ),
-
                 ),
               ),
             ],
@@ -409,6 +516,7 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
     );
   }
 
+  // ✅ ENHANCED: Show scan details with status indicators
   Widget _buildScanDetails() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -419,13 +527,132 @@ class _RetailerScanQRScreenState extends State<RetailerScanQRScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: AutoTranslateText(
-          scannedUID.isNotEmpty
-              ? 'Last Scanned UID: $scannedUID\nTotal Scans: ${_asyncScans.length}'
-              : 'No scan yet.',
-          style: const TextStyle(fontSize: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (scannedUID.isNotEmpty) ...[
+              const AutoTranslateText(
+                'Last Scanned:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.topBarColor,
+                ),
+              ),
+              const SizedBox(height: 4),
+              AutoTranslateText(
+                scannedUID,
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildStatusChip(
+                  'Total',
+                  _asyncScans.length.toString(),
+                  Colors.blue,
+                ),
+                _buildStatusChip(
+                  'Valid',
+                  _asyncScans.values.where((e) => e.isValid).length.toString(),
+                  Colors.green,
+                ),
+                _buildStatusChip(
+                  'Invalid',
+                  _asyncScans.values.where((e) => !e.isValid).length.toString(),
+                  Colors.red,
+                ),
+              ],
+            ),
+
+            if (_asyncScans.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  if (hasPoints)
+                    _buildInfoBadge(
+                      Icons.emoji_events,
+                      '$totalPoints points',
+                      Colors.amber,
+                    ),
+                  if (hasSpinner)
+                    _buildInfoBadge(
+                      Icons.casino,
+                      '$totalSpinners spinners',
+                      Colors.purple,
+                    ),
+                ],
+              ),
+            ],
+
+            if (_asyncScans.isEmpty)
+              const Center(
+                child: AutoTranslateText(
+                  'No scans yet.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AutoTranslateText(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoBadge(IconData icon, String text, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 4),
+        AutoTranslateText(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }
